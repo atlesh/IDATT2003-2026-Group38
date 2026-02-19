@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ShareTest {
+public class ShareTest {
 
   private Stock createStock() {
     return new Stock("AAPL", "Apple", new BigDecimal("150"));
