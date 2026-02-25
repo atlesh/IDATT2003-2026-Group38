@@ -2,6 +2,7 @@ package no.ntnu.idatt2003.group38.transaction;
 
 import no.ntnu.idatt2003.group38.calculator.PurchaseCalculator;
 import no.ntnu.idatt2003.group38.Share;
+import no.ntnu.idatt2003.group38.Player;
 
 /**
  * Represents a purchase of a {@link Share}.
