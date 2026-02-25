@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.*;
 import no.ntnu.idatt2003.group38.Stock;
 import no.ntnu.idatt2003.group38.Share;
+import no.ntnu.idatt2003.group38.Player;
 
 public class SaleTest {
   private Share appleShare;
