@@ -46,11 +46,7 @@ public class TransactionArchive {
     return this.transactions.isEmpty();
   }
 
-  /**
-   * Retrieves all transactions in the archive.
-   *
-   * @return an unmodifiable list of all transactions
-   */
+
   public List<Transaction> getTransactions() {
     return this.transactions;
   }
