@@ -5,7 +5,6 @@ import no.ntnu.idatt2003.group38.Stock;
 
 import java.math.BigDecimal;
 import java.util.Objects;
-
 /**
  * Calculates financial values for a share sale transaction
  *
