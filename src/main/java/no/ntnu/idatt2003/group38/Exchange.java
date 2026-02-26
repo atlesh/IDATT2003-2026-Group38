@@ -32,8 +32,8 @@ public class Exchange {
      * @throws NullPointerException if {@code name} or {@code stocks} is {@code null}
      */
     public Exchange(String name, List<Stock> stocks) {
-        this.name = Objects.requireNonNull(name, "Name cannot be null");
         Objects.requireNonNull(stocks, "Stocks cannot be null");
+        this.name = Objects.requireNonNull(name, "Name cannot be null");
         this.week = 1;
         this.random = new Random();
         this.stockMap = new HashMap<>();

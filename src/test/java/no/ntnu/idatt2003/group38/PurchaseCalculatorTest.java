@@ -1,5 +1,6 @@
 package no.ntnu.idatt2003.group38;
 
+import no.ntnu.idatt2003.group38.calculator.PurchaseCalculator;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.math.BigDecimal;
