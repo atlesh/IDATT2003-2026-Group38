@@ -18,3 +18,4 @@ Categories can be:
 References should reference an issue, if no issue is linked use `no-ref`.
 
 Description should be short and sum up the purpose of the branch.
+    
