@@ -2,6 +2,7 @@ package no.ntnu.idatt2003.group38.calculator;
 
 import no.ntnu.idatt2003.group38.Share;
 import no.ntnu.idatt2003.group38.Stock;
+
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.math.BigDecimal;
