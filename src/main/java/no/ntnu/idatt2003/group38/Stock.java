@@ -13,7 +13,14 @@ public class Stock {
 
     public Stock(String symbol, String company, BigDecimal salesPrices ) {
         this.symbol = Objects.requireNonNull(symbol, "symbol cannot be null");
+        if (symbol.isBlank()) {
+            throw new IllegalArgumentException("Symbol cannot be blank");
+        }
+
         this.company = Objects.requireNonNull(company, "company cannot be null");
+        if (company.isBlank()) {
+            throw new IllegalArgumentException("Company cannot be blank");
+        }
         Objects.requireNonNull(salesPrices, "salesPrice cannot be null");
 
         this.prices = new ArrayList<>();
