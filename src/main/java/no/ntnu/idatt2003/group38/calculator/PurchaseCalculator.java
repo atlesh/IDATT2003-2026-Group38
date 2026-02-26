@@ -1,7 +1,8 @@
-package no.ntnu.idatt2003.group38;
+package no.ntnu.idatt2003.group38.calculator;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import no.ntnu.idatt2003.group38.Share;
 
 /**
  * Calculates financial values for a share purchase transaction
