@@ -1,7 +1,7 @@
 package no.ntnu.idatt2003.group38.calculator;
 
-import no.ntnu.idatt2003.group38.Share;
-import no.ntnu.idatt2003.group38.Stock;
+import no.ntnu.idatt2003.group38.model.Share;
+import no.ntnu.idatt2003.group38.model.Stock;
 
 import java.math.BigDecimal;
 import java.util.Objects;

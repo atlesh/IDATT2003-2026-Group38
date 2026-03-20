@@ -1,4 +1,4 @@
-package no.ntnu.idatt2003.group38;
+package no.ntnu.idatt2003.group38.model;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;

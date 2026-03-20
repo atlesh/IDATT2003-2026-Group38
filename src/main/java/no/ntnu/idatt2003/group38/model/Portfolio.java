@@ -1,4 +1,4 @@
-package no.ntnu.idatt2003.group38;
+package no.ntnu.idatt2003.group38.model;
 
 import java.util.ArrayList;
 import java.util.List;
