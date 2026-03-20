@@ -3,9 +3,8 @@ package no.ntnu.idatt2003.group38.transaction;
 import java.util.Objects;
 
 import no.ntnu.idatt2003.group38.calculator.TransactionCalculator;
-import no.ntnu.idatt2003.group38.Share;
-import no.ntnu.idatt2003.group38.Player;
-import no.ntnu.idatt2003.group38.TransactionArchive;
+import no.ntnu.idatt2003.group38.model.Share;
+import no.ntnu.idatt2003.group38.model.Player;
 
 /**
  * Abstract base class for all financial transactions that a {@link Player}

@@ -1,5 +1,8 @@
-package no.ntnu.idatt2003.group38;
+package no.ntnu.idatt2003.group38.exchange;
 
+import no.ntnu.idatt2003.group38.model.Player;
+import no.ntnu.idatt2003.group38.model.Share;
+import no.ntnu.idatt2003.group38.model.Stock;
 import no.ntnu.idatt2003.group38.transaction.Purchase;
 import no.ntnu.idatt2003.group38.transaction.Sale;
 import no.ntnu.idatt2003.group38.transaction.Transaction;

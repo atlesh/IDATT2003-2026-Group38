@@ -1,5 +1,8 @@
-package no.ntnu.idatt2003.group38;
+package no.ntnu.idatt2003.group38.transaction;
 
+import no.ntnu.idatt2003.group38.model.Player;
+import no.ntnu.idatt2003.group38.model.Share;
+import no.ntnu.idatt2003.group38.model.Stock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -7,10 +10,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import no.ntnu.idatt2003.group38.transaction.Transaction;
-import no.ntnu.idatt2003.group38.transaction.Purchase;
-import no.ntnu.idatt2003.group38.transaction.Sale;
 
 
 public class TransactionArchiveTest {

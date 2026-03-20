@@ -4,9 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.*;
-import no.ntnu.idatt2003.group38.Stock;
-import no.ntnu.idatt2003.group38.Share;
-import no.ntnu.idatt2003.group38.Player;
+import no.ntnu.idatt2003.group38.model.Stock;
+import no.ntnu.idatt2003.group38.model.Share;
+import no.ntnu.idatt2003.group38.model.Player;
 
 public class TransactionTest {
   private Share appleShare;

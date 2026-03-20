@@ -1,7 +1,8 @@
-package no.ntnu.idatt2003.group38;
+package no.ntnu.idatt2003.group38.model;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import no.ntnu.idatt2003.group38.transaction.TransactionArchive;
 
 /**
  * Represents a player in the game.

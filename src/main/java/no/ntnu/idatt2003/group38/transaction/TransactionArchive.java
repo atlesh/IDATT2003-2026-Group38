@@ -1,12 +1,8 @@
-package no.ntnu.idatt2003.group38;
+package no.ntnu.idatt2003.group38.transaction;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import no.ntnu.idatt2003.group38.transaction.Purchase;
-import no.ntnu.idatt2003.group38.transaction.Sale;
-import no.ntnu.idatt2003.group38.transaction.Transaction;
 
 /**
  * Manages a collection of financial transactions.
