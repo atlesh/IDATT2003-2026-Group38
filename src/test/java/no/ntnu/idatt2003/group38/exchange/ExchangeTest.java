@@ -84,6 +84,58 @@ public class ExchangeTest {
         assertEquals(2, exchange.getWeek());
     }
 
+    @Test
+    void getGainersReturnsStocksWithLargestPositiveWeeklyChange() {
+        Stock microsoftStock = new Stock("MSFT", "Microsoft", new BigDecimal("300.00"));
+        Stock teslaStock = new Stock("TSLA", "Tesla", new BigDecimal("200.00"));
+        Stock netflixStock = new Stock("NFLX", "Netflix", new BigDecimal("400.00"));
+
+        appleStock.addNewSalesPrice(new BigDecimal("155.00"));
+        microsoftStock.addNewSalesPrice(new BigDecimal("315.00"));
+        teslaStock.addNewSalesPrice(new BigDecimal("190.00"));
+        netflixStock.addNewSalesPrice(new BigDecimal("405.00"));
+
+        Exchange statisticsExchange = new Exchange(
+                "Statistics Exchange",
+                List.of(appleStock, microsoftStock, teslaStock, netflixStock)
+        );
+
+        List<Stock> gainers = statisticsExchange.getGainers(2);
+
+        assertEquals(List.of(microsoftStock, appleStock), gainers);
+    }
+
+    @Test
+    void getLosersReturnsStocksWithLargestNegativeWeeklyChange() {
+        Stock microsoftStock = new Stock("MSFT", "Microsoft", new BigDecimal("300.00"));
+        Stock teslaStock = new Stock("TSLA", "Tesla", new BigDecimal("200.00"));
+        Stock netflixStock = new Stock("NFLX", "Netflix", new BigDecimal("400.00"));
+
+        appleStock.addNewSalesPrice(new BigDecimal("155.00"));
+        microsoftStock.addNewSalesPrice(new BigDecimal("280.00"));
+        teslaStock.addNewSalesPrice(new BigDecimal("190.00"));
+        netflixStock.addNewSalesPrice(new BigDecimal("395.00"));
+
+        Exchange statisticsExchange = new Exchange(
+                "Statistics Exchange",
+                List.of(appleStock, microsoftStock, teslaStock, netflixStock)
+        );
+
+        List<Stock> losers = statisticsExchange.getLosers(2);
+
+        assertEquals(List.of(microsoftStock, teslaStock), losers);
+    }
+
+    @Test
+    void getGainers_withoutPriceHistoryReturnsEmptyList() {
+        assertTrue(exchange.getGainers(5).isEmpty());
+    }
+
+    @Test
+    void getLosers_withoutPriceHistoryReturnsEmptyList() {
+        assertTrue(exchange.getLosers(5).isEmpty());
+    }
+
     //NEGATIVE TESTS
 
     @Test
@@ -115,5 +167,15 @@ public class ExchangeTest {
         exchange.buy("AAPL", new BigDecimal("10"), player);
         Share ownedShare = player.getPortfolio().getShares().getFirst();
         assertThrows(IllegalArgumentException.class, () -> exchange.sell(ownedShare, null));
+    }
+
+    @Test
+    void getGainers_negativeLimitThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> exchange.getGainers(-1));
+    }
+
+    @Test
+    void getLosers_negativeLimitThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> exchange.getLosers(-1));
     }
 }

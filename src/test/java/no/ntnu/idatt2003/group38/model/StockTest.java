@@ -27,6 +27,22 @@ public class StockTest {
     }
 
     @Test
+    void getPreviousSalesPriceReturnsSecondLastPrice() {
+        Stock stock = new Stock("TSLA", "Tesla", new BigDecimal("100.00"));
+        stock.addNewSalesPrice(new BigDecimal("105.50"));
+
+        assertEquals(new BigDecimal("100.00"), stock.getPreviousSalesPrice());
+    }
+
+    @Test
+    void getWeeklyPriceChangeReturnsDifferenceFromPreviousWeek() {
+        Stock stock = new Stock("TSLA", "Tesla", new BigDecimal("100.00"));
+        stock.addNewSalesPrice(new BigDecimal("105.50"));
+
+        assertEquals(new BigDecimal("5.50"), stock.getWeeklyPriceChange());
+    }
+
+    @Test
     void constructor_nullSymbol_throwsNullPointerException() {
         assertThrows(NullPointerException.class,
                 () -> new Stock(null, "Apple Inc", new BigDecimal("100.00")));
@@ -68,5 +84,12 @@ public class StockTest {
 
         assertThrows(NullPointerException.class,
                 () -> stock.addNewSalesPrice(null));
+    }
+
+    @Test
+    void getPreviousSalesPriceWithoutHistoryThrowsIllegalStateException() {
+        Stock stock = new Stock("AAPL", "Apple Inc", new BigDecimal("100.00"));
+
+        assertThrows(IllegalStateException.class, stock::getPreviousSalesPrice);
     }
 }

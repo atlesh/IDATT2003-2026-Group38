@@ -232,4 +232,37 @@ public class Exchange {
             stock.addNewSalesPrice(newPrice);
         }
     }
+
+    public List<Stock> getGainers(int limit) {
+        validateLimit(limit);
+
+        List<Stock> result = new ArrayList<>(stockMap.values());
+        result.removeIf(stock -> stock.getWeeklyPriceChange().compareTo(BigDecimal.ZERO) <= 0);
+        result.sort(
+                Comparator.comparing(Stock::getWeeklyPriceChange)
+                        .reversed()
+                        .thenComparing(Stock::getSymbol)
+        );
+
+        return new ArrayList<>(result.subList(0, Math.min(limit, result.size())));
+    }
+
+    public List<Stock> getLosers(int limit) {
+        validateLimit(limit);
+
+        List<Stock> result = new ArrayList<>(stockMap.values());
+        result.removeIf(stock -> stock.getWeeklyPriceChange().compareTo(BigDecimal.ZERO) >= 0);
+        result.sort(
+                Comparator.comparing(Stock::getWeeklyPriceChange)
+                        .thenComparing(Stock::getSymbol)
+        );
+
+        return new ArrayList<>(result.subList(0, Math.min(limit, result.size())));
+    }
+
+    private void validateLimit(int limit) {
+        if (limit < 0) {
+            throw new IllegalArgumentException("Limit cannot be negative");
+        }
+    }
 }

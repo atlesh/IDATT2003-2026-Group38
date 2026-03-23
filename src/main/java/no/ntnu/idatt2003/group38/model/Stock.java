@@ -39,6 +39,26 @@ public class Stock {
         return prices.get(prices.size() - 1);
     }
 
+    public boolean hasPreviousSalesPrice() {
+        return prices.size() > 1;
+    }
+
+    public BigDecimal getPreviousSalesPrice() {
+        if (!hasPreviousSalesPrice()) {
+            throw new IllegalStateException("No previous sales price available");
+        }
+
+        return prices.get(prices.size() - 2);
+    }
+
+    public BigDecimal getWeeklyPriceChange() {
+        if (!hasPreviousSalesPrice()) {
+            return BigDecimal.ZERO;
+        }
+
+        return getSalesPrice().subtract(getPreviousSalesPrice());
+    }
+
     public void addNewSalesPrice(BigDecimal price) {
         Objects.requireNonNull(price, "price cannot be null");
         prices.add(price);
