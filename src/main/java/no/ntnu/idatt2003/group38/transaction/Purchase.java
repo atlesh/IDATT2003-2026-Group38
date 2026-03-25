@@ -44,7 +44,7 @@ public class Purchase extends Transaction {
       throw new IllegalStateException("Transaction already committed");
     }
 
-    var totalCost = this.getCalculator().calculateTotal();
+    var totalCost = getCalculator().calculateTotal();
     if (player.getMoney().compareTo(totalCost) < 0) {
       throw new IllegalStateException(
           "Insufficient funds: player has " + player.getMoney()

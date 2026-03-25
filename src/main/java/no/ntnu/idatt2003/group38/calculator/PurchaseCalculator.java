@@ -8,14 +8,15 @@ import java.util.Objects;
 /**
  * Calculates financial values for a share purchase transaction
  *
- * This implementation computes:
+ * <p>This implementation computes:
  *  Gross value (purchase price x quantity)
  *  Commission (0.5% of gross value)
  *  No tax (tax is not applied on purchases)
- *  Total purchase cost (gross value + commission)
+ *  Total purchase cost (gross value + commission)</p>
  *
- *  The calculator is based on data provided by a {@link Share} instance
- *  All monetary values are represented using {@link java.math.BigDecimal} to ensure precise financial calculations
+ *  <p>The calculator is based on data provided by a {@link Share} instance
+ *  All monetary values are represented using {@link java.math.BigDecimal}
+ *  to ensure precise financial calculations</p>
  */
 public class PurchaseCalculator implements TransactionCalculator {
 
@@ -38,7 +39,7 @@ public class PurchaseCalculator implements TransactionCalculator {
 
     @Override
     public BigDecimal calculateGross() {
-        return purchasePrice.multiply(quantity);
+        return this.purchasePrice.multiply(this.quantity);
     }
 
     @Override

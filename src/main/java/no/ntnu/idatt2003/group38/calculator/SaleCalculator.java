@@ -8,17 +8,18 @@ import java.util.Objects;
 /**
  * Calculates financial values for a share sale transaction
  *
- * This implementation computes:
+ * <p>This implementation computes:
  *  Gross value (sales price x quantity)
  *  Commission (1% of gross value)
  *  Tax (30% of profit)
  *  Total sale value (gross value - commission - tax)
- *
  * Profit is calculated as gross value - commission - purchase cost
- * No tax is applied if the profit is zero or negative
+ * No tax is applied if the profit is zero or negative</p>
  *
- * The calculator is based on data provided by a {@link Share} instance and the associated {@link Stock}
- * All monetary values are represented using {@link java.math.BigDecimal} to ensure precise financial calculations
+ * <p>The calculator is based on data provided by a {@link Share}
+ * instance and the associated {@link Stock}
+ * All monetary values are represented using {@link java.math.BigDecimal}
+ * to ensure precise financial calculations</p>
  */
 public class SaleCalculator implements TransactionCalculator {
 
@@ -45,7 +46,7 @@ public class SaleCalculator implements TransactionCalculator {
 
     @Override
     public BigDecimal calculateGross() {
-        return salesPrice.multiply(quantity);
+        return this.salesPrice.multiply(this.quantity);
     }
 
     @Override
@@ -57,7 +58,7 @@ public class SaleCalculator implements TransactionCalculator {
     public BigDecimal calculateTax() {
         BigDecimal gross = calculateGross();
         BigDecimal commission = calculateCommission();
-        BigDecimal purchaseCost = purchasePrice.multiply(quantity);
+        BigDecimal purchaseCost = this.purchasePrice.multiply(this.quantity);
 
         BigDecimal profit = gross
                 .subtract(commission)

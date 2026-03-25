@@ -62,7 +62,7 @@ public class TransactionArchive {
     if (week < 1) {
       throw new IllegalArgumentException("week cannot be less than 1");
     }
-    return transactions.stream()
+    return this.transactions.stream()
         .filter(transaction -> transaction instanceof Purchase purchase
             && purchase.getWeek() == week)
         .map(t -> (Purchase) t)
@@ -80,7 +80,7 @@ public class TransactionArchive {
     if (week < 1) {
       throw new IllegalArgumentException("week cannot be less than 1");
     }
-    return transactions.stream()
+    return this.transactions.stream()
         .filter(transaction -> transaction instanceof Sale sale
             && sale.getWeek() == week)
         .map(t -> (Sale) t)

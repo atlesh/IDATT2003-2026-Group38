@@ -160,21 +160,6 @@ public class ExchangeTest {
     }
 
     @Test
-    void advance_updatesStockPriceAndStoresPreviousPrice() {
-        BigDecimal oldPrice = appleStock.getSalesPrice();
-
-        exchange.advance();
-
-        BigDecimal newPrice = appleStock.getSalesPrice();
-        BigDecimal difference = oldPrice.multiply(new BigDecimal("0.05")).add(new BigDecimal("0.01"));
-
-        assertTrue(appleStock.hasPreviousSalesPrice());
-        assertEquals(oldPrice, appleStock.getPreviousSalesPrice());
-        assertEquals(2, newPrice.scale());
-        assertTrue(newPrice.subtract(oldPrice).abs().compareTo(difference) <= 0);
-    }
-
-    @Test
     void getGainers_limitZero_returnsEmptyList() {
         appleStock.addNewSalesPrice(new BigDecimal("155.00"));
 

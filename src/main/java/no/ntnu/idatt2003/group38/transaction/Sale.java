@@ -51,7 +51,7 @@ public class Sale extends Transaction {
 
     player.getPortfolio().removeShare(getShare());
 
-    player.addMoney(this.getCalculator().calculateTotal());
+    player.addMoney(getCalculator().calculateTotal());
 
     player.getTransactionArchive().add(this);
 

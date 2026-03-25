@@ -42,7 +42,7 @@ public class Share {
    * @return the stock
    */
   public Stock getStock() {
-    return stock;
+    return this.stock;
   }
 
   /**
@@ -51,7 +51,7 @@ public class Share {
    * @return the quantity bought
    */
   public BigDecimal getQuantity() {
-    return quantity;
+    return this.quantity;
   }
 
   /**
@@ -60,6 +60,6 @@ public class Share {
    * @return the purchase price
    */
   public BigDecimal getPurchasePrice() {
-    return purchasePrice;
+    return this.purchasePrice;
   }
 }

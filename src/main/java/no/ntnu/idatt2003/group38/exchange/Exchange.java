@@ -52,7 +52,7 @@ public class Exchange {
    * @return the exchange name
    */
   public String getName() {
-    return name;
+    return this.name;
   }
 
   /**
@@ -61,7 +61,7 @@ public class Exchange {
    * @return the current week number
    */
   public int getWeek() {
-    return week;
+    return this.week;
   }
 
   /**
@@ -82,7 +82,7 @@ public class Exchange {
       return false;
     }
 
-    return stockMap.containsKey(normalized);
+    return this.stockMap.containsKey(normalized);
   }
 
   /**
@@ -132,7 +132,7 @@ public class Exchange {
 
     List<Stock> result = new ArrayList<>();
 
-    for (Stock stock : stockMap.values()) {
+    for (Stock stock : this.stockMap.values()) {
       String symbol = stock.getSymbol().toUpperCase();
       String company = stock.getCompany().toUpperCase();
 
@@ -166,7 +166,7 @@ public class Exchange {
     Stock stock = getStock(symbol);
     Share share = new Share(stock, quantity, stock.getSalesPrice());
 
-    Purchase purchase = new Purchase(share, week);
+    Purchase purchase = new Purchase(share, this.week);
     purchase.commit(player);
 
     return purchase;
@@ -197,7 +197,7 @@ public class Exchange {
       throw new IllegalArgumentException("Player does not own this share");
     }
 
-    Sale sale = new Sale(share, week);
+    Sale sale = new Sale(share, this.week);
     sale.commit(player);
 
     return sale;
@@ -210,14 +210,14 @@ public class Exchange {
    * change to the sales price of each listed stock</p>
    */
   public void advance() {
-    week++;
+    this.week++;
 
     final BigDecimal maxChange = new BigDecimal("0.05");
 
-    for (Stock stock : stockMap.values()) {
+    for (Stock stock : this.stockMap.values()) {
       BigDecimal current = stock.getSalesPrice();
 
-      double r = (random.nextDouble() * 2.0) - 1.0;
+      double r = (this.random.nextDouble() * 2.0) - 1.0;
       BigDecimal change = maxChange.multiply(BigDecimal.valueOf(r));
 
       BigDecimal factor = BigDecimal.ONE.add(change);
@@ -247,7 +247,7 @@ public class Exchange {
   public List<Stock> getGainers(int limit) {
     validateLimit(limit);
 
-    List<Stock> result = new ArrayList<>(stockMap.values());
+    List<Stock> result = new ArrayList<>(this.stockMap.values());
     result.removeIf(stock -> stock.getLatestPriceChange().compareTo(BigDecimal.ZERO) <= 0);
     result.sort(
         Comparator.comparing(Stock::getLatestPriceChange)
@@ -272,7 +272,7 @@ public class Exchange {
   public List<Stock> getLosers(int limit) {
     validateLimit(limit);
 
-    List<Stock> result = new ArrayList<>(stockMap.values());
+    List<Stock> result = new ArrayList<>(this.stockMap.values());
     result.removeIf(stock -> stock.getLatestPriceChange().compareTo(BigDecimal.ZERO) >= 0);
     result.sort(
         Comparator.comparing(Stock::getLatestPriceChange)

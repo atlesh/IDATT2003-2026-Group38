@@ -130,7 +130,7 @@ public class Player {
    */
   public String getPlayerStatus() {
     int weeksTraded = this.transactionArchive.countDistinctWeeks();
-    BigDecimal gain = this.getNetWorth().divide(startingMoney, 10, RoundingMode.HALF_UP);
+    BigDecimal gain = getNetWorth().divide(this.startingMoney, 10, RoundingMode.HALF_UP);
 
     if (weeksTraded >= 20 && gain.compareTo(new BigDecimal("2.0")) >= 0) {
       return "Speculator";
