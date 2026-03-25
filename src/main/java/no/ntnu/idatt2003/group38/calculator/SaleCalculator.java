@@ -28,6 +28,12 @@ public class SaleCalculator implements TransactionCalculator {
     private static final BigDecimal commissionRate = new BigDecimal("0.01");
     private static final BigDecimal taxRate = new BigDecimal("0.30");
 
+    /**
+     * Creates a sale calculator for the given share
+     *
+     * @param share the share to calculate values for; must not be {@code null}
+     * @throws NullPointerException if {@code share} is {@code null}
+     */
     public SaleCalculator(Share share) {
         Objects.requireNonNull(share, "Share cannot be null");
         Objects.requireNonNull(share.getStock(), "Share cannot be null");
