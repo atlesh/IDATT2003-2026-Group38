@@ -23,6 +23,12 @@ public class PurchaseCalculator implements TransactionCalculator {
     private final BigDecimal quantity;
     private static final BigDecimal commissionRate = new BigDecimal("0.005");
 
+    /**
+     * Creates a purchase calculator for the given share
+     *
+     * @param share the share to calculate values for; must not be {@code null}
+     * @throws NullPointerException if {@code share} is {@code null}
+     */
     public PurchaseCalculator(Share share) {
         Objects.requireNonNull(share, "Share cannot be null");
 

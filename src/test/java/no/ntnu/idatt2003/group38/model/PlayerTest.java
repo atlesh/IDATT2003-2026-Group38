@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class PlayerTest {
+public class PlayerTest {
 
   private Player player;
 
@@ -36,6 +36,24 @@ class PlayerTest {
   void withdrawMoney_decreasesBalance() {
     player.withdrawMoney(new BigDecimal("1000"));
     assertEquals(new BigDecimal("4000"), player.getMoney());
+  }
+
+  @Test
+  void getNetWorth_withoutShares_returnsCurrentMoney() {
+    player.withdrawMoney(new BigDecimal("1000"));
+
+    assertEquals(new BigDecimal("4000"), player.getNetWorth());
+  }
+
+  @Test
+  void getNetWorth_withPortfolio_returnsMoneyPlusPortfolioValue() {
+    Stock stock = new Stock("AAPL", "Apple", new BigDecimal("150"));
+    stock.addNewSalesPrice(new BigDecimal("200"));
+    Share share = new Share(stock, new BigDecimal("10"), new BigDecimal("150"));
+
+    player.getPortfolio().addShare(share);
+
+    assertEquals(new BigDecimal("6836.0000"), player.getNetWorth());
   }
 
   // NEGATIVE TESTS

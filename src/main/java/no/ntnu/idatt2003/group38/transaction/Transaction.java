@@ -40,18 +40,38 @@ public abstract class Transaction {
     this.committed = false;
   }
 
+  /**
+   * Returns the share involved in the transaction.
+   *
+   * @return the transacted share
+   */
   public Share getShare() {
     return this.share;
   }
 
+  /**
+   * Returns the week in which the transaction occurred.
+   *
+   * @return the transaction week
+   */
   public int getWeek() {
     return this.week;
   }
 
+  /**
+   * Returns the calculator used to evaluate this transaction.
+   *
+   * @return the transaction calculator
+   */
   public TransactionCalculator getCalculator() {
     return this.calculator;
   }
 
+  /**
+   * Checks whether the transaction has been committed.
+   *
+   * @return {@code true} if the transaction has been committed, {@code false} otherwise
+   */
   public boolean isCommitted() {
     return this.committed;
   }

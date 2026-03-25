@@ -38,10 +38,20 @@ public class Player {
     this.transactionArchive = new TransactionArchive();
   }
 
+  /**
+   * Returns the player's name
+   *
+   * @return the player's name
+   */
   public String getName() {
     return this.name;
   }
 
+  /**
+   * Returns the player's current cash balance
+   *
+   * @return the player's remaining money
+   */
   public BigDecimal getMoney() {
     return this.money;
   }
@@ -76,12 +86,33 @@ public class Player {
     this.money = this.money.subtract(amount);
   }
 
+  /**
+   * Returns the player's portfolio
+   *
+   * @return the player's portfolio
+   */
   public Portfolio getPortfolio() {
     return this.portfolio;
   }
 
-
+  /**
+   * Returns the player's transaction archive
+   *
+   * @return the player's transaction archive
+   */
   public TransactionArchive getTransactionArchive() {
     return this.transactionArchive;
+  }
+
+  /**
+   * Returns the player's total net worth
+   *
+   * <p>This includes the player's current cash balance and the net sale value
+   * of all shares in the player's portfolio</p>
+   *
+   * @return the player's total net worth
+   */
+  public BigDecimal getNetWorth() {
+    return money.add(portfolio.getNetWorth());
   }
 }

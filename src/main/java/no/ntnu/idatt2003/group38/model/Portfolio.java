@@ -1,5 +1,8 @@
 package no.ntnu.idatt2003.group38.model;
 
+import no.ntnu.idatt2003.group38.calculator.SaleCalculator;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -9,7 +12,7 @@ import java.util.Objects;
  */
 public class Portfolio {
 
-  private List<Share> shares;
+  private final List<Share> shares;
 
   /**
    * Creates a portfolio.
@@ -19,10 +22,11 @@ public class Portfolio {
   }
 
   /**
-   * Method adds new share to portfolio if it doesnt already contain it.
+   * Method adds new share to portfolio if it doesn't already contain it.
    *
-   * @param share
-   * @return True if added successfully, False if not.
+   * @param share the share to add
+   * @return {@code true} if the share was added, {@code false} if it was already present
+   * @throws NullPointerException if {@code share} is {@code null}
    */
   public boolean addShare(Share share) {
     Objects.requireNonNull(share, "share cannot be null");
@@ -36,14 +40,20 @@ public class Portfolio {
   /**
    * Method removes chosen share if portfolio contains it.
    *
-   * @param share
-   * @return True if removed successfully, False if not.
+   * @param share the share to remove
+   * @return {@code true} if the share was removed, {@code false} otherwise
+   * @throws NullPointerException if {@code share} is {@code null}
    */
   public boolean removeShare(Share share) {
     Objects.requireNonNull(share, "share cannot be null");
     return this.shares.remove(share);
   }
 
+  /**
+   * Returns all shares currently in the portfolio.
+   *
+   * @return a list of all shares in the portfolio
+   */
   public List<Share> getShares() {
     return this.shares;
   }
@@ -51,8 +61,10 @@ public class Portfolio {
   /**
    * Method filters out a list with all shares of stocks with chosen symbol.
    *
-   * @param symbol
-   * @return List with all shares of stocks with symbol.
+   * @param symbol the stock symbol to filter by
+   * @return a list of all shares whose stock matches the given symbol
+   * @throws NullPointerException if {@code symbol} is {@code null}
+   * @throws IllegalArgumentException if {@code symbol} is empty
    */
   public List<Share> getShares(String symbol) {
     Objects.requireNonNull(symbol, "symbol cannot be null");
@@ -68,11 +80,30 @@ public class Portfolio {
   /**
    * Method checks if portfolio contains chosen share.
    *
-   * @param share
-   * @return True if portfolio contains Share, False if not.
+   * @param share the share to check for
+   * @return {@code true} if the portfolio contains the share, {@code false} otherwise
+   * @throws NullPointerException if {@code share} is {@code null}
    */
   public boolean contains(Share share) {
     Objects.requireNonNull(share, "share cannot be null");
     return this.shares.contains(share);
+  }
+
+  /**
+   * Returns the total net sale value of all shares in the portfolio.
+   *
+   * <p>The value is calculated using {@link SaleCalculator}
+   * for each share and summed into one total.</p>
+   *
+   * @return the portfolio's total net worth
+   */
+  public BigDecimal getNetWorth() {
+    BigDecimal total = BigDecimal.ZERO;
+
+    for (Share share : shares) {
+      total = total.add(new SaleCalculator(share).calculateTotal());
+    }
+
+    return total;
   }
 }

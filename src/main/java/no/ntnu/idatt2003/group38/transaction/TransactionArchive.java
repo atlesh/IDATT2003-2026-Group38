@@ -42,7 +42,11 @@ public class TransactionArchive {
     return this.transactions.isEmpty();
   }
 
-
+  /**
+   * Returns all transactions in the archive.
+   *
+   * @return a list of all transactions in the archive
+   */
   public List<Transaction> getTransactions() {
     return this.transactions;
   }
