@@ -2,6 +2,7 @@ package no.ntnu.idatt2003.group38.model;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,108 +13,118 @@ import java.util.Objects;
  */
 public class Stock {
 
-    private final String symbol;
-    private final String company;
-    private final List<BigDecimal> prices;
+  private final String symbol;
+  private final String company;
+  private final List<BigDecimal> prices;
 
-    /**
-     * Creates a new stock with an initial sales price
-     *
-     * @param symbol the stock symbol; must not be {@code null} or blank
-     * @param company the company name; must not be {@code null} or blank
-     * @param salesPrice the initial sales price; must not be {@code null}
-     * @throws NullPointerException if {@code symbol}, {@code company},
-     *                              or {@code salesPrice} is {@code null}
-     * @throws IllegalArgumentException if {@code symbol} or {@code company} is blank
-     */
-    public Stock(String symbol, String company, BigDecimal salesPrice ) {
-        this.symbol = Objects.requireNonNull(symbol, "symbol cannot be null");
-        if (symbol.isBlank()) {
-            throw new IllegalArgumentException("Symbol cannot be blank");
-        }
-
-        this.company = Objects.requireNonNull(company, "company cannot be null");
-        if (company.isBlank()) {
-            throw new IllegalArgumentException("Company cannot be blank");
-        }
-        Objects.requireNonNull(salesPrice, "salesPrice cannot be null");
-
-        this.prices = new ArrayList<>();
-        this.prices.add(salesPrice);
+  /**
+   * Creates a new stock.
+   *
+   * @param symbol the stock ticker symbol; must not be {@code null} or blank
+   * @param company the company name. Must not be {@code null} or blank
+   * @param salesPrices the initial sales price. Must not be {@code null}
+   * @throws NullPointerException if anything is {@code null}
+   * @throws IllegalArgumentException if {@code symbol} or {@code company} is blank
+   */
+  public Stock(String symbol, String company, BigDecimal salesPrices) {
+    this.symbol = Objects.requireNonNull(symbol, "symbol cannot be null");
+    if (symbol.isBlank()) {
+      throw new IllegalArgumentException("Symbol cannot be blank");
     }
 
-    /**
-     * Returns the stock symbol
-     *
-     * @return the stock symbol
-     */
-    public String getSymbol() {
-        return symbol;
+    this.company = Objects.requireNonNull(company, "company cannot be null");
+    if (company.isBlank()) {
+      throw new IllegalArgumentException("Company cannot be blank");
     }
+    Objects.requireNonNull(salesPrices, "salesPrice cannot be null");
 
-    /**
-     * Returns the company name
-     *
-     * @return the company name
-     */
-    public String getCompany() {
-        return company;
+    this.prices = new ArrayList<>();
+    this.prices.add(salesPrices);
+  }
+
+  /**
+   * Returns the stock symbol.
+   *
+   * @return the symbol
+   */
+  public String getSymbol() {
+    return symbol;
+  }
+
+  /**
+   * Returns the company name.
+   *
+   * @return the company name
+   */
+  public String getCompany() {
+    return company;
+  }
+
+  /**
+   * Returns the current sales price.
+   *
+   * @return the current sales price
+   */
+  public BigDecimal getSalesPrice() {
+    return prices.getLast();
+  }
+
+  /**
+   * Registers a new sales price for the stock.
+   *
+   * @param price the new price to add. Must not be {@code null}
+   * @throws NullPointerException if {@code price} is {@code null}
+   */
+  public void addNewSalesPrice(BigDecimal price) {
+    Objects.requireNonNull(price, "price cannot be null");
+    prices.add(price);
+  }
+
+  /**
+   * Returns the price history of this stock.
+   *
+   * @return an unmodifiable list of all registered prices. Never {@code null}
+   */
+  public List<BigDecimal> getHistoricalPrices() {
+    return Collections.unmodifiableList(prices);
+  }
+
+  /**
+   * Returns the highest price ever registered for this stock.
+   *
+   * @return the highest price
+   */
+  public BigDecimal getHighestPrice() {
+    return prices.stream()
+        .max(BigDecimal::compareTo)
+        .orElseThrow();
+  }
+
+  /**
+   * Returns the lowest price ever registered for this stock.
+   *
+   * @return the lowest price
+   */
+  public BigDecimal getLowestPrice() {
+    return prices.stream()
+        .min(BigDecimal::compareTo)
+        .orElseThrow();
+  }
+
+  /**
+   * Returns the price change between the last and second-to-last registered price.
+   *
+   * <p>If only one price has been registered, this is interpreted as no change
+   * and zero is returned.</p>
+   *
+   * @return the difference between the latest and previous price.
+   */
+  public BigDecimal getLatestPriceChange() {
+    if (prices.size() < 2) {
+      return BigDecimal.ZERO;
     }
-
-    /**
-     * Returns the current sales price
-     *
-     * @return the most recent sales price
-     */
-    public BigDecimal getSalesPrice() {
-        return prices.get(prices.size() - 1);
-    }
-
-    /**
-     * Checks whether the stock has a previous sales price
-     *
-     * @return {@code true} if a previous sales price exists, {@code false} otherwise
-     */
-    public boolean hasPreviousSalesPrice() {
-        return prices.size() > 1;
-    }
-
-    /**
-     * Returns the previous sales price
-     *
-     * @return the sales price from the previous update
-     * @throws IllegalStateException if no previous sales price exists
-     */
-    public BigDecimal getPreviousSalesPrice() {
-        if (!hasPreviousSalesPrice()) {
-            throw new IllegalStateException("No previous sales price available");
-        }
-
-        return prices.get(prices.size() - 2);
-    }
-
-    /**
-     * Returns the price change since the previous sales price
-     *
-     * @return the difference between the current and previous sales price,
-     *             or {@link BigDecimal#ZERO} if no previous sales price exists
-     */
-    public BigDecimal getWeeklyPriceChange() {
-        if (!hasPreviousSalesPrice()) {
-            return BigDecimal.ZERO;
-        }
-
-        return getSalesPrice().subtract(getPreviousSalesPrice());
-    }
-
-    /**
-     * Adds a new sales price to the price history
-     *
-     * @param price the new sales price; must not be {@code null}
-     * @throws NullPointerException if {@code price} is {@code null}
-     */
-    public void addNewSalesPrice(BigDecimal price) {
-        Objects.requireNonNull(price, "price cannot be null");
-        prices.add(price);
-    }
+    BigDecimal latest = prices.getLast();
+    BigDecimal previous = prices.get(prices.size() - 2);
+    return latest.subtract(previous);
+  }
 }
