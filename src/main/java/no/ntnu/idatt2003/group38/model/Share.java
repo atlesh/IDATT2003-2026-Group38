@@ -12,11 +12,15 @@ public class Share {
   private final BigDecimal purchasePrice;
 
   /**
-   * Creates the share from the stock, the quantity and the price.
+   * Creates a new share.
    *
-   * @param stock stock that was bought.
-   * @param quantity how much was bought.
-   * @param purchasePrice the price of the purchase.
+   * @param stock the stock that was bought; must not be {@code null}
+   * @param quantity the quantity bought; must be greater than 0
+   * @param purchasePrice the purchase price per unit; must not be {@code null} or negative
+   * @throws NullPointerException if {@code stock}, {@code quantity},
+   *                              or {@code purchasePrice} is {@code null}
+   * @throws IllegalArgumentException if {@code quantity} is less than or equal to 0,
+   *                                  or if {@code purchasePrice} is negative
    */
   public Share(Stock stock, BigDecimal quantity, BigDecimal purchasePrice) {
     this.stock = Objects.requireNonNull(stock, "stock cannot be null");
@@ -32,14 +36,29 @@ public class Share {
     }
   }
 
+  /**
+   * Returns the stock associated with this share
+   *
+   * @return the stock
+   */
   public Stock getStock() {
     return stock;
   }
 
+  /**
+   * Returns the quantity of the share
+   *
+   * @return the quantity bought
+   */
   public BigDecimal getQuantity() {
     return quantity;
   }
 
+  /**
+   * Returns the purchase price per unit
+   *
+   * @return the purchase price
+   */
   public BigDecimal getPurchasePrice() {
     return purchasePrice;
   }

@@ -232,4 +232,59 @@ public class Exchange {
             stock.addNewSalesPrice(newPrice);
         }
     }
+
+    /**
+     * Returns the stocks with the largest positive price change since the previous trading week
+     *
+     * <p> Only stocks whose sales price has increased are included.
+     * The result is sorted by price change in descending order and
+     * limited to the given number of stocks.</p>
+     *
+     * @param limit the maximum number of stocks to return; must be greater than or equal to 0
+     * @return a list of the top gaining stocks, or an empty list if none have increased
+     * @throws IllegalArgumentException if {@code limit} is negative
+     */
+    public List<Stock> getGainers(int limit) {
+        validateLimit(limit);
+
+        List<Stock> result = new ArrayList<>(stockMap.values());
+        result.removeIf(stock -> stock.getWeeklyPriceChange().compareTo(BigDecimal.ZERO) <= 0);
+        result.sort(
+                Comparator.comparing(Stock::getWeeklyPriceChange)
+                        .reversed()
+                        .thenComparing(Stock::getSymbol)
+        );
+
+        return new ArrayList<>(result.subList(0, Math.min(limit, result.size())));
+    }
+
+    /**
+     * Returns the stocks with the largest negative price change since the previous trading week
+     *
+     * <p> Only stocks whose sales price has decreased are included.
+     * The result is sorted by price change in ascending order and
+     * limited to the given number og stocks</p>
+     *
+     * @param limit the maximum number of stocks to return; must be greater than or equal to 0
+     * @return a list of the top losing stocks, or an empty list if none have decreased
+     * @throws IllegalArgumentException if {@code limit} is negative
+     */
+    public List<Stock> getLosers(int limit) {
+        validateLimit(limit);
+
+        List<Stock> result = new ArrayList<>(stockMap.values());
+        result.removeIf(stock -> stock.getWeeklyPriceChange().compareTo(BigDecimal.ZERO) >= 0);
+        result.sort(
+                Comparator.comparing(Stock::getWeeklyPriceChange)
+                        .thenComparing(Stock::getSymbol)
+        );
+
+        return new ArrayList<>(result.subList(0, Math.min(limit, result.size())));
+    }
+
+    private void validateLimit(int limit) {
+        if (limit < 0) {
+            throw new IllegalArgumentException("Limit cannot be negative");
+        }
+    }
 }
