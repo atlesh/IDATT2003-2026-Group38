@@ -1,6 +1,6 @@
 package no.ntnu.idatt2003.group38.calculator;
 
-import no.ntnu.idatt2003.group38.Share;
+import no.ntnu.idatt2003.group38.model.Share;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -8,14 +8,15 @@ import java.util.Objects;
 /**
  * Calculates financial values for a share purchase transaction
  *
- * This implementation computes:
+ * <p>This implementation computes:
  *  Gross value (purchase price x quantity)
  *  Commission (0.5% of gross value)
  *  No tax (tax is not applied on purchases)
- *  Total purchase cost (gross value + commission)
+ *  Total purchase cost (gross value + commission)</p>
  *
- *  The calculator is based on data provided by a {@link Share} instance
- *  All monetary values are represented using {@link java.math.BigDecimal} to ensure precise financial calculations
+ *  <p>The calculator is based on data provided by a {@link Share} instance
+ *  All monetary values are represented using {@link java.math.BigDecimal}
+ *  to ensure precise financial calculations</p>
  */
 public class PurchaseCalculator implements TransactionCalculator {
 
@@ -23,6 +24,12 @@ public class PurchaseCalculator implements TransactionCalculator {
     private final BigDecimal quantity;
     private static final BigDecimal commissionRate = new BigDecimal("0.005");
 
+    /**
+     * Creates a purchase calculator for the given share
+     *
+     * @param share the share to calculate values for; must not be {@code null}
+     * @throws NullPointerException if {@code share} is {@code null}
+     */
     public PurchaseCalculator(Share share) {
         Objects.requireNonNull(share, "Share cannot be null");
 
@@ -32,7 +39,7 @@ public class PurchaseCalculator implements TransactionCalculator {
 
     @Override
     public BigDecimal calculateGross() {
-        return purchasePrice.multiply(quantity);
+        return this.purchasePrice.multiply(this.quantity);
     }
 
     @Override

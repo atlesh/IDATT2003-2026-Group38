@@ -1,7 +1,9 @@
-package no.ntnu.idatt2003.group38;
+package no.ntnu.idatt2003.group38.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
+import no.ntnu.idatt2003.group38.transaction.TransactionArchive;
 
 /**
  * Represents a player in the game.
@@ -37,10 +39,20 @@ public class Player {
     this.transactionArchive = new TransactionArchive();
   }
 
+  /**
+   * Returns the player's name
+   *
+   * @return the player's name
+   */
   public String getName() {
     return this.name;
   }
 
+  /**
+   * Returns the player's current cash balance
+   *
+   * @return the player's remaining money
+   */
   public BigDecimal getMoney() {
     return this.money;
   }
@@ -75,12 +87,57 @@ public class Player {
     this.money = this.money.subtract(amount);
   }
 
+  /**
+   * Returns the player's portfolio
+   *
+   * @return the player's portfolio
+   */
   public Portfolio getPortfolio() {
     return this.portfolio;
   }
 
-
+  /**
+   * Returns the player's transaction archive
+   *
+   * @return the player's transaction archive
+   */
   public TransactionArchive getTransactionArchive() {
     return this.transactionArchive;
+  }
+
+  /**
+   * Returns the player's total net worth
+   *
+   * <p>This includes the player's current cash balance and the net sale value
+   * of all shares in the player's portfolio</p>
+   *
+   * @return the player's total net worth
+   */
+  public BigDecimal getNetWorth() {
+    return this.money.add(this.portfolio.getNetWorth());
+  }
+
+  /**
+   * Returns the player's current status based on trading activity and net worth growth.
+   *
+   * <ul>
+   *   <li><b>Novice</b>: starting level, no requirements</li>
+   *   <li><b>Investor</b>: traded in at least 10 weeks and net worth has grown by at least 20%</li>
+   *   <li><b>Speculator</b>: traded in at least 20 weeks and net worth has at least doubled</li>
+   * </ul>
+   *
+   * @return the player's current status as a {@link String}
+   */
+  public String getPlayerStatus() {
+    int weeksTraded = this.transactionArchive.countDistinctWeeks();
+    BigDecimal gain = getNetWorth().divide(this.startingMoney, 10, RoundingMode.HALF_UP);
+
+    if (weeksTraded >= 20 && gain.compareTo(new BigDecimal("2.0")) >= 0) {
+      return "Speculator";
+    } else if (weeksTraded >= 10 && gain.compareTo(new BigDecimal("1.2")) >= 0) {
+      return "Investor";
+    } else {
+      return "Novice";
+    }
   }
 }

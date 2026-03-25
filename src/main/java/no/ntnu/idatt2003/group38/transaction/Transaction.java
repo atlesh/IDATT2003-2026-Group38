@@ -3,9 +3,8 @@ package no.ntnu.idatt2003.group38.transaction;
 import java.util.Objects;
 
 import no.ntnu.idatt2003.group38.calculator.TransactionCalculator;
-import no.ntnu.idatt2003.group38.Share;
-import no.ntnu.idatt2003.group38.Player;
-import no.ntnu.idatt2003.group38.TransactionArchive;
+import no.ntnu.idatt2003.group38.model.Share;
+import no.ntnu.idatt2003.group38.model.Player;
 
 /**
  * Abstract base class for all financial transactions that a {@link Player}
@@ -41,18 +40,38 @@ public abstract class Transaction {
     this.committed = false;
   }
 
+  /**
+   * Returns the share involved in the transaction.
+   *
+   * @return the transacted share
+   */
   public Share getShare() {
     return this.share;
   }
 
+  /**
+   * Returns the week in which the transaction occurred.
+   *
+   * @return the transaction week
+   */
   public int getWeek() {
     return this.week;
   }
 
+  /**
+   * Returns the calculator used to evaluate this transaction.
+   *
+   * @return the transaction calculator
+   */
   public TransactionCalculator getCalculator() {
     return this.calculator;
   }
 
+  /**
+   * Checks whether the transaction has been committed.
+   *
+   * @return {@code true} if the transaction has been committed, {@code false} otherwise
+   */
   public boolean isCommitted() {
     return this.committed;
   }

@@ -1,8 +1,8 @@
 package no.ntnu.idatt2003.group38.transaction;
 
 import no.ntnu.idatt2003.group38.calculator.PurchaseCalculator;
-import no.ntnu.idatt2003.group38.Share;
-import no.ntnu.idatt2003.group38.Player;
+import no.ntnu.idatt2003.group38.model.Share;
+import no.ntnu.idatt2003.group38.model.Player;
 
 /**
  * Represents a purchase of a {@link Share}.
@@ -44,7 +44,7 @@ public class Purchase extends Transaction {
       throw new IllegalStateException("Transaction already committed");
     }
 
-    var totalCost = this.getCalculator().calculateTotal();
+    var totalCost = getCalculator().calculateTotal();
     if (player.getMoney().compareTo(totalCost) < 0) {
       throw new IllegalStateException(
           "Insufficient funds: player has " + player.getMoney()

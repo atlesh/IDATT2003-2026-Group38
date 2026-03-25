@@ -1,24 +1,25 @@
 package no.ntnu.idatt2003.group38.calculator;
 
-import no.ntnu.idatt2003.group38.Share;
-import no.ntnu.idatt2003.group38.Stock;
+import no.ntnu.idatt2003.group38.model.Share;
+import no.ntnu.idatt2003.group38.model.Stock;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 /**
  * Calculates financial values for a share sale transaction
  *
- * This implementation computes:
+ * <p>This implementation computes:
  *  Gross value (sales price x quantity)
  *  Commission (1% of gross value)
  *  Tax (30% of profit)
  *  Total sale value (gross value - commission - tax)
- *
  * Profit is calculated as gross value - commission - purchase cost
- * No tax is applied if the profit is zero or negative
+ * No tax is applied if the profit is zero or negative</p>
  *
- * The calculator is based on data provided by a {@link Share} instance and the associated {@link Stock}
- * All monetary values are represented using {@link java.math.BigDecimal} to ensure precise financial calculations
+ * <p>The calculator is based on data provided by a {@link Share}
+ * instance and the associated {@link Stock}
+ * All monetary values are represented using {@link java.math.BigDecimal}
+ * to ensure precise financial calculations</p>
  */
 public class SaleCalculator implements TransactionCalculator {
 
@@ -28,6 +29,12 @@ public class SaleCalculator implements TransactionCalculator {
     private static final BigDecimal commissionRate = new BigDecimal("0.01");
     private static final BigDecimal taxRate = new BigDecimal("0.30");
 
+    /**
+     * Creates a sale calculator for the given share
+     *
+     * @param share the share to calculate values for; must not be {@code null}
+     * @throws NullPointerException if {@code share} is {@code null}
+     */
     public SaleCalculator(Share share) {
         Objects.requireNonNull(share, "Share cannot be null");
         Objects.requireNonNull(share.getStock(), "Share cannot be null");
@@ -39,7 +46,7 @@ public class SaleCalculator implements TransactionCalculator {
 
     @Override
     public BigDecimal calculateGross() {
-        return salesPrice.multiply(quantity);
+        return this.salesPrice.multiply(this.quantity);
     }
 
     @Override
@@ -51,7 +58,7 @@ public class SaleCalculator implements TransactionCalculator {
     public BigDecimal calculateTax() {
         BigDecimal gross = calculateGross();
         BigDecimal commission = calculateCommission();
-        BigDecimal purchaseCost = purchasePrice.multiply(quantity);
+        BigDecimal purchaseCost = this.purchasePrice.multiply(this.quantity);
 
         BigDecimal profit = gross
                 .subtract(commission)

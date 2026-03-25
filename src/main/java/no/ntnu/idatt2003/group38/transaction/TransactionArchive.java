@@ -1,12 +1,8 @@
-package no.ntnu.idatt2003.group38;
+package no.ntnu.idatt2003.group38.transaction;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import no.ntnu.idatt2003.group38.transaction.Purchase;
-import no.ntnu.idatt2003.group38.transaction.Sale;
-import no.ntnu.idatt2003.group38.transaction.Transaction;
 
 /**
  * Manages a collection of financial transactions.
@@ -46,7 +42,11 @@ public class TransactionArchive {
     return this.transactions.isEmpty();
   }
 
-
+  /**
+   * Returns all transactions in the archive.
+   *
+   * @return a list of all transactions in the archive
+   */
   public List<Transaction> getTransactions() {
     return this.transactions;
   }
@@ -62,7 +62,7 @@ public class TransactionArchive {
     if (week < 1) {
       throw new IllegalArgumentException("week cannot be less than 1");
     }
-    return transactions.stream()
+    return this.transactions.stream()
         .filter(transaction -> transaction instanceof Purchase purchase
             && purchase.getWeek() == week)
         .map(t -> (Purchase) t)
@@ -80,7 +80,7 @@ public class TransactionArchive {
     if (week < 1) {
       throw new IllegalArgumentException("week cannot be less than 1");
     }
-    return transactions.stream()
+    return this.transactions.stream()
         .filter(transaction -> transaction instanceof Sale sale
             && sale.getWeek() == week)
         .map(t -> (Sale) t)
