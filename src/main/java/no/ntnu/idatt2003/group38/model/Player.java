@@ -1,6 +1,7 @@
 package no.ntnu.idatt2003.group38.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 import no.ntnu.idatt2003.group38.transaction.TransactionArchive;
 
@@ -113,6 +114,30 @@ public class Player {
    * @return the player's total net worth
    */
   public BigDecimal getNetWorth() {
-    return money.add(portfolio.getNetWorth());
+    return this.money.add(this.portfolio.getNetWorth());
+  }
+
+  /**
+   * Returns the player's current status based on trading activity and net worth growth.
+   *
+   * <ul>
+   *   <li><b>Novice</b>: starting level, no requirements</li>
+   *   <li><b>Investor</b>: traded in at least 10 weeks and net worth has grown by at least 20%</li>
+   *   <li><b>Speculator</b>: traded in at least 20 weeks and net worth has at least doubled</li>
+   * </ul>
+   *
+   * @return the player's current status as a {@link String}
+   */
+  public String getPlayerStatus() {
+    int weeksTraded = this.transactionArchive.countDistinctWeeks();
+    BigDecimal gain = this.getNetWorth().divide(startingMoney, 10, RoundingMode.HALF_UP);
+
+    if (weeksTraded >= 20 && gain.compareTo(new BigDecimal("2.0")) >= 0) {
+      return "Speculator";
+    } else if (weeksTraded >= 10 && gain.compareTo(new BigDecimal("1.2")) >= 0) {
+      return "Investor";
+    } else {
+      return "Novice";
+    }
   }
 }

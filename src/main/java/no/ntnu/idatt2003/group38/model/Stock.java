@@ -48,7 +48,7 @@ public class Stock {
    * @return the symbol
    */
   public String getSymbol() {
-    return symbol;
+    return this.symbol;
   }
 
   /**
@@ -57,7 +57,7 @@ public class Stock {
    * @return the company name
    */
   public String getCompany() {
-    return company;
+    return this.company;
   }
 
   /**
@@ -66,7 +66,7 @@ public class Stock {
    * @return the current sales price
    */
   public BigDecimal getSalesPrice() {
-    return prices.getLast();
+    return this.prices.getLast();
   }
 
   /**
@@ -77,7 +77,7 @@ public class Stock {
    */
   public void addNewSalesPrice(BigDecimal price) {
     Objects.requireNonNull(price, "price cannot be null");
-    prices.add(price);
+    this.prices.add(price);
   }
 
   /**
@@ -86,7 +86,7 @@ public class Stock {
    * @return an unmodifiable list of all registered prices. Never {@code null}
    */
   public List<BigDecimal> getHistoricalPrices() {
-    return Collections.unmodifiableList(prices);
+    return Collections.unmodifiableList(this.prices);
   }
 
   /**
@@ -95,7 +95,7 @@ public class Stock {
    * @return the highest price
    */
   public BigDecimal getHighestPrice() {
-    return prices.stream()
+    return this.prices.stream()
         .max(BigDecimal::compareTo)
         .orElseThrow();
   }
@@ -106,7 +106,7 @@ public class Stock {
    * @return the lowest price
    */
   public BigDecimal getLowestPrice() {
-    return prices.stream()
+    return this.prices.stream()
         .min(BigDecimal::compareTo)
         .orElseThrow();
   }
@@ -120,11 +120,11 @@ public class Stock {
    * @return the difference between the latest and previous price.
    */
   public BigDecimal getLatestPriceChange() {
-    if (prices.size() < 2) {
+    if (this.prices.size() < 2) {
       return BigDecimal.ZERO;
     }
-    BigDecimal latest = prices.getLast();
-    BigDecimal previous = prices.get(prices.size() - 2);
+    BigDecimal latest = this.prices.getLast();
+    BigDecimal previous = this.prices.get(this.prices.size() - 2);
     return latest.subtract(previous);
   }
 }

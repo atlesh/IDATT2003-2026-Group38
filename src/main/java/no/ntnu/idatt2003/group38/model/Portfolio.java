@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import no.ntnu.idatt2003.group38.calculator.SaleCalculator;
 
 /**
  * Class represents a portfolio of all the shares a user owns.
@@ -100,7 +101,7 @@ public class Portfolio {
   public BigDecimal getNetWorth() {
     BigDecimal total = BigDecimal.ZERO;
 
-    for (Share share : shares) {
+    for (Share share : this.shares) {
       total = total.add(new SaleCalculator(share).calculateTotal());
     }
 

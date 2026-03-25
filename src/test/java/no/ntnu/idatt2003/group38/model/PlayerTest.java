@@ -1,5 +1,7 @@
 package no.ntnu.idatt2003.group38.model;
 
+import java.util.List;
+import no.ntnu.idatt2003.group38.exchange.Exchange;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -95,5 +97,82 @@ public class PlayerTest {
         () -> player.withdrawMoney(BigDecimal.ZERO));
     assertThrows(IllegalArgumentException.class,
         () -> player.withdrawMoney(new BigDecimal("-10")));
+  }
+
+
+  // getPlayerStatus
+
+  @Test
+  void returnsNovice() {
+    assertEquals("Novice", player.getPlayerStatus());
+  }
+
+  @Test
+  void returnsInvestor() {
+    Stock stock = new Stock("AAPL", "Apple Inc.", new BigDecimal("100.00"));
+    Exchange exchange = new Exchange("Test Exchange", List.of(stock));
+
+    for (int i = 0; i < 10; i++) {
+      exchange.buy("AAPL", new BigDecimal("1"), player);
+      exchange.advance();
+    }
+
+    stock.addNewSalesPrice(new BigDecimal("10000.00"));
+
+    assertEquals("Investor", player.getPlayerStatus());
+  }
+
+  @Test
+  void returnsSpeculator() {
+    Stock stock = new Stock("AAPL", "Apple Inc.", new BigDecimal("100.00"));
+    Exchange exchange = new Exchange("Test Exchange", List.of(stock));
+
+    for (int i = 0; i < 20; i++) {
+      exchange.buy("AAPL", new BigDecimal("1"), player);
+      exchange.advance();
+    }
+
+    stock.addNewSalesPrice(new BigDecimal("100000.00"));
+
+    assertEquals("Speculator", player.getPlayerStatus());
+  }
+
+  @Test
+  void enoughWeeksButInsufficientGain_returnsNovice() {
+    Stock stock = new Stock("AAPL", "Apple Inc.", new BigDecimal("100.00"));
+    Exchange exchange = new Exchange("Test Exchange", List.of(stock));
+
+    for (int i = 0; i < 10; i++) {
+      exchange.buy("AAPL", new BigDecimal("1"), player);
+      exchange.advance();
+    }
+
+    assertEquals("Novice", player.getPlayerStatus());
+  }
+
+  @Test
+  void sufficientGainButNotEnoughWeeks_returnsNovice() {
+    Stock stock = new Stock("AAPL", "Apple Inc.", new BigDecimal("100.00"));
+    Exchange exchange = new Exchange("Test Exchange", List.of(stock));
+
+    exchange.buy("AAPL", new BigDecimal("1"), player);
+    stock.addNewSalesPrice(new BigDecimal("100000.00"));
+
+    assertEquals("Novice", player.getPlayerStatus());
+  }
+
+  @Test
+  void meetsInvestorButNotSpeculatorWeeks_returnsInvestor() {
+    Stock stock = new Stock("AAPL", "Apple Inc.", new BigDecimal("100.00"));
+    Exchange exchange = new Exchange("Test Exchange", List.of(stock));
+
+    for (int i = 0; i < 10; i++) {
+      exchange.buy("AAPL", new BigDecimal("1"), player);
+      exchange.advance();
+    }
+
+    stock.addNewSalesPrice(new BigDecimal("100000.00"));
+
+    assertEquals("Investor", player.getPlayerStatus());
   }
 }
