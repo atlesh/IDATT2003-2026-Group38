@@ -7,10 +7,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Represents a stock.
+ * Represents a stock listed on the exchange
  *
- * <p>A stock tracks its full price history since creation.
- * The current sales price is the most recently added price.</p>
+ * <p>A stock has a symbol, a company name and a history of sales prices</p>
  */
 public class Stock {
 

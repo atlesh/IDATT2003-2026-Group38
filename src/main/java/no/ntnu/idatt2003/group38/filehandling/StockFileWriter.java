@@ -17,7 +17,7 @@ public interface StockFileWriter {
      * @param stocks the list of stocks to write. Must not be {@code null}
      * @param path the path to the file to write to. Must not be {@code null}
      * @throws IOException if an I/O error occurs while writing to the file
-     * @throws IllegalArgumentException if {@code stocks} or {@code path} is {@code null}
+     * @throws NullPointerException if {@code stocks} or {@code path} is {@code null}
      */
     void writeStocks(List<Stock> stocks, Path path) throws IOException;
 }
