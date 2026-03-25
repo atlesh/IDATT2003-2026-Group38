@@ -22,214 +22,269 @@ import java.util.*;
  */
 public class Exchange {
 
-    private final String name;
-    private int week;
-    private final Map<String, Stock> stockMap;
-    private final Random random;
+  private final String name;
+  private int week;
+  private final Map<String, Stock> stockMap;
+  private final Random random;
 
-    /**
-     * Creates a new stock exchange with the given name and listed stocks
-     *
-     * @param name the name of the exchange; must not be {@code null}
-     * @param stocks the list of stocks listed in the exchange; must not be {@code null}
-     * @throws NullPointerException if {@code name} or {@code stocks} is {@code null}
-     */
-    public Exchange(String name, List<Stock> stocks) {
-        Objects.requireNonNull(stocks, "Stocks cannot be null");
-        this.name = Objects.requireNonNull(name, "Name cannot be null");
-        this.week = 1;
-        this.random = new Random();
-        this.stockMap = new HashMap<>();
+  /**
+   * Creates a new stock exchange with the given name and listed stocks
+   *
+   * @param name the name of the exchange; must not be {@code null}
+   * @param stocks the list of stocks listed in the exchange; must not be {@code null}
+   * @throws NullPointerException if {@code name} or {@code stocks} is {@code null}
+   */
+  public Exchange(String name, List<Stock> stocks) {
+    Objects.requireNonNull(stocks, "Stocks cannot be null");
+    this.name = Objects.requireNonNull(name, "Name cannot be null");
+    this.week = 1;
+    this.random = new Random();
+    this.stockMap = new HashMap<>();
 
-        for (Stock stock : stocks) {
-            stockMap.put(stock.getSymbol().toUpperCase(), stock);
-        }
+    for (Stock stock : stocks) {
+      stockMap.put(stock.getSymbol().toUpperCase(), stock);
+    }
+  }
+
+  /**
+   * Returns the name of the exchange
+   *
+   * @return the exchange name
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * Returns the current trading week
+   *
+   * @return the current week number
+   */
+  public int getWeek() {
+    return week;
+  }
+
+  /**
+   * Checks whether a stock with the given symbol is listed on the exchange
+   *
+   * @param symbol the stock symbol; must not be {@code null}
+   * @return {@code true} if the stock exists, {@code false} otherwise
+   * @throws IllegalArgumentException if {@code symbol} is {@code null}
+   */
+  public boolean hasStock(String symbol) {
+    if (symbol == null) {
+      throw new IllegalArgumentException("Symbol cannot be null");
     }
 
-    /**
-     * Returns the name of the exchange
-     *
-     * @return the exchange name
-     */
-    public String getName() {
-        return name;
+    String normalized = symbol.trim().toUpperCase();
+
+    if (normalized.isEmpty()) {
+      return false;
     }
 
-    /**
-     * Returns the current trading week
-     *
-     * @return the current week number
-     */
-    public int getWeek() {
-        return week;
+    return stockMap.containsKey(normalized);
+  }
+
+  /**
+   * Returns the stock with the given symbol
+   *
+   * @param symbol the stock symbol; must not be {@code null} or empty
+   * @return the corresponding {@link Stock}
+   * @throws IllegalArgumentException if the symbol is {@code null}, empty, or not listed in the exchange
+   */
+  public Stock getStock(String symbol) {
+    if (symbol == null) {
+      throw new IllegalArgumentException("Symbol cannot be null");
     }
 
-    /**
-     * Checks whether a stock with the given symbol is listed on the exchange
-     *
-     * @param symbol the stock symbol; must not be {@code null}
-     * @return {@code true} if the stock exists, {@code false} otherwise
-     * @throws IllegalArgumentException if {@code symbol} is {@code null}
-     */
-    public boolean hasStock(String symbol) {
-        if (symbol == null) {
-            throw new IllegalArgumentException("Symbol cannot be null");
-        }
+    String normalized = symbol.trim().toUpperCase();
 
-        String normalized = symbol.trim().toUpperCase();
-
-        if (normalized.isEmpty()) {
-            return false;
-        }
-
-        return stockMap.containsKey(normalized);
+    if (normalized.isEmpty()) {
+      throw new IllegalArgumentException("Symbol cannot be empty");
     }
 
-    /**
-     * Returns the stock with the given symbol
-     *
-     * @param symbol the stock symbol; must not be {@code null} or empty
-     * @return the corresponding {@link Stock}
-     * @throws IllegalArgumentException if the symbol is {@code null}, empty, or not listed in the exchange
-     */
-    public Stock getStock(String symbol) {
-        if (symbol == null) {
-            throw new IllegalArgumentException("Symbol cannot be null");
-        }
+    Stock stock = stockMap.get(normalized);
 
-        String normalized = symbol.trim().toUpperCase();
-
-        if (normalized.isEmpty()) {
-            throw new IllegalArgumentException("Symbol cannot be empty");
-        }
-
-        Stock stock = stockMap.get(normalized);
-
-        if (stock == null) {
-            throw new IllegalArgumentException("Stock with symbol '" + normalized + "' does not exist on this exchange");
-        }
-
-        return stock;
+    if (stock == null) {
+      throw new IllegalArgumentException("Stock with symbol '" + normalized + "' does not exist on this exchange");
     }
 
-    /**
-     * Searches for stocks whose symbol or company name contains the given search term
-     *
-     * @param searchTerm the term to search for, or an empty list if none match
-     * @return a list of matching stocks, or an empty list if none match
-     * @throws IllegalArgumentException if {@code searchTerm} is {@code null}
-     */
-    public List<Stock> findStocks(String searchTerm) {
-        if (searchTerm == null) {
-            throw new IllegalArgumentException("Search term cannot be null");
-        }
+    return stock;
+  }
 
-        String normalized = searchTerm.trim().toUpperCase();
-
-        if (normalized.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<Stock> result = new ArrayList<>();
-
-        for (Stock stock : stockMap.values()) {
-            String symbol = stock.getSymbol().toUpperCase();
-            String company = stock.getCompany().toUpperCase();
-
-            if (symbol.contains(normalized) || company.contains(normalized)) {
-                result.add(stock);
-            }
-        }
-        return result;
+  /**
+   * Searches for stocks whose symbol or company name contains the given search term
+   *
+   * @param searchTerm the term to search for, or an empty list if none match
+   * @return a list of matching stocks, or an empty list if none match
+   * @throws IllegalArgumentException if {@code searchTerm} is {@code null}
+   */
+  public List<Stock> findStocks(String searchTerm) {
+    if (searchTerm == null) {
+      throw new IllegalArgumentException("Search term cannot be null");
     }
 
-    /**
-     * Buys a specified quantity of a stock for the given player
-     *
-     * @param symbol the stock symbol; must not be {@code null}
-     * @param quantity the quantity to buy; must be greater than zero
-     * @param player the player performing the purchase; must not be {@code null}
-     * @return the committed {@link Transaction}
-     * @throws IllegalArgumentException if any requirement is invalid
-     */
-    public Transaction buy(String symbol, BigDecimal quantity, Player player) {
-        if (symbol == null) {
-            throw new IllegalArgumentException("Symbol cannot be null");
-        }
-        if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Quantity must be greater than 0");
-        }
-        if (player == null) {
-            throw new IllegalArgumentException("Player cannot be null");
-        }
+    String normalized = searchTerm.trim().toUpperCase();
 
-        Stock stock = getStock(symbol);
-        Share share = new Share(stock, quantity, stock.getSalesPrice());
-
-        Purchase purchase = new Purchase(share, week);
-        purchase.commit(player);
-
-        return purchase;
+    if (normalized.isEmpty()) {
+      return new ArrayList<>();
     }
 
-    /**
-     * Sells the given share on behalf of the specified player
-     *
-     * @param share the share to be sold; must not be {@code null}
-     * @param player the player performing the sale; must not be {@code null}
-     * @return the committed {@link Transaction}
-     * @throws IllegalArgumentException if the share is invalid or not owned by the player
-     */
-    public Transaction sell(Share share, Player player) {
-        if (share == null) {
-            throw new IllegalArgumentException("Share cannot be null");
-        }
-        if (player == null) {
-            throw new IllegalArgumentException("Player cannot be null");
-        }
-        if (share.getStock() == null) {
-            throw new IllegalArgumentException("Share must reference a stock");
-        }
-        if (share.getQuantity() == null || share.getQuantity().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Share quantity must be greater than 0");
-        }
-        if (!player.getPortfolio().contains(share)) {
-            throw new IllegalArgumentException("Player does not own this share");
-        }
+    List<Stock> result = new ArrayList<>();
 
-        Sale sale = new Sale(share, week);
-        sale.commit(player);
+    for (Stock stock : stockMap.values()) {
+      String symbol = stock.getSymbol().toUpperCase();
+      String company = stock.getCompany().toUpperCase();
 
-        return sale;
+      if (symbol.contains(normalized) || company.contains(normalized)) {
+        result.add(stock);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Buys a specified quantity of a stock for the given player
+   *
+   * @param symbol the stock symbol; must not be {@code null}
+   * @param quantity the quantity to buy; must be greater than zero
+   * @param player the player performing the purchase; must not be {@code null}
+   * @return the committed {@link Transaction}
+   * @throws IllegalArgumentException if any requirement is invalid
+   */
+  public Transaction buy(String symbol, BigDecimal quantity, Player player) {
+    if (symbol == null) {
+      throw new IllegalArgumentException("Symbol cannot be null");
+    }
+    if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
+      throw new IllegalArgumentException("Quantity must be greater than 0");
+    }
+    if (player == null) {
+      throw new IllegalArgumentException("Player cannot be null");
     }
 
-    /**
-     * Advances the exchange to the next trading week
-     *
-     * <p>Increments the week number and applies a small random percentage
-     * change to the sales price of each listed stock</p>
-     */
-    public void advance() {
-        week++;
+    Stock stock = getStock(symbol);
+    Share share = new Share(stock, quantity, stock.getSalesPrice());
 
-        final BigDecimal maxChange = new BigDecimal("0.05");
+    Purchase purchase = new Purchase(share, week);
+    purchase.commit(player);
 
-        for (Stock stock : stockMap.values()) {
-            BigDecimal current = stock.getSalesPrice();
+    return purchase;
+  }
 
-            double r = (random.nextDouble() * 2.0) - 1.0;
-            BigDecimal change = maxChange.multiply(BigDecimal.valueOf(r));
-
-            BigDecimal factor = BigDecimal.ONE.add(change);
-            BigDecimal newPrice = current.multiply(factor);
-
-            if (newPrice.compareTo(new BigDecimal("0.01")) < 0) {
-                newPrice = new BigDecimal("0.01");
-            }
-
-            newPrice = newPrice.setScale(2, RoundingMode.HALF_UP);
-
-            stock.addNewSalesPrice(newPrice);
-        }
+  /**
+   * Sells the given share on behalf of the specified player
+   *
+   * @param share the share to be sold; must not be {@code null}
+   * @param player the player performing the sale; must not be {@code null}
+   * @return the committed {@link Transaction}
+   * @throws IllegalArgumentException if the share is invalid or not owned by the player
+   */
+  public Transaction sell(Share share, Player player) {
+    if (share == null) {
+      throw new IllegalArgumentException("Share cannot be null");
     }
+    if (player == null) {
+      throw new IllegalArgumentException("Player cannot be null");
+    }
+    if (share.getStock() == null) {
+      throw new IllegalArgumentException("Share must reference a stock");
+    }
+    if (share.getQuantity() == null || share.getQuantity().compareTo(BigDecimal.ZERO) <= 0) {
+      throw new IllegalArgumentException("Share quantity must be greater than 0");
+    }
+    if (!player.getPortfolio().contains(share)) {
+      throw new IllegalArgumentException("Player does not own this share");
+    }
+
+    Sale sale = new Sale(share, week);
+    sale.commit(player);
+
+    return sale;
+  }
+
+  /**
+   * Advances the exchange to the next trading week
+   *
+   * <p>Increments the week number and applies a small random percentage
+   * change to the sales price of each listed stock</p>
+   */
+  public void advance() {
+    week++;
+
+    final BigDecimal maxChange = new BigDecimal("0.05");
+
+    for (Stock stock : stockMap.values()) {
+      BigDecimal current = stock.getSalesPrice();
+
+      double r = (random.nextDouble() * 2.0) - 1.0;
+      BigDecimal change = maxChange.multiply(BigDecimal.valueOf(r));
+
+      BigDecimal factor = BigDecimal.ONE.add(change);
+      BigDecimal newPrice = current.multiply(factor);
+
+      if (newPrice.compareTo(new BigDecimal("0.01")) < 0) {
+        newPrice = new BigDecimal("0.01");
+      }
+
+      newPrice = newPrice.setScale(2, RoundingMode.HALF_UP);
+
+      stock.addNewSalesPrice(newPrice);
+    }
+  }
+
+  /**
+   * Returns the stocks with the largest positive price change since the previous trading week
+   *
+   * <p> Only stocks whose sales price has increased are included.
+   * The result is sorted by price change in descending order and
+   * limited to the given number of stocks.</p>
+   *
+   * @param limit the maximum number of stocks to return; must be greater than or equal to 0
+   * @return a list of the top gaining stocks, or an empty list if none have increased
+   * @throws IllegalArgumentException if {@code limit} is negative
+   */
+  public List<Stock> getGainers(int limit) {
+    validateLimit(limit);
+
+    List<Stock> result = new ArrayList<>(stockMap.values());
+    result.removeIf(stock -> stock.getLatestPriceChange().compareTo(BigDecimal.ZERO) <= 0);
+    result.sort(
+        Comparator.comparing(Stock::getLatestPriceChange)
+            .reversed()
+            .thenComparing(Stock::getSymbol)
+    );
+
+    return new ArrayList<>(result.subList(0, Math.min(limit, result.size())));
+  }
+
+  /**
+   * Returns the stocks with the largest negative price change since the previous trading week
+   *
+   * <p> Only stocks whose sales price has decreased are included.
+   * The result is sorted by price change in ascending order and
+   * limited to the given number og stocks</p>
+   *
+   * @param limit the maximum number of stocks to return; must be greater than or equal to 0
+   * @return a list of the top losing stocks, or an empty list if none have decreased
+   * @throws IllegalArgumentException if {@code limit} is negative
+   */
+  public List<Stock> getLosers(int limit) {
+    validateLimit(limit);
+
+    List<Stock> result = new ArrayList<>(stockMap.values());
+    result.removeIf(stock -> stock.getLatestPriceChange().compareTo(BigDecimal.ZERO) >= 0);
+    result.sort(
+        Comparator.comparing(Stock::getLatestPriceChange)
+            .thenComparing(Stock::getSymbol)
+    );
+
+    return new ArrayList<>(result.subList(0, Math.min(limit, result.size())));
+  }
+
+  private void validateLimit(int limit) {
+    if (limit < 0) {
+      throw new IllegalArgumentException("Limit cannot be negative");
+    }
+  }
 }
