@@ -136,6 +136,67 @@ public class ExchangeTest {
         assertTrue(exchange.getLosers(5).isEmpty());
     }
 
+    @Test
+    void hasStock_trimmedLowerCaseSymbol_returnsTrue() {
+        assertTrue(exchange.hasStock("  aapl  "));
+    }
+
+    @Test
+    void getStock_trimmedLowerCaseSymbol_returnsCorrectStock() {
+        assertSame(appleStock, exchange.getStock("  aapl"));
+    }
+
+    @Test
+    void findStocks_matchesCompanyName_caseInsensitive() {
+        Stock microsoftStock = new Stock("MSFT", "Microsoft", new BigDecimal("300.00"));
+        Exchange searchExchange = new Exchange("Search Exchange", List.of(appleStock, microsoftStock));
+
+        assertEquals(List.of(microsoftStock), searchExchange.findStocks("soft"));
+    }
+
+    @Test
+    void findStocks_blankSearchTerm_ReturnsEmptyList() {
+        assertTrue(exchange.findStocks("  ").isEmpty());
+    }
+
+    @Test
+    void advance_updatesStockPriceAndStoresPreviousPrice() {
+        BigDecimal oldPrice = appleStock.getSalesPrice();
+
+        exchange.advance();
+
+        BigDecimal newPrice = appleStock.getSalesPrice();
+        BigDecimal difference = oldPrice.multiply(new BigDecimal("0.05")).add(new BigDecimal("0.01"));
+
+        assertTrue(appleStock.hasPreviousSalesPrice());
+        assertEquals(oldPrice, appleStock.getPreviousSalesPrice());
+        assertEquals(2, newPrice.scale());
+        assertTrue(newPrice.subtract(oldPrice).abs().compareTo(difference) <= 0);
+    }
+
+    @Test
+    void getGainers_limitZero_returnsEmptyList() {
+        appleStock.addNewSalesPrice(new BigDecimal("155.00"));
+
+        assertTrue(exchange.getGainers(0).isEmpty());
+    }
+
+    @Test
+    void getGainers_equalChange_sortsBySymbol() {
+        Stock microsoftStock = new Stock("MSFT", "Microsoft", new BigDecimal("300.00"));
+        Stock amazonStock = new Stock("AMZN", "Amazon", new BigDecimal("100.00"));
+
+        microsoftStock.addNewSalesPrice(new BigDecimal("310.00"));
+        amazonStock.addNewSalesPrice(new BigDecimal("110.00"));
+
+        Exchange statisticsExchange = new Exchange(
+                "Statistics Exchange",
+                List.of(microsoftStock, amazonStock)
+        );
+
+        assertEquals(List.of(amazonStock, microsoftStock), statisticsExchange.getGainers(5));
+    }
+
     //NEGATIVE TESTS
 
     @Test
@@ -146,6 +207,31 @@ public class ExchangeTest {
     @Test
     void constructor_nullStocks_throwsException() {
         assertThrows(NullPointerException.class, () -> new Exchange("X", null));
+    }
+
+    @Test
+    void hasStock_nullSymbol_throwsException() {
+        assertThrows(IllegalArgumentException.class, () -> exchange.hasStock(null));
+    }
+
+    @Test
+    void getStock_unknownSymbol_throwsException() {
+        assertThrows(IllegalArgumentException.class, () -> exchange.getStock("MSFT"));
+    }
+
+    @Test
+    void findStocks_nullSearchTerm_throwsException() {
+        assertThrows(IllegalArgumentException.class, () -> exchange.findStocks(null));
+    }
+
+    @Test
+    void buy_unknownSymbol_throwsException() {
+        assertThrows(IllegalArgumentException.class, () -> exchange.buy("MSFT", BigDecimal.ONE, player));
+    }
+
+    @Test
+    void buy_insufficientFunds_throwsException() {
+        assertThrows(IllegalStateException.class, () -> exchange.buy("AAPL", new BigDecimal("1000.00"), player));
     }
 
     @Test
