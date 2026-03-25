@@ -54,6 +54,27 @@ public class PortfolioTest {
     assertEquals("AAPL", appleShares.getFirst().getStock().getSymbol());
   }
 
+  @Test
+  void getNetWorth_emptyPortfolio_returnsZero() {
+    assertEquals(BigDecimal.ZERO, portfolio.getNetWorth());
+  }
+
+  @Test
+  void getNetWorth_withShares_returnsTotalSaleValue() {
+    Stock appleStock = createAppleStock();
+    Stock googleStock = createGoogleStock();
+    appleStock.addNewSalesPrice(new BigDecimal("200"));
+    googleStock.addNewSalesPrice(new BigDecimal("3000"));
+
+    Share updatedAppleShare = new Share(appleStock, new BigDecimal("10"), new BigDecimal("150"));
+    Share updatedGoogleShare = new Share(googleStock, new BigDecimal("5"), new BigDecimal("2800"));
+
+    portfolio.addShare(updatedAppleShare);
+    portfolio.addShare(updatedGoogleShare);
+
+    assertEquals(new BigDecimal("16431.0000"), portfolio.getNetWorth());
+  }
+
   // NEGATIVE TESTS
 
   @Test
