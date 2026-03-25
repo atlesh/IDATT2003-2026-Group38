@@ -1,15 +1,17 @@
 package no.ntnu.idatt2003.group38.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import no.ntnu.idatt2003.group38.calculator.SaleCalculator;
 
 /**
  * Class represents a portfolio of all the shares a user owns.
  */
 public class Portfolio {
 
-  private List<Share> shares;
+  private final List<Share> shares;
 
   /**
    * Creates a portfolio.
@@ -74,5 +76,23 @@ public class Portfolio {
   public boolean contains(Share share) {
     Objects.requireNonNull(share, "share cannot be null");
     return this.shares.contains(share);
+  }
+
+  /**
+   * Returns the total net sale value of all shares in the portfolio.
+   *
+   * <p>The value is calculated using {@link SaleCalculator}
+   * for each share and summed into one total.</p>
+   *
+   * @return the portfolio's total net worth
+   */
+  public BigDecimal getNetWorth() {
+    BigDecimal total = BigDecimal.ZERO;
+
+    for (Share share : this.shares) {
+      total = total.add(new SaleCalculator(share).calculateTotal());
+    }
+
+    return total;
   }
 }
