@@ -3,6 +3,7 @@ package no.ntnu.idatt2003.group38.exchange;
 import no.ntnu.idatt2003.group38.model.Player;
 import no.ntnu.idatt2003.group38.model.Share;
 import no.ntnu.idatt2003.group38.model.Stock;
+import no.ntnu.idatt2003.group38.observer.Observable;
 import no.ntnu.idatt2003.group38.transaction.Purchase;
 import no.ntnu.idatt2003.group38.transaction.Sale;
 import no.ntnu.idatt2003.group38.transaction.Transaction;
@@ -20,7 +21,7 @@ import java.util.*;
  * <p>Players can buy and sell shares through the exchange,
  * and the market can advance to simulate price changes</p>
  */
-public class Exchange {
+public class Exchange extends Observable{
 
   private final String name;
   private int week;
@@ -169,6 +170,7 @@ public class Exchange {
     Purchase purchase = new Purchase(share, this.week);
     purchase.commit(player);
 
+    notifyObservers();
     return purchase;
   }
 
@@ -200,6 +202,7 @@ public class Exchange {
     Sale sale = new Sale(share, this.week);
     sale.commit(player);
 
+    notifyObservers();
     return sale;
   }
 
@@ -230,6 +233,8 @@ public class Exchange {
       newPrice = newPrice.setScale(2, RoundingMode.HALF_UP);
 
       stock.addNewSalesPrice(newPrice);
+
+      notifyObservers();
     }
   }
 
