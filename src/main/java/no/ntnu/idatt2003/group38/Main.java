@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import no.ntnu.idatt2003.group38.controller.StartController;
 import no.ntnu.idatt2003.group38.view.StartView;
 
 /**
@@ -22,6 +23,8 @@ public class Main extends Application {
         .forEach(System.out::println);
 
     StartView startView = new StartView();
+    new StartController(startView, stage);
+
     Scene scene = new Scene(startView.getRoot(), 760, 480);
     startView.attachTo(scene);
     stage.setScene(scene);
