@@ -1,24 +1,24 @@
-/* ===== Root container ===== */
+/* Root container */
 .start-view {
     -fx-background-color: #FFFFFF;
     -fx-padding: 40;
 }
 
-/* ===== Title ===== */
+/* Title */
 .start-view-title {
     -fx-font-family: "Roboto Light";
     -fx-font-size: 64px;
     -fx-text-fill: #1A1A1A;
 }
 
-/* ===== Field labels (the small grey ones above each input) ===== */
+/* Field titles */
 .field-label {
     -fx-font-family: "Roboto light";
     -fx-font-size: 13px;
     -fx-text-fill: #6E6E6E;
 }
 
-/* ===== Text fields ===== */
+/* Text fields */
 .start-view-field {
     -fx-font-family: "Roboto light";
     -fx-font-size: 14px;
@@ -34,10 +34,11 @@
 }
 
 .start-view-field:focused {
-    -fx-border-color: #a5a5a5;
+    -fx-border-color: #9e9e9e;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 1, 0, 0, 1);
 }
 
-/* ===== File picker ("...") button ===== */
+/* File pick button */
 .pick-file-button {
     -fx-font-family: "Roboto bold";
     -fx-font-size: 14px;
@@ -59,7 +60,7 @@
     -fx-background-color: #BFBFBF;
 }
 
-/* ===== Start Game button ===== */
+/* Start button */
 .start-button {
     -fx-font-family: "Roboto bold";
     -fx-font-size: 15px;
@@ -81,7 +82,7 @@
     -fx-background-color: #BFBFBF;
 }
 
-/* ===== Error message ===== */
+/*  Error message */
 .error-label {
     -fx-font-family: "Roboto light";
     -fx-font-size: 13px;
