@@ -78,7 +78,7 @@ public class ShellView {
   }
 
   /**
-   * Attaches this shell's stylesheet to the given scene.
+   * Attaches shell stylesheet to given scene.
    *
    * @param scene the scene to attach the stylesheet to. Must not be {@code null}
    * @throws NullPointerException if {@code scene} is {@code null} or if the

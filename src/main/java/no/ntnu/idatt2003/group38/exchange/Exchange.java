@@ -233,9 +233,9 @@ public class Exchange extends Observable{
       newPrice = newPrice.setScale(2, RoundingMode.HALF_UP);
 
       stock.addNewSalesPrice(newPrice);
-
-      notifyObservers();
     }
+
+    notifyObservers();
   }
 
   /**

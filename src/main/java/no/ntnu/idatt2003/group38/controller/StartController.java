@@ -8,6 +8,7 @@ import java.util.Objects;
 import javafx.scene.Scene;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import no.ntnu.idatt2003.group38.controller.shell.ShellController;
 import no.ntnu.idatt2003.group38.exchange.Exchange;
 import no.ntnu.idatt2003.group38.filehandling.CsvStockReader;
 import no.ntnu.idatt2003.group38.filehandling.StockFileReader;
@@ -117,7 +118,7 @@ public class StartController {
     Player player = new Player(username, startingCapital);
     Exchange exchange = new Exchange(EXCHANGE_NAME, stocks);
 
-    navigateToDashboard(player, exchange, stocks.size());
+    navigateToDashboard(player, exchange);
   }
 
   /**
@@ -151,27 +152,14 @@ public class StartController {
    *
    * @param player the player that was just created
    * @param exchange the exchange that was just created
-   * @param stockCount the number of stocks loaded from the picked file
    */
-  private void navigateToDashboard(Player player, Exchange exchange, int stockCount) {
+  private void navigateToDashboard(Player player, Exchange exchange) {
     ShellView shell = new ShellView();
+    new ShellController(shell, this.stage, player, exchange);
 
-    shell.getSideNav().setOnNavigate(dest -> {
-      System.out.println("Navigate to: " + dest);
-      shell.getSideNav().setActive(dest);
-    });
-
-    shell.getTopBar().setWeek(exchange.getWeek());
-    shell.getTopBar().setCash(player.getMoney().toPlainString());
-    shell.getTopBar().setNetWorth(player.getMoney().toPlainString());
-    shell.getTopBar().setStatus("Investor");
-
-    Scene current = stage.getScene();
-    double width = current != null ? current.getWidth() : 1024;
-    double height = current != null ? current.getHeight() : 720;
-
-    Scene scene = new Scene(shell.getRoot(), width, height);
+    Scene scene = new Scene(shell.getRoot(), 1024, 720);
     shell.attachTo(scene);
-    stage.setScene(scene);
+    this.stage.setScene(scene);
+    this.stage.centerOnScreen();
   }
 }
