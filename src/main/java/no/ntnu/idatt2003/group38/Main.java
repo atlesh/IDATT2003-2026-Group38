@@ -18,20 +18,12 @@ public class Main extends Application {
   @Override
   public void start(Stage stage) {
     loadFonts();
-    javafx.scene.text.Font.getFamilies().stream()
-        .filter(f -> f.toLowerCase().contains("roboto"))
-        .forEach(System.out::println);
 
     StartView startView = new StartView();
     new StartController(startView, stage);
 
     Scene scene = new Scene(startView.getRoot(), 760, 480);
     startView.attachTo(scene);
-    stage.setScene(scene);
-
-    // Wire up actions here, or hand the view to a StartController:
-    // StartController controller = new StartController(startView, stage);
-
 
     stage.setTitle("Millions");
     stage.setScene(scene);
