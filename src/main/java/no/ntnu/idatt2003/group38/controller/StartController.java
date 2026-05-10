@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import javafx.scene.Scene;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import no.ntnu.idatt2003.group38.exchange.Exchange;
@@ -13,6 +14,7 @@ import no.ntnu.idatt2003.group38.filehandling.StockFileReader;
 import no.ntnu.idatt2003.group38.model.Player;
 import no.ntnu.idatt2003.group38.model.Stock;
 import no.ntnu.idatt2003.group38.view.StartView;
+import no.ntnu.idatt2003.group38.view.shell.ShellView;
 
 /**
  * Controller for {@link StartView}.
@@ -152,6 +154,24 @@ public class StartController {
    * @param stockCount the number of stocks loaded from the picked file
    */
   private void navigateToDashboard(Player player, Exchange exchange, int stockCount) {
-    /* Switch to dashboard */
+    ShellView shell = new ShellView();
+
+    shell.getSideNav().setOnNavigate(dest -> {
+      System.out.println("Navigate to: " + dest);
+      shell.getSideNav().setActive(dest);
+    });
+
+    shell.getTopBar().setWeek(exchange.getWeek());
+    shell.getTopBar().setCash(player.getMoney().toPlainString());
+    shell.getTopBar().setNetWorth(player.getMoney().toPlainString());
+    shell.getTopBar().setStatus("Investor");
+
+    Scene current = stage.getScene();
+    double width = current != null ? current.getWidth() : 1024;
+    double height = current != null ? current.getHeight() : 720;
+
+    Scene scene = new Scene(shell.getRoot(), width, height);
+    shell.attachTo(scene);
+    stage.setScene(scene);
   }
 }
