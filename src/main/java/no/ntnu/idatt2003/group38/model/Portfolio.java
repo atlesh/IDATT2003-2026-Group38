@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import no.ntnu.idatt2003.group38.calculator.SaleCalculator;
 
 /**
  * Class represents a portfolio of all the shares a user owns.

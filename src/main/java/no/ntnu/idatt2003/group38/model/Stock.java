@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.math.RoundingMode;
 
 /**
  * Represents a stock listed on the exchange
@@ -126,5 +127,30 @@ public class Stock {
     BigDecimal latest = this.prices.getLast();
     BigDecimal previous = this.prices.get(this.prices.size() - 2);
     return latest.subtract(previous);
+  }
+
+  /**
+   * Returns the price change between the last and second-to-last registered
+   * price as a percentage of the previous price.
+   *
+   * <p>The result is expressed as a percentage value.
+   *
+   * @return the percentage change between the latest and previous price
+   */
+  public BigDecimal getLatestPriceChangePercent() {
+    if (this.prices.size() < 2) {
+      return BigDecimal.ZERO;
+    }
+    BigDecimal latest = this.prices.getLast();
+    BigDecimal previous = this.prices.get(this.prices.size() - 2);
+
+    if (previous.compareTo(BigDecimal.ZERO) == 0) {
+      return BigDecimal.ZERO;
+    }
+
+    return latest.subtract(previous)
+        .divide(previous, 4, RoundingMode.HALF_UP)
+        .multiply(BigDecimal.valueOf(100))
+        .setScale(2, RoundingMode.HALF_UP);
   }
 }
