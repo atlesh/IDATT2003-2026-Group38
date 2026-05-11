@@ -176,4 +176,34 @@ public class StockTest {
     assertThrows(NullPointerException.class,
         () -> stock.addNewSalesPrice(null));
   }
+
+  // LatestPriceChangePercent
+  @Test
+  void returnsPositivePercent() {
+    Stock stock = new Stock("AAPL", "Apple Inc", new BigDecimal("100.00"));
+    stock.addNewSalesPrice(new BigDecimal("110.00"));
+    // (110 - 100) / 100 * 100 = 10.00
+    assertEquals(0, stock.getLatestPriceChangePercent().compareTo(new BigDecimal("10.00")));
+  }
+
+  @Test
+  void returnsNegativePercent() {
+    Stock stock = new Stock("AAPL", "Apple Inc", new BigDecimal("200.00"));
+    stock.addNewSalesPrice(new BigDecimal("150.00"));
+    // (150 - 200) / 200 * 100 = -25.00
+    assertEquals(0, stock.getLatestPriceChangePercent().compareTo(new BigDecimal("-25.00")));
+  }
+
+  @Test
+  void singlePrice_percentReturnsZero() {
+    Stock stock = new Stock("AAPL", "Apple Inc", new BigDecimal("100.00"));
+    assertEquals(0, stock.getLatestPriceChangePercent().compareTo(BigDecimal.ZERO));
+  }
+
+  @Test
+  void unchangedPrice_returnsZeroPercent() {
+    Stock stock = new Stock("AAPL", "Apple Inc", new BigDecimal("100.00"));
+    stock.addNewSalesPrice(new BigDecimal("100.00"));
+    assertEquals(0, stock.getLatestPriceChangePercent().compareTo(BigDecimal.ZERO));
+  }
 }
