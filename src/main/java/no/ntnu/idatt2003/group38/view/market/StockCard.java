@@ -31,7 +31,10 @@ public class StockCard {
   private final Label highLabel;
   private final Label lowLabel;
   private final Spinner<Integer> quantitySpinner;
-  private final Label costLabel;
+  private final Label grossLabel;
+  private final Label commissionLabel;
+  private final Label taxLabel;
+  private final Label totalLabel;
 
   private Stock currentStock;
   private BiConsumer<Stock, Integer> onBuy = (stock, qty) -> { };
@@ -69,8 +72,14 @@ public class StockCard {
     this.quantitySpinner.getStyleClass().add("stock-card-spinner");
     this.quantitySpinner.valueProperty().addListener((obs, oldV, newV) -> updateCost());
 
-    this.costLabel = new Label();
-    this.costLabel.getStyleClass().add("stock-card-line");
+    this.grossLabel = new Label();
+    this.grossLabel.getStyleClass().add("stock-card-line");
+    this.commissionLabel = new Label();
+    this.commissionLabel.getStyleClass().add("stock-card-line");
+    this.taxLabel = new Label();
+    this.taxLabel.getStyleClass().add("stock-card-line");
+    this.totalLabel = new Label();
+    this.totalLabel.getStyleClass().add("stock-card-line");
 
     this.buyButton = new Button("Buy");
     this.buyButton.getStyleClass().add("buy-button");
@@ -90,7 +99,10 @@ public class StockCard {
         this.lowLabel,
         quantityHeading,
         this.quantitySpinner,
-        this.costLabel,
+        this.grossLabel,
+        this.commissionLabel,
+        this.taxLabel,
+        this.totalLabel,
         this.buyButton);
     this.root.setAlignment(Pos.TOP_CENTER);
     this.root.getStyleClass().addAll("market-panel", "stock-card");
@@ -156,7 +168,8 @@ public class StockCard {
     for (var node : new javafx.scene.Node[] {
         this.companyLabel, this.priceLabel, this.changeLabel,
         this.highLabel, this.lowLabel,
-        this.quantitySpinner, this.costLabel, this.buyButton }) {
+        this.quantitySpinner, this.grossLabel, this.commissionLabel,
+        this.taxLabel, this.totalLabel, this.buyButton }) {
       node.setVisible(visible);
       node.setManaged(visible);
     }
@@ -164,13 +177,20 @@ public class StockCard {
 
   private void updateCost() {
     if (this.currentStock == null) {
-      this.costLabel.setText("");
+      this.grossLabel.setText("");
+      this.commissionLabel.setText("");
+      this.taxLabel.setText("");
+      this.totalLabel.setText("");
       return;
     }
     BigDecimal quantity = BigDecimal.valueOf(this.quantitySpinner.getValue());
     Share preview = new Share(this.currentStock, quantity, this.currentStock.getSalesPrice());
-    BigDecimal total = new PurchaseCalculator(preview).calculateTotal();
-    this.costLabel.setText("Cost: ~" + formatPrice(total));
+    PurchaseCalculator calc = new PurchaseCalculator(preview);
+
+    this.grossLabel.setText("Gross: " + formatPrice(calc.calculateGross()));
+    this.commissionLabel.setText("Commission: " + formatPrice(calc.calculateCommission()));
+    this.taxLabel.setText("Tax: " + formatPrice(calc.calculateTax()));
+    this.totalLabel.setText("Total: " + formatPrice(calc.calculateTotal()));
   }
 
   // Formatting
