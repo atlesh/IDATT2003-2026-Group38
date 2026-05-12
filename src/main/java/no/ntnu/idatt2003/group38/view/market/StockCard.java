@@ -12,6 +12,7 @@ import java.util.function.BiConsumer;
 import javafx.scene.control.Spinner;
 import no.ntnu.idatt2003.group38.calculator.PurchaseCalculator;
 import no.ntnu.idatt2003.group38.model.Share;
+import no.ntnu.idatt2003.group38.view.components.PriceSparkline;
 
 /**
  * The selected stock card on the Market page.
@@ -30,11 +31,13 @@ public class StockCard {
   private final Button buyButton;
   private final Label highLabel;
   private final Label lowLabel;
+  private final PriceSparkline sparkline;
   private final Spinner<Integer> quantitySpinner;
   private final Label grossLabel;
   private final Label commissionLabel;
   private final Label taxLabel;
   private final Label totalLabel;
+  private final Label errorLabel;
 
   private Stock currentStock;
   private BiConsumer<Stock, Integer> onBuy = (stock, qty) -> { };
@@ -64,13 +67,19 @@ public class StockCard {
     this.lowLabel = new Label();
     this.lowLabel.getStyleClass().add("stock-card-line");
 
+    this.sparkline = new PriceSparkline();
+
     Label quantityHeading = new Label("Quantity");
     quantityHeading.getStyleClass().add("stock-card-line");
 
     this.quantitySpinner = new Spinner<>(1, 10_000, 1);
     this.quantitySpinner.setEditable(true);
     this.quantitySpinner.getStyleClass().add("stock-card-spinner");
-    this.quantitySpinner.valueProperty().addListener((obs, oldV, newV) -> updateCost());
+    this.quantitySpinner.valueProperty().addListener(
+        (obs, oldV, newV) -> {
+      updateCost();
+      clearError();
+    });
 
     this.grossLabel = new Label();
     this.grossLabel.getStyleClass().add("stock-card-line");
@@ -89,6 +98,9 @@ public class StockCard {
       }
     });
 
+    this.errorLabel = new Label();
+    this.errorLabel.setStyle("-fx-text-fill: red;"); //didn't connect with css
+
     this.root = new VBox(8,
         titleLabel,
         this.symbolLabel,
@@ -97,13 +109,15 @@ public class StockCard {
         this.changeLabel,
         this.highLabel,
         this.lowLabel,
+        this.sparkline.getRoot(),
         quantityHeading,
         this.quantitySpinner,
         this.grossLabel,
         this.commissionLabel,
         this.taxLabel,
         this.totalLabel,
-        this.buyButton);
+        this.buyButton,
+        this.errorLabel);
     this.root.setAlignment(Pos.TOP_CENTER);
     this.root.getStyleClass().addAll("market-panel", "stock-card");
 
@@ -135,12 +149,15 @@ public class StockCard {
     this.changeLabel.setText("Change: " + formatChange(pct));
     this.highLabel.setText("High: " + formatPrice(stock.getHighestPrice()));
     this.lowLabel.setText("Low: " + formatPrice(stock.getLowestPrice()));
+    this.sparkline.setPrices(stock.getHistoricalPrices());
     applyChangeColor(pct);
 
     this.quantitySpinner.getValueFactory().setValue(1);
     updateCost();
 
     setDetailsVisible(true);
+
+    clearError();
   }
 
   /**
@@ -168,6 +185,7 @@ public class StockCard {
     for (var node : new javafx.scene.Node[] {
         this.companyLabel, this.priceLabel, this.changeLabel,
         this.highLabel, this.lowLabel,
+        this.sparkline.getRoot(),    // <-- here
         this.quantitySpinner, this.grossLabel, this.commissionLabel,
         this.taxLabel, this.totalLabel, this.buyButton }) {
       node.setVisible(visible);
@@ -211,5 +229,17 @@ public class StockCard {
     } else if (pct.signum() < 0) {
       this.changeLabel.getStyleClass().add("change-negative");
     }
+  }
+
+  public void showError(String message) {
+    this.errorLabel.setText(message);
+    this.errorLabel.setVisible(true);
+    this.errorLabel.setManaged(true);
+  }
+
+  public void clearError() {
+    this.errorLabel.setText("");
+    this.errorLabel.setVisible(false);
+    this.errorLabel.setManaged(false);
   }
 }

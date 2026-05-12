@@ -70,3 +70,76 @@
 .side-nav-button.active:hover {
     -fx-background-color: #111111;
 }
+
+/* Overlay */
+
+.modal-layer {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+}
+
+.receipt {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 14;
+    -fx-padding: 28 36 28 36;
+    -fx-min-width: 360;
+    -fx-max-width: 420;
+    -fx-max-height: 380;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 24, 0, 0, 6);
+}
+
+.receipt-header {
+    -fx-font-family: "Roboto";
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+    -fx-text-fill: #2E7D32;
+}
+
+.receipt-summary {
+    -fx-font-family: "Roboto";
+    -fx-font-size: 14px;
+    -fx-text-fill: #4A4A4A;
+}
+
+.receipt-breakdown {
+    -fx-padding: 6 0 6 0;
+}
+
+.receipt-row {
+    -fx-font-family: "Roboto";
+    -fx-font-size: 14px;
+}
+
+.receipt-row-label {
+    -fx-text-fill: #6E6E6E;
+}
+
+.receipt-row-value {
+    -fx-text-fill: #1A1A1A;
+}
+
+.receipt-divider {
+    -fx-pref-height: 1;
+    -fx-background-color: #E0E0E0;
+}
+
+.receipt-total .receipt-row-label,
+.receipt-total .receipt-row-value {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-text-fill: #1A1A1A;
+}
+
+.receipt-ok-button {
+    -fx-font-family: "Roboto";
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: #FFFFFF;
+    -fx-background-color: #2E7D32;
+    -fx-background-radius: 8;
+    -fx-padding: 8 28 8 28;
+    -fx-cursor: hand;
+}
+
+.receipt-ok-button:hover {
+    -fx-background-color: #1B5E20;
+}
