@@ -5,6 +5,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 
 /**
  * The outer frame that wraps every page of the application:
@@ -16,9 +17,11 @@ public class ShellView {
 
   private static final String STYLESHEET = "/stylesheets/shell.css";
 
-  private final BorderPane root;
+  private final StackPane root;
   private final TopBar topBar;
   private final SideNav sideNav;
+  private final BorderPane shellContent;
+  private final StackPane modalLayer;
 
   /**
    * Builds a new shell with a fresh {@link TopBar} and {@link SideNav} and an
@@ -28,11 +31,18 @@ public class ShellView {
     this.topBar = new TopBar();
     this.sideNav = new SideNav();
 
-    this.root = new BorderPane();
-    this.root.getStyleClass().add("shell");
-    this.root.setTop(this.topBar.getRoot());
-    this.root.setLeft(this.sideNav.getRoot());
-    this.root.setCenter(buildEmptyContent());
+    this.shellContent = new BorderPane();
+    this.shellContent.getStyleClass().add("shell");
+    this.shellContent.setTop(this.topBar.getRoot());
+    this.shellContent.setLeft(this.sideNav.getRoot());
+    this.shellContent.setCenter(buildEmptyContent());
+
+    this.modalLayer = new StackPane();
+    this.modalLayer.getStyleClass().add("modal-layer");
+    this.modalLayer.setVisible(false);
+    this.modalLayer.setManaged(false);
+
+    this.root = new StackPane(this.shellContent, this.modalLayer);
   }
 
   /**
@@ -74,7 +84,7 @@ public class ShellView {
    */
   public void setContent(Node content) {
     Objects.requireNonNull(content, "content cannot be null");
-    this.root.setCenter(content);
+    this.shellContent.setCenter(content);
   }
 
   /**
@@ -98,5 +108,29 @@ public class ShellView {
     Region placeholder = new Region();
     placeholder.getStyleClass().add("shell-content");
     return placeholder;
+  }
+
+  /**
+   * Shows the given node as a modal overlay above the shell content.
+   *
+   * <p>While shown, the underlying shell receives no clicks. The overlay
+   * dims the shell to focus attention on the modal content.
+   *
+   * @param content the modal content. Must not be {@code null}
+   */
+  public void showModal(Node content) {
+    Objects.requireNonNull(content, "content cannot be null");
+    this.modalLayer.getChildren().setAll(content);
+    this.modalLayer.setVisible(true);
+    this.modalLayer.setManaged(true);
+  }
+
+  /**
+   * Hides the modal overlay and removes its content.
+   */
+  public void hideModal() {
+    this.modalLayer.getChildren().clear();
+    this.modalLayer.setVisible(false);
+    this.modalLayer.setManaged(false);
   }
 }
