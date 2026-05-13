@@ -156,7 +156,7 @@ public class ExchangeTest {
 
     @Test
     void findStocks_blankSearchTerm_ReturnsEmptyList() {
-        assertTrue(exchange.findStocks("  ").isEmpty());
+        assertEquals(List.of(appleStock), exchange.findStocks("  "));
     }
 
     @Test

@@ -303,10 +303,10 @@ public class PortfolioView {
 
             this.buyQuantitySpinner.getValueFactory().setValue(1);
             this.sellQuantitySpinner.getValueFactory().setValue(1);
-            this.buyQuantitySpinner.setDisable(false);
-            this.sellQuantitySpinner.setDisable(false);
-            this.buyButton.setDisable(false);
-            this.sellButton.setDisable(false);
+            this.buyQuantitySpinner.setDisable(true);
+            this.sellQuantitySpinner.setDisable(true);
+            this.buyButton.setDisable(true);
+            this.sellButton.setDisable(true);
             applyChangeColor(this.selectedGainLossLabel, BigDecimal.ZERO);
             return;
         }
