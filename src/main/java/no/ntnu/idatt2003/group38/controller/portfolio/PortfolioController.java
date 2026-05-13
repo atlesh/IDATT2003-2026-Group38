@@ -2,34 +2,45 @@ package no.ntnu.idatt2003.group38.controller.portfolio;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import javafx.scene.Scene;
-import javafx.scene.layout.Region;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.layout.Region;
 import no.ntnu.idatt2003.group38.exchange.Exchange;
 import no.ntnu.idatt2003.group38.model.Player;
 import no.ntnu.idatt2003.group38.model.Share;
+import no.ntnu.idatt2003.group38.model.Stock;
 import no.ntnu.idatt2003.group38.observer.ModelObserver;
 import no.ntnu.idatt2003.group38.view.portfolio.PortfolioView;
 import no.ntnu.idatt2003.group38.view.shell.Page;
 import no.ntnu.idatt2003.group38.calculator.PurchaseCalculator;
+import no.ntnu.idatt2003.group38.calculator.SaleCalculator;
 
 public class PortfolioController implements Page, ModelObserver {
 
   private final PortfolioView view;
   private final Exchange exchange;
   private final Player player;
+  private final DecimalFormat moneyFormat;
 
   private String selectedSymbol;
 
   public PortfolioController(Exchange exchange, Player player) {
     this.exchange = Objects.requireNonNull(exchange, "exchange cannot be null");
     this.player = Objects.requireNonNull(player, "player cannot be null");
+
+    DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
+    symbols.setGroupingSeparator(' ');
+    this.moneyFormat = new DecimalFormat("#,##0", symbols);
 
     this.view = new PortfolioView();
     this.view.setOnShareSelected(this::handleSelect);
@@ -71,8 +82,10 @@ public class PortfolioController implements Page, ModelObserver {
     if (this.selectedSymbol == null || quantity <= 0) {
       return;
     }
-    if(!confirmTrade("Confirm buy",
-            "Buy " + quantity + " share(s) of " + this.selectedSymbol + "?")) {
+    if (!confirmTrade(
+        "Confirm buy",
+        "Buy " + quantity + " " + this.selectedSymbol + " share(s)?",
+        buildBuyReceipt(quantity))) {
         return;
     }
 
@@ -87,8 +100,10 @@ public class PortfolioController implements Page, ModelObserver {
       if (this.selectedSymbol == null || quantity <= 0) {
           return;
       }
-      if (!confirmTrade("Confirm sell",
-              "Sell " + quantity + " share(s) of " + this.selectedSymbol + "?")) {
+      if (!confirmTrade(
+          "Confirm sell",
+          "Sell " + quantity + " " + this.selectedSymbol + " share(s)?",
+          buildSellReceipt(quantity))) {
           return;
       }
 
@@ -166,17 +181,69 @@ public class PortfolioController implements Page, ModelObserver {
     return null;
   }
 
-  private boolean confirmTrade(String title, String content) {
+  private boolean confirmTrade(String title, String header, String details) {
       Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
       alert.setTitle(title);
-      alert.setHeaderText(null);
-      alert.setContentText(content);
+      alert.setHeaderText(header);
+
+      Label detailsLabel = new Label(details);
+      detailsLabel.setWrapText(true);
+      detailsLabel.setStyle("-fx-font-family: 'Monospaced'; -fx-font-size: 14px;");
+
+      alert.getDialogPane().setContent(detailsLabel);
+      alert.getDialogPane().setPrefWidth(420);
 
       if (this.view.getRoot().getScene() != null) {
           alert.initOwner(this.view.getRoot().getScene().getWindow());
       }
 
       return alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK;
+  }
+
+  private String buildBuyReceipt(int quantity) {
+    Stock stock = this.exchange.getStock(this.selectedSymbol);
+    Share previewShare = new Share(stock, BigDecimal.valueOf(quantity), stock.getSalesPrice());
+    PurchaseCalculator calculator = new PurchaseCalculator(previewShare);
+
+    return String.join("\n",
+        "Price per share: " + formatMoney(stock.getSalesPrice()),
+        "Commission: " + formatMoney(calculator.calculateCommission()),
+        "Total cost: " + formatMoney(calculator.calculateTotal()));
+  }
+
+  private String buildSellReceipt(int quantity) {
+    BigDecimal requestedQuantity = BigDecimal.valueOf(quantity);
+    BigDecimal currentPrice = this.exchange.getStock(this.selectedSymbol).getSalesPrice();
+    BigDecimal remaining = requestedQuantity;
+    BigDecimal commission = BigDecimal.ZERO;
+    BigDecimal tax = BigDecimal.ZERO;
+    BigDecimal totalProceeds = BigDecimal.ZERO;
+
+    List<Share> ownedLots = new ArrayList<>(this.player.getPortfolio().getShares(this.selectedSymbol));
+    for (Share lot : ownedLots) {
+      if (remaining.compareTo(BigDecimal.ZERO) == 0) {
+        break;
+      }
+
+      BigDecimal sellQuantity = remaining.min(lot.getQuantity());
+      Share soldPart = new Share(lot.getStock(), sellQuantity, lot.getPurchasePrice());
+      SaleCalculator calculator = new SaleCalculator(soldPart);
+
+      commission = commission.add(calculator.calculateCommission());
+      tax = tax.add(calculator.calculateTax());
+      totalProceeds = totalProceeds.add(calculator.calculateTotal());
+      remaining = remaining.subtract(sellQuantity);
+    }
+
+    return String.join("\n",
+        "Price per share: " + formatMoney(currentPrice),
+        "Commission: " + formatMoney(commission),
+        "Tax: " + formatMoney(tax),
+        "Net proceeds: " + formatMoney(totalProceeds));
+  }
+
+  private String formatMoney(BigDecimal value) {
+    return this.moneyFormat.format(value.setScale(0, RoundingMode.HALF_UP));
   }
 
   private BigDecimal calculatePercent(BigDecimal value, BigDecimal base) {
