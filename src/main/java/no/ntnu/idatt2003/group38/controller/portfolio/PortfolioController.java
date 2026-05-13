@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Objects;
 import javafx.scene.Scene;
 import javafx.scene.layout.Region;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import no.ntnu.idatt2003.group38.exchange.Exchange;
 import no.ntnu.idatt2003.group38.model.Player;
 import no.ntnu.idatt2003.group38.model.Share;
@@ -61,13 +63,17 @@ public class PortfolioController implements Page, ModelObserver {
   }
 
   private void handleSelect(Share share) {
-    this.selectedSymbol = share == null ? null : share.getStock().getSymbol();
-    this.view.showSelectedShare(share);
+      this.selectedSymbol = share == null ? null : share.getStock().getSymbol();
+      refresh();
   }
 
   private void handleBuySelected(int quantity) {
     if (this.selectedSymbol == null || quantity <= 0) {
       return;
+    }
+    if(!confirmTrade("Confirm buy",
+            "Buy " + quantity + " share(s) of " + this.selectedSymbol + "?")) {
+        return;
     }
 
     try {
@@ -79,6 +85,10 @@ public class PortfolioController implements Page, ModelObserver {
 
   private void handleSellSelected(int quantity) {
       if (this.selectedSymbol == null || quantity <= 0) {
+          return;
+      }
+      if (!confirmTrade("Confirm sell",
+              "Sell " + quantity + " share(s) of " + this.selectedSymbol + "?")) {
           return;
       }
 
@@ -110,6 +120,7 @@ public class PortfolioController implements Page, ModelObserver {
     BigDecimal totalGainLoss = portfolioValue.subtract(totalInvested);
     BigDecimal totalGainLossPct = calculatePercent(totalGainLoss, totalInvested);
 
+    this.view.setSelectedSymbol(this.selectedSymbol);
     this.view.setShares(displayShares);
     this.view.setSummary(
         this.player.getMoney(),
@@ -153,6 +164,19 @@ public class PortfolioController implements Page, ModelObserver {
       }
     }
     return null;
+  }
+
+  private boolean confirmTrade(String title, String content) {
+      Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+      alert.setTitle(title);
+      alert.setHeaderText(null);
+      alert.setContentText(content);
+
+      if (this.view.getRoot().getScene() != null) {
+          alert.initOwner(this.view.getRoot().getScene().getWindow());
+      }
+
+      return alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK;
   }
 
   private BigDecimal calculatePercent(BigDecimal value, BigDecimal base) {

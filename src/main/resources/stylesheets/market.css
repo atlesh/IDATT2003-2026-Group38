@@ -63,6 +63,17 @@
     -fx-background-color: #F5F5F5;
 }
 
+.market-row.selected {
+    -fx-background-color: #E8F1FF;
+    -fx-border-color: #1976D2;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+}
+
+.market-row.selected:hover {
+    -fx-background-color: #DCEAFF;
+}
+
 .market-scroll {
     -fx-background-color: transparent;
     -fx-background: transparent;
@@ -105,12 +116,14 @@
 }
 
 /* Change colors */
-.change-positive {
+.market-view .change-positive {
     -fx-text-fill: #2E7D32;
+    -fx-font-weight: bold;
 }
 
-.change-negative {
+.market-view .change-negative {
     -fx-text-fill: #C62828;
+    -fx-font-weight: bold;
 }
 
 /* Stock card */

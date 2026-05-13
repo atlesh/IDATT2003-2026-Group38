@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -20,6 +23,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import no.ntnu.idatt2003.group38.calculator.SaleCalculator;
 import no.ntnu.idatt2003.group38.model.Share;
 import no.ntnu.idatt2003.group38.calculator.PurchaseCalculator;
@@ -44,6 +50,9 @@ public class PortfolioView {
     private final Label positionValueLabel;
     private final Label selectedGainLossLabel;
     private final Label selectedAllocationLabel;
+    private final Label historyTitle;
+    private final LineChart<Number, Number> historyChart;
+    private final XYChart.Series<Number, Number> historySeries;
 
     private final Spinner<Integer> buyQuantitySpinner;
     private final Spinner<Integer> sellQuantitySpinner;
@@ -61,7 +70,14 @@ public class PortfolioView {
 
     private BigDecimal currentPortfolioValue = BigDecimal.ZERO;
 
+    private String selectedSymbol;
+
+    private final DecimalFormat moneyFormat;
+
     public PortfolioView() {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
+        symbols.setGroupingSeparator(' ');
+        this.moneyFormat = new DecimalFormat("#,##0", symbols);
         Label title = new Label("Portfolio");
         title.getStyleClass().add("market-title");
 
@@ -124,6 +140,25 @@ public class PortfolioView {
         this.selectedAllocationLabel = new Label();
         this.selectedAllocationLabel.getStyleClass().add("stock-card-line");
 
+        this.historyTitle = new Label("Price history");
+        this.historyTitle.getStyleClass().add("stock-card-title");
+
+        NumberAxis xAxis = new NumberAxis();
+        xAxis.setLabel("Week");
+        xAxis.setForceZeroInRange(false);
+
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel("Price");
+        yAxis.setForceZeroInRange(false);
+
+        this.historySeries = new XYChart.Series<>();
+        this.historyChart = new LineChart<>(xAxis, yAxis);
+        this.historyChart.setLegendVisible(false);
+        this.historyChart.setAnimated(false);
+        this.historyChart.setCreateSymbols(false);
+        this.historyChart.setPrefHeight(180);
+        this.historyChart.getData().add(this.historySeries);
+
         Label buyQuantityTitle = new Label("Buy quantity");
         buyQuantityTitle.getStyleClass().add("stock-card-line");
 
@@ -166,6 +201,8 @@ public class PortfolioView {
                 this.positionValueLabel,
                 this.selectedGainLossLabel,
                 this.selectedAllocationLabel,
+                this.historyTitle,
+                this.historyChart,
                 buyQuantityTitle,
                 this.buyQuantitySpinner,
                 sellQuantityTitle,
@@ -182,6 +219,11 @@ public class PortfolioView {
 
         setSummary(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
         showSelectedShare(null);
+        this.historySeries.getData().clear();
+        this.historyTitle.setManaged(false);
+        this.historyTitle.setVisible(false);
+        this.historyChart.setManaged(false);
+        this.historyChart.setVisible(false);
     }
 
     public Region getRoot() {
@@ -208,6 +250,10 @@ public class PortfolioView {
         }
     }
 
+    public void setSelectedSymbol(String selectedSymbol) {
+        this.selectedSymbol = selectedSymbol;
+    }
+
     public void showSelectedShare(Share share) {
         if (share == null) {
             this.symbolLabel.setText("No share selected");
@@ -218,13 +264,18 @@ public class PortfolioView {
             this.positionValueLabel.setText("");
             this.selectedGainLossLabel.setText("");
             this.selectedAllocationLabel.setText("");
+            this.historySeries.getData().clear();
+            this.historyTitle.setManaged(false);
+            this.historyTitle.setVisible(false);
+            this.historyChart.setManaged(false);
+            this.historyChart.setVisible(false);
 
             this.buyQuantitySpinner.getValueFactory().setValue(1);
             this.sellQuantitySpinner.getValueFactory().setValue(1);
-            this.buyQuantitySpinner.setDisable(true);
-            this.sellQuantitySpinner.setDisable(true);
-            this.buyButton.setDisable(true);
-            this.sellButton.setDisable(true);
+            this.buyQuantitySpinner.setDisable(false);
+            this.sellQuantitySpinner.setDisable(false);
+            this.buyButton.setDisable(false);
+            this.sellButton.setDisable(false);
             applyChangeColor(this.selectedGainLossLabel, BigDecimal.ZERO);
             return;
         }
@@ -245,6 +296,11 @@ public class PortfolioView {
         this.selectedGainLossLabel.setText("Gain/Loss: " + formatSignedMoney(gainLoss) + " (" + formatSignedPercent(gainLossPct) + ")");
         this.selectedAllocationLabel.setText("Allocation: " + formatPercent(allocationPct));
 
+        updateHistoryChart(share);
+        this.historyTitle.setManaged(true);
+        this.historyTitle.setVisible(true);
+        this.historyChart.setManaged(true);
+        this.historyChart.setVisible(true);
         this.buyQuantitySpinner.setDisable(false);
         this.sellQuantitySpinner.setDisable(false);
         this.buyButton.setDisable(false);
@@ -358,6 +414,9 @@ public class PortfolioView {
                 cell(gainLossLabel, 150),
                 cell(allocationLabel, 90));
         row.getStyleClass().add("market-row");
+        if (share.getStock().getSymbol().equals(this.selectedSymbol)) {
+            row.getStyleClass().add("selected");
+        }
         row.setOnMouseClicked(event -> this.onShareSelected.accept(share));
         return row;
     }
@@ -392,6 +451,17 @@ public class PortfolioView {
         return positionValue.divide(this.currentPortfolioValue, 4, RoundingMode.HALF_UP). multiply(BigDecimal.valueOf(100));
     }
 
+    private void updateHistoryChart(Share share) {
+        this.historySeries.getData().clear();
+        List<BigDecimal> prices = share.getStock().getHistoricalPrices();
+
+        for (int i = 0; i < prices.size(); i++) {
+            this.historySeries.getData().add(
+                    new XYChart.Data<>(i + 1, prices.get(i).doubleValue())
+            );
+        }
+    }
+
     private void applyChangeColor(Label label, BigDecimal value) {
         label.getStyleClass().removeAll("change-positive", "change-negative");
         if (value.signum() > 0) {
@@ -406,7 +476,7 @@ public class PortfolioView {
     }
 
     private String formatMoney(BigDecimal value) {
-        return value.setScale(0, RoundingMode.HALF_UP).toPlainString();
+        return this.moneyFormat.format(value.setScale(0, RoundingMode.HALF_UP));
     }
 
     private String formatSignedMoney(BigDecimal value) {
