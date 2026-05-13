@@ -65,31 +65,38 @@ public class PortfolioController implements Page, ModelObserver {
     this.view.showSelectedShare(share);
   }
 
-  private void handleBuySelected() {
-    if (this.selectedSymbol == null) {
+  private void handleBuySelected(int quantity) {
+    if (this.selectedSymbol == null || quantity <= 0) {
       return;
     }
 
     try {
-      this.exchange.buy(this.selectedSymbol, BigDecimal.ONE, this.player);
+      this.exchange.buy(this.selectedSymbol, BigDecimal.valueOf(quantity), this.player);
     } catch (RuntimeException e) {
       System.err.println("Buy failed: " + e.getMessage());
     }
   }
 
-  private void handleSellSelected() {
-    if (this.selectedSymbol == null) {
-      return;
-    }
-
-    List<Share> ownedShares = new ArrayList<>(this.player.getPortfolio().getShares(this.selectedSymbol));
-    try {
-      for (Share ownedShare : ownedShares) {
-        this.exchange.sell(ownedShare, this.player);
+  private void handleSellSelected(int quantity) {
+      if (this.selectedSymbol == null || quantity <= 0) {
+          return;
       }
-    } catch (RuntimeException e) {
-      System.err.println("Sell failed: " + e.getMessage());
-    }
+
+      BigDecimal remaining = BigDecimal.valueOf(quantity);
+      List<Share> ownedLots = new ArrayList<>(this.player.getPortfolio().getShares(selectedSymbol));
+
+      try {
+          for (Share lot : ownedLots) {
+              if (remaining.compareTo(BigDecimal.ZERO) == 0) {
+                  break;
+              }
+              BigDecimal sellQuantity = remaining.min(lot.getQuantity());
+              this.exchange.sell(lot, sellQuantity, this.player);
+              remaining = remaining.subtract(sellQuantity);
+          }
+      } catch (RuntimeException e) {
+          System.err.println("Sell failed: " + e.getMessage());
+      }
   }
 
   private void refresh() {

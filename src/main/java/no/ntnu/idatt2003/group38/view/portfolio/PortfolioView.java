@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -13,6 +14,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -42,15 +45,18 @@ public class PortfolioView {
     private final Label selectedGainLossLabel;
     private final Label selectedAllocationLabel;
 
+    private final Spinner<Integer> buyQuantitySpinner;
+    private final Spinner<Integer> sellQuantitySpinner;
+
     private final Button buyButton;
     private final Button sellButton;
 
     private Consumer<Share> onShareSelected = share -> {
     };
 
-    private Runnable onBuySelected = () -> {
+    private IntConsumer onBuySelected = quantity -> {
     };
-    private Runnable onSellSelected = () -> {
+    private IntConsumer onSellSelected = quantity -> {
     };
 
     private BigDecimal currentPortfolioValue = BigDecimal.ZERO;
@@ -118,16 +124,30 @@ public class PortfolioView {
         this.selectedAllocationLabel = new Label();
         this.selectedAllocationLabel.getStyleClass().add("stock-card-line");
 
+        Label buyQuantityTitle = new Label("Buy quantity");
+        buyQuantityTitle.getStyleClass().add("stock-card-line");
+
+        this.buyQuantitySpinner = new Spinner<>(1, 10_000, 1);
+        this.buyQuantitySpinner.setEditable(true);
+        this.buyQuantitySpinner.getStyleClass().add("stock-card-spinner");
+
+        Label sellQuantityTitle = new Label("Sell quantity");
+        sellQuantityTitle.getStyleClass().add("stock-card-line");
+
+        this.sellQuantitySpinner = new Spinner<>(1, 1, 1);
+        this.sellQuantitySpinner.setEditable(true);
+        this.sellQuantitySpinner.getStyleClass().add("stock-card-spinner");
+
         this.buyButton = new Button("BUY");
         this.buyButton.getStyleClass().add("buy-button");
-        this.buyButton.setOnAction(event -> this.onBuySelected.run());
+        this.buyButton.setOnAction(event -> this.onBuySelected.accept(this.buyQuantitySpinner.getValue()));
 
         this.sellButton = new Button("SELL");
         this.sellButton.getStyleClass().addAll("buy-button", "sell-button");
-        this.sellButton.setOnAction(event -> this.onSellSelected.run());
+        this.sellButton.setOnAction(event -> this.onSellSelected.accept(this.sellQuantitySpinner.getValue()));
 
-        HBox actionButtos = new HBox(8, this.buyButton, this.sellButton);
-        actionButtos.setAlignment(Pos.CENTER_LEFT);
+        HBox actionButtons = new HBox(8, this.buyButton, this.sellButton);
+        actionButtons.setAlignment(Pos.CENTER_LEFT);
 
         VBox detailsPanel = new VBox(
                 8,
@@ -146,7 +166,11 @@ public class PortfolioView {
                 this.positionValueLabel,
                 this.selectedGainLossLabel,
                 this.selectedAllocationLabel,
-                actionButtos);
+                buyQuantityTitle,
+                this.buyQuantitySpinner,
+                sellQuantityTitle,
+                this.sellQuantitySpinner,
+                actionButtons);
         detailsPanel.getStyleClass().add("market-panel");
         detailsPanel.setAlignment(Pos.TOP_LEFT);
         detailsPanel.setPrefWidth(260);
@@ -194,6 +218,11 @@ public class PortfolioView {
             this.positionValueLabel.setText("");
             this.selectedGainLossLabel.setText("");
             this.selectedAllocationLabel.setText("");
+
+            this.buyQuantitySpinner.getValueFactory().setValue(1);
+            this.sellQuantitySpinner.getValueFactory().setValue(1);
+            this.buyQuantitySpinner.setDisable(true);
+            this.sellQuantitySpinner.setDisable(true);
             this.buyButton.setDisable(true);
             this.sellButton.setDisable(true);
             applyChangeColor(this.selectedGainLossLabel, BigDecimal.ZERO);
@@ -216,8 +245,16 @@ public class PortfolioView {
         this.selectedGainLossLabel.setText("Gain/Loss: " + formatSignedMoney(gainLoss) + " (" + formatSignedPercent(gainLossPct) + ")");
         this.selectedAllocationLabel.setText("Allocation: " + formatPercent(allocationPct));
 
+        this.buyQuantitySpinner.setDisable(false);
+        this.sellQuantitySpinner.setDisable(false);
         this.buyButton.setDisable(false);
         this.sellButton.setDisable(false);
+
+        this.buyQuantitySpinner.getValueFactory().setValue(1);
+        SpinnerValueFactory.IntegerSpinnerValueFactory sellFactory = (SpinnerValueFactory.IntegerSpinnerValueFactory) this.sellQuantitySpinner.getValueFactory();
+        int maxSell = share.getQuantity().intValueExact();
+        sellFactory.setMax(maxSell);
+        sellFactory.setValue(1);
         applyChangeColor(this.selectedGainLossLabel, gainLoss);
     }
 
@@ -249,11 +286,11 @@ public class PortfolioView {
         this.onShareSelected = Objects.requireNonNull(onShareSelected, "onShareSelected cannot be null");
     }
 
-    public void setOnBuySelected(Runnable onBuySelected) {
+    public void setOnBuySelected(IntConsumer onBuySelected) {
         this.onBuySelected = Objects.requireNonNull(onBuySelected, "onBuySelected cannot be null");
     }
 
-    public void setOnSellSelected(Runnable onSellSelected) {
+    public void setOnSellSelected(IntConsumer onSellSelected) {
         this.onSellSelected = Objects.requireNonNull(onSellSelected, "onSellSelected cannot be null");
     }
 
