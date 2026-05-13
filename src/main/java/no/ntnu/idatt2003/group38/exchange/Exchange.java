@@ -5,6 +5,7 @@ import no.ntnu.idatt2003.group38.model.Share;
 import no.ntnu.idatt2003.group38.model.Stock;
 import no.ntnu.idatt2003.group38.observer.Observable;
 import no.ntnu.idatt2003.group38.transaction.Transaction;
+import no.ntnu.idatt2003.group38.transaction.Sale;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -201,6 +202,37 @@ public class Exchange extends Observable{
 
     Transaction sale = TransactionFactory.create(
         TransactionFactory.Type.Sale, share, this.week);
+    sale.commit(player);
+    notifyObservers();
+    return sale;
+  }
+
+  public Transaction sell(Share share, BigDecimal quantity, Player player) {
+    if (share == null) {
+      throw new IllegalArgumentException("Share cannot be null");
+    }
+    if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
+      throw new IllegalArgumentException("Quantity must be greater than 0");
+    }
+    if (player == null) {
+      throw new IllegalArgumentException("Player cannot be null");
+    }
+    if (share.getStock() == null) {
+      throw new IllegalArgumentException("Share must reference a stock");
+    }
+    if (!player.getPortfolio().contains(share)) {
+      throw new IllegalArgumentException("Player does not own this share");
+    }
+    if (quantity.compareTo(share.getQuantity()) > 0) {
+      throw new IllegalArgumentException("Cannot sell more than owned quantity");
+    }
+
+    if (quantity.compareTo(share.getQuantity()) == 0) {
+      return sell(share, player);
+    }
+
+    Share soldPart = new Share(share.getStock(), quantity, share.getPurchasePrice());
+    Transaction sale = new Sale(soldPart, share, this.week);
     sale.commit(player);
     notifyObservers();
     return sale;

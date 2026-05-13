@@ -63,6 +63,17 @@
     -fx-background-color: #F5F5F5;
 }
 
+.market-row.selected {
+    -fx-background-color: #E8F1FF;
+    -fx-border-color: #1976D2;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+}
+
+.market-row.selected:hover {
+    -fx-background-color: #DCEAFF;
+}
+
 .market-scroll {
     -fx-background-color: transparent;
     -fx-background: transparent;
@@ -92,13 +103,27 @@
     -fx-background-color: #145018;
 }
 
-/* Change colors */
-.change-positive {
-    -fx-text-fill: #2E7D32;
+.sell-button {
+    -fx-background-color: #C62828;
 }
 
-.change-negative {
+.sell-button:hover {
+    -fx-background-color: #B71C1C;
+}
+
+.sell-button:pressed {
+    -fx-background-color: #8E1717;
+}
+
+/* Change colors */
+.market-view .change-positive {
+    -fx-text-fill: #2E7D32;
+    -fx-font-weight: bold;
+}
+
+.market-view .change-negative {
     -fx-text-fill: #C62828;
+    -fx-font-weight: bold;
 }
 
 /* Stock card */

@@ -11,6 +11,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import no.ntnu.idatt2003.group38.controller.market.StockMarketController;
+import no.ntnu.idatt2003.group38.controller.portfolio.PortfolioController;
 import no.ntnu.idatt2003.group38.exchange.Exchange;
 import no.ntnu.idatt2003.group38.model.Player;
 import no.ntnu.idatt2003.group38.observer.ModelObserver;
@@ -99,8 +100,8 @@ public class ShellController implements ModelObserver {
   private Page createPage(Destination destination) {
     return switch (destination) {
       case DASHBOARD -> new PlaceholderPage("Dashboard");
-      case MARKET -> new StockMarketController(this.exchange, this.player, this.shell);
-      case PORTFOLIO -> new PlaceholderPage("Portfolio");
+      case MARKET -> new StockMarketController(this.exchange, this.player);
+      case PORTFOLIO -> new PortfolioController(this.exchange, this.player);
       case TRANSACTIONS -> new PlaceholderPage("Transactions");
       case WEEKLY_GAINERS -> new PlaceholderPage("Weekly Gainers");
       case WEEKLY_LOSERS -> new PlaceholderPage("Weekly Losers");
