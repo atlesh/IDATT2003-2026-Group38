@@ -92,6 +92,18 @@
     -fx-background-color: #145018;
 }
 
+.sell-button {
+    -fx-background-color: #C62828;
+}
+
+.sell-button:hover {
+    -fx-background-color: #B71C1C;
+}
+
+.sell-button:pressed {
+    -fx-background-color: #8E1717;
+}
+
 /* Change colors */
 .change-positive {
     -fx-text-fill: #2E7D32;
