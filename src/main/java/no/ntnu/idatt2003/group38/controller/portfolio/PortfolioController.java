@@ -1,5 +1,7 @@
 package no.ntnu.idatt2003.group38.controller.portfolio;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 import javafx.scene.Scene;
@@ -10,6 +12,7 @@ import no.ntnu.idatt2003.group38.model.Share;
 import no.ntnu.idatt2003.group38.observer.ModelObserver;
 import no.ntnu.idatt2003.group38.view.portfolio.PortfolioView;
 import no.ntnu.idatt2003.group38.view.shell.Page;
+import no.ntnu.idatt2003.group38.calculator.PurchaseCalculator;
 
 public class PortfolioController implements Page, ModelObserver {
 
@@ -24,6 +27,8 @@ public class PortfolioController implements Page, ModelObserver {
 
         this.view = new PortfolioView();
         this.view.setOnShareSelected(this::handleSelect);
+        this.view.setOnBuySelected(this::handleBuySelected);
+        this.view.setOnSellSelected(this::handleSellSelected);
     }
 
     @Override
@@ -56,13 +61,51 @@ public class PortfolioController implements Page, ModelObserver {
         this.view.showSelectedShare(share);
     }
 
+    private void handleBuySelected() {
+        if (this.selectedShare == null) {
+            return;
+        }
+
+        try {
+            this.exchange.buy(
+                    this.selectedShare.getStock().getSymbol(),
+                    BigDecimal.ONE,
+                    this.player
+            );
+        } catch (RuntimeException e) {
+            System.err.println("Buy failed: "  + e.getMessage());
+        }
+    }
+
+    private void handleSellSelected() {
+        if (this.selectedShare == null) {
+            return;
+        }
+
+        try {
+            this.exchange.sell(this.selectedShare, this.player);
+        } catch (RuntimeException e) {
+            System.err.println("Sell failed: "  + e.getMessage());
+        }
+    }
+
     private void refresh() {
         List<Share> shares = this.player.getPortfolio().getShares();
+
+        BigDecimal portfolioValue = this.player.getPortfolio().getNetWorth();
+        BigDecimal totalInvested = shares.stream()
+                .map(share -> new PurchaseCalculator(share).calculateTotal())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalGainLoss = portfolioValue.subtract(totalInvested);
+        BigDecimal totalGainLossPct = calculatePercent(totalGainLoss, totalInvested);
+
         this.view.setShares(shares);
         this.view.setSummary(
                 this.player.getMoney(),
-                this.player.getPortfolio().getNetWorth(),
-                this.player.getNetWorth());
+                portfolioValue,
+                this.player.getNetWorth(),
+                totalGainLoss,
+                totalGainLossPct);
 
         if (this.selectedShare != null && shares.contains(this.selectedShare)) {
             this.view.showSelectedShare(this.selectedShare);
@@ -70,5 +113,12 @@ public class PortfolioController implements Page, ModelObserver {
             this.selectedShare = null;
             this.view.showSelectedShare(null);
         }
+    }
+
+    private BigDecimal calculatePercent(BigDecimal.value, BigDecimal base) {
+        if (base.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+        return value.divide(base, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
     }
 }
