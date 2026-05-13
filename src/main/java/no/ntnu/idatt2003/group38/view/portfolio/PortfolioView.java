@@ -30,6 +30,13 @@ import no.ntnu.idatt2003.group38.calculator.SaleCalculator;
 import no.ntnu.idatt2003.group38.model.Share;
 import no.ntnu.idatt2003.group38.calculator.PurchaseCalculator;
 
+/**
+ * The Portfolio page view.
+ *
+ * <p>Shows the player's aggregated holdings in a table on the left and a
+ * detail panel on the right with summary metrics, selected-share information,
+ * trade controls and price history for the current selection.</p>
+ */
 public class PortfolioView {
 
     private static final String STYLESHEET = "/stylesheets/market.css";
@@ -74,6 +81,9 @@ public class PortfolioView {
 
     private final DecimalFormat moneyFormat;
 
+    /**
+     * Builds the portfolio view with an empty holdings list and no selected share.
+     */
     public PortfolioView() {
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
         symbols.setGroupingSeparator(' ');
@@ -226,10 +236,20 @@ public class PortfolioView {
         this.historyChart.setVisible(false);
     }
 
+    /**
+     * Returns the root node so the controller can mount the view.
+     *
+     * @return the root layout container of the view
+     */
     public Region getRoot() {
         return this.root;
     }
 
+    /**
+     * Replaces the rows in the table with one row per aggregated holding.
+     *
+     * @param shares the holdings to display. Must not be {@code null}
+     */
     public  void setShares(List<Share> shares) {
         Objects.requireNonNull(shares, "Shares cannot be null");
         this.rowsContainer.getChildren().clear();
@@ -250,10 +270,21 @@ public class PortfolioView {
         }
     }
 
+    /**
+     * Stores the symbol that should be rendered as selected in the holdings table.
+     *
+     * @param selectedSymbol the selected stock symbol, or {@code null} if none is selected
+     */
     public void setSelectedSymbol(String selectedSymbol) {
         this.selectedSymbol = selectedSymbol;
     }
 
+    /**
+     * Updates the right-hand details panel to show the given holding, or clears it
+     * if {@code share} is {@code null}.
+     *
+     * @param share the holding to display, or {@code null} to show the empty state
+     */
     public void showSelectedShare(Share share) {
         if (share == null) {
             this.symbolLabel.setText("No share selected");
@@ -314,10 +345,26 @@ public class PortfolioView {
         applyChangeColor(this.selectedGainLossLabel, gainLoss);
     }
 
+    /**
+     * Updates the summary panel using zero gain/loss values.
+     *
+     * @param cash the player's available cash
+     * @param portfolioValue the portfolio's current sale value
+     * @param netWorth the player's total net worth
+     */
     public void setSummary(BigDecimal cash, BigDecimal portfolioValue, BigDecimal netWorth) {
         setSummary(cash, portfolioValue, netWorth, BigDecimal.ZERO, BigDecimal.ZERO);
     }
 
+    /**
+     * Updates the summary panel with the latest cash, valuation and gain/loss values.
+     *
+     * @param cash the player's available cash. Must not be {@code null}
+     * @param portfolioValue the portfolio's current sale value. Must not be {@code null}
+     * @param netWorth the player's total net worth. Must not be {@code null}
+     * @param totalGainLoss the aggregated unrealized gain/loss. Must not be {@code null}
+     * @param totalGainLossPct the aggregated unrealized gain/loss percentage. Must not be {@code null}
+     */
     public void setSummary(
             BigDecimal cash,
             BigDecimal portfolioValue,
@@ -338,18 +385,38 @@ public class PortfolioView {
         applyChangeColor(this.totalGainLossLabel, totalGainLoss);
     }
 
+    /**
+     * Registers the callback to invoke when the user clicks a holding row.
+     *
+     * @param onShareSelected the callback. Must not be {@code null}
+     */
     public void setOnShareSelected(Consumer<Share> onShareSelected) {
         this.onShareSelected = Objects.requireNonNull(onShareSelected, "onShareSelected cannot be null");
     }
 
+    /**
+     * Registers the callback to invoke when the user clicks Buy.
+     *
+     * @param onBuySelected the callback receiving the requested quantity. Must not be {@code null}
+     */
     public void setOnBuySelected(IntConsumer onBuySelected) {
         this.onBuySelected = Objects.requireNonNull(onBuySelected, "onBuySelected cannot be null");
     }
 
+    /**
+     * Registers the callback to invoke when the user clicks Sell.
+     *
+     * @param onSellSelected the callback receiving the requested quantity. Must not be {@code null}
+     */
     public void setOnSellSelected(IntConsumer onSellSelected) {
         this.onSellSelected = Objects.requireNonNull(onSellSelected, "onSellSelected cannot be null");
     }
 
+    /**
+     * Attaches the portfolio stylesheet to the given scene if it is not already present.
+     *
+     * @param scene the scene to attach the stylesheet to. Must not be {@code null}
+     */
     public void attachTo(Scene scene) {
         Objects.requireNonNull(scene, "Scene cannot be null");
         String css = Objects.requireNonNull(getClass().getResource(STYLESHEET), "Could not find stylesheet at " + STYLESHEET).toExternalForm();
@@ -357,6 +424,8 @@ public class PortfolioView {
             scene.getStylesheets().add(css);
         }
     }
+
+    // Components
 
     private HBox buildHeaderRow() {
         Label stockHeader = new Label("Stock");
@@ -421,6 +490,9 @@ public class PortfolioView {
         return row;
     }
 
+    /**
+     * Wraps a node in a fixed-width cell so table columns align across rows.
+     */
     private HBox cell(Node content, double width) {
         HBox box = new HBox(content);
         box.setAlignment(Pos.CENTER_LEFT);
@@ -437,6 +509,10 @@ public class PortfolioView {
         return new PurchaseCalculator(share).calculateTotal();
     }
 
+    /**
+     * Returns {@code value} as a percentage of {@code base}, or zero if
+     * {@code base} is zero.
+     */
     private BigDecimal calculatePercent(BigDecimal value, BigDecimal base) {
         if (base.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
@@ -451,6 +527,11 @@ public class PortfolioView {
         return positionValue.divide(this.currentPortfolioValue, 4, RoundingMode.HALF_UP). multiply(BigDecimal.valueOf(100));
     }
 
+    /**
+     * Rebuilds the price history chart for the selected share's stock.
+     *
+     * @param share the selected share whose stock history should be displayed
+     */
     private void updateHistoryChart(Share share) {
         this.historySeries.getData().clear();
         List<BigDecimal> prices = share.getStock().getHistoricalPrices();
@@ -462,6 +543,12 @@ public class PortfolioView {
         }
     }
 
+    /**
+     * Applies positive/negative change styling to the given label.
+     *
+     * @param label the label to style
+     * @param value the signed value that determines the style
+     */
     private void applyChangeColor(Label label, BigDecimal value) {
         label.getStyleClass().removeAll("change-positive", "change-negative");
         if (value.signum() > 0) {
@@ -470,6 +557,8 @@ public class PortfolioView {
             label.getStyleClass().add("change-negative");
         }
     }
+
+    // Formatting
 
     private String formatQuantity(BigDecimal quantity) {
         return quantity.stripTrailingZeros().toPlainString();
