@@ -11,6 +11,9 @@ import no.ntnu.idatt2003.group38.model.Stock;
 import no.ntnu.idatt2003.group38.observer.ModelObserver;
 import no.ntnu.idatt2003.group38.view.market.StockMarketView;
 import no.ntnu.idatt2003.group38.view.shell.Page;
+import no.ntnu.idatt2003.group38.view.shell.ShellView;
+import no.ntnu.idatt2003.group38.view.components.TransactionReceipt;
+import no.ntnu.idatt2003.group38.transaction.Transaction;
 
 /**
  * Controller for the Market page.
@@ -25,6 +28,7 @@ public class StockMarketController implements Page, ModelObserver {
   private final StockMarketView view;
   private final Exchange exchange;
   private final Player player;
+  private final ShellView shell;
 
   private String searchQuery = "";
   private String selectedSymbol;
@@ -35,9 +39,10 @@ public class StockMarketController implements Page, ModelObserver {
    * @param exchange the exchange the user is trading on. Must not be {@code null}
    * @param player the player making purchases. Must not be {@code null}
    */
-  public StockMarketController(Exchange exchange, Player player) {
+  public StockMarketController(Exchange exchange, Player player, ShellView shell) {
     this.exchange = Objects.requireNonNull(exchange, "exchange cannot be null");
     this.player = Objects.requireNonNull(player, "player cannot be null");
+    this.shell = Objects.requireNonNull(shell, "shell cannot be null");
 
     this.view = new StockMarketView();
     this.view.setOnSearch(this::handleSearch);
@@ -91,10 +96,18 @@ public class StockMarketController implements Page, ModelObserver {
       return;
     }
     try {
-      this.exchange.buy(stock.getSymbol(), BigDecimal.valueOf(quantity), this.player);
+      Transaction transaction = this.exchange.buy(
+          stock.getSymbol(), BigDecimal.valueOf(quantity), this.player);
+      showReceipt(transaction);
     } catch (RuntimeException e) {
-      System.err.println("Buy failed: " + e.getMessage());
+      this.view.showBuyError("Insufficient funds");
     }
+  }
+
+  private void showReceipt(Transaction transaction) {
+    TransactionReceipt receipt = new TransactionReceipt(transaction);
+    receipt.setOnClose(this.shell::hideModal);
+    this.shell.showModal(receipt.getRoot());
   }
 
   // Refresh

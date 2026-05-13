@@ -213,4 +213,8 @@ public class StockMarketView {
       scene.getStylesheets().add(css);
     }
   }
+
+  public void showBuyError(String message) {
+    this.stockCard.showError(message);
+  }
 }

@@ -129,8 +129,8 @@
 /* Stock card */
 
 .stock-card {
-    -fx-pref-width: 200;
-    -fx-min-width: 200;
+    -fx-pref-width: 300;
+    -fx-min-width: 300;
     -fx-alignment: top-center;
 }
 
@@ -202,4 +202,29 @@
 .stock-card-spinner .increment-arrow,
 .stock-card-spinner .decrement-arrow {
     -fx-background-color: #4A4A4A;
+}
+
+/* Sparkline */
+
+.sparkline {
+    -fx-background-color: #F8F8F8;
+    -fx-background-radius: 6;
+    -fx-padding: 0;
+}
+
+.sparkline-line {
+    -fx-stroke-width: 2;
+    -fx-fill: transparent;
+}
+
+.sparkline-up {
+    -fx-stroke: #2E7D32;
+}
+
+.sparkline-down {
+    -fx-stroke: #C62828;
+}
+
+.sparkline-flat {
+    -fx-stroke: #9E9E9E;
 }
