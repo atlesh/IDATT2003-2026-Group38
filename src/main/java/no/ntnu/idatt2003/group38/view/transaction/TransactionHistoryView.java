@@ -404,6 +404,7 @@ public class TransactionHistoryView {
                 cell(totalLabel, 95)
         );
         row.getStyleClass().add("market-row");
+        row.getStyleClass().add(isPurchase ? "transaction-buy-row" : "transaction-sale-row");
 
         if (transaction == this.selectedTransaction) {
             row.getStyleClass().add("selected");
