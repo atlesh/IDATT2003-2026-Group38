@@ -87,7 +87,7 @@ public class TransactionHistoryController implements Page, ModelObserver {
     private void refresh() {
         List<Transaction> allTransactions = new ArrayList<>(this.player.getTransactionArchive().getTransactions());
 
-        List<Transaction> filteredTransactions = filterTransactions(allTransactions);
+        List<Transaction> filteredTransactions = new ArrayList<>(filterTransactions(allTransactions));
         Collections.reverse(filteredTransactions);
 
         this.view.setActiveFilter(this.currentFilter);
