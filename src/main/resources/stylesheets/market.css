@@ -22,14 +22,18 @@
 .market-search {
     -fx-font-family: "Roboto";
     -fx-font-size: 13px;
-    -fx-background-color: #F2F2F2;
+    -fx-background-color: #F7F7F7;
     -fx-background-radius: 8;
-    -fx-border-color: transparent;
+    -fx-border-color: #C7C7C7   ;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
     -fx-padding: 6 12 6 12;
+    -fx-prompt-text-fill: #6E6E6E;
 }
 
 .market-search:focused {
     -fx-border-color: #1976D2;
+    -fx-border-width: 1.2;
     -fx-border-radius: 8;
 }
 
@@ -72,6 +76,44 @@
 
 .market-row.selected:hover {
     -fx-background-color: #DCEAFF;
+}
+
+.market-row.transaction-buy-row {
+    -fx-background-color: rgba(198, 40, 40, 0.05);
+}
+
+.market-row.transaction-buy-row:hover {
+    -fx-background-color: rgba(198, 40, 40, 0.09);
+}
+
+.market-row.transaction-buy-row.selected {
+    -fx-background-color: rgba(198, 40, 40, 0.12);
+    -fx-border-color: #C62828;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+}
+
+.market-row.transaction-buy-row.selected:hover {
+    -fx-background-color: rgba(198, 40, 40, 0.17);
+}
+
+.market-row.transaction-sale-row {
+    -fx-background-color: rgba(46, 125, 50, 0.05);
+}
+
+.market-row.transaction-sale-row:hover {
+    -fx-background-color: rgba(46, 125, 50, 0.09);
+}
+
+.market-row.transaction-sale-row.selected {
+    -fx-background-color: rgba(46, 125, 50, 0.12);
+    -fx-border-color: #2E7D32;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+}
+
+.market-row.transaction-sale-row.selected:hover {
+    -fx-background-color: rgba(46, 125, 50, 0.17);
 }
 
 .market-scroll {
