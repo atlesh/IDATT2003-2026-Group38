@@ -24,8 +24,7 @@ public class SideNav {
     MARKET("Market"),
     PORTFOLIO("Portfolio"),
     TRANSACTIONS("Transactions"),
-    WEEKLY_GAINERS("Weekly Gainers"),
-    WEEKLY_LOSERS("Weekly Losers");
+    WEEKLY_STATISTICS("Weekly Statistics");
 
     private final String label;
 
