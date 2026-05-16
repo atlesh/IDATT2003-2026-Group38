@@ -28,9 +28,11 @@ public class StockMarketView {
 
   private static final String STYLESHEET = "/stylesheets/market.css";
 
-  private final HBox root;
+  private final ScrollPane root;
   private final VBox rowsContainer;
   private final StockCard stockCard;
+
+  private String selectedSymbol;
 
   private Consumer<String> onSearch = query -> { };
   private Consumer<Stock> onStockSelected = stock -> { };
@@ -55,21 +57,31 @@ public class StockMarketView {
 
     HBox header = buildHeaderRow();
 
-    ScrollPane scroll = new ScrollPane(this.rowsContainer);
-    scroll.setFitToWidth(true);
-    scroll.getStyleClass().add("market-scroll");
-    VBox.setVgrow(scroll, Priority.ALWAYS);
+    ScrollPane rowsScroll = new ScrollPane(this.rowsContainer);
+    rowsScroll.setFitToWidth(true);
+    rowsScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+    rowsScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+    rowsScroll.getStyleClass().add("market-scroll");
+    VBox.setVgrow(rowsScroll, Priority.ALWAYS);
 
-    VBox listPanel = new VBox(16, title, searchField, header, scroll);
+    VBox listPanel = new VBox(16, title, searchField, header, rowsScroll);
     listPanel.getStyleClass().add("market-panel");
+    listPanel.setMinWidth(0);
     HBox.setHgrow(listPanel, Priority.ALWAYS);
 
     this.stockCard = new StockCard();
     this.stockCard.setOnBuy((stock, qty) -> this.onBuy.accept(stock, qty));
 
-    this.root = new HBox(20, listPanel, this.stockCard.getRoot());
-    this.root.setPadding(new Insets(20));
-    this.root.getStyleClass().add("market-view");
+    HBox content = new HBox(20, listPanel, this.stockCard.getRoot());
+    content.setPadding(new Insets(20));
+    content.getStyleClass().add("market-view");
+
+    this.root = new ScrollPane(content);
+    this.root.setFitToWidth(true);
+    this.root.setFitToHeight(true);
+    this.root.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+    this.root.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+    this.root.getStyleClass().add("page-scroll");
   }
 
   /**
@@ -92,6 +104,10 @@ public class StockMarketView {
     for (Stock stock : stocks) {
       this.rowsContainer.getChildren().add(buildStockRow(stock));
     }
+  }
+
+  public void setSelectedSymbol(String selectedSymbol) {
+    this.selectedSymbol = selectedSymbol;
   }
 
   /**
@@ -150,10 +166,11 @@ public class StockMarketView {
 
     HBox header = new HBox(
         cell(stockHeader, 90),
-        cell(companyHeader, 260),
+        cell(companyHeader, 220),
         cell(priceHeader, 90),
         cell(changeHeader, 90));
     header.getStyleClass().add("market-row-header");
+    header.setMaxWidth(Region.USE_PREF_SIZE);
     return header;
   }
 
@@ -166,10 +183,14 @@ public class StockMarketView {
 
     HBox row = new HBox(
         cell(symbol, 90),
-        cell(company, 260),
+        cell(company, 220),
         cell(price, 90),
         cell(change, 90));
     row.getStyleClass().add("market-row");
+    row.setMaxWidth(Region.USE_PREF_SIZE);
+    if (stock.getSymbol().equals(this.selectedSymbol)) {
+      row.getStyleClass().add("selected");
+    }
     row.setOnMouseClicked(e -> this.onStockSelected.accept(stock));
     return row;
   }
@@ -181,6 +202,7 @@ public class StockMarketView {
     HBox box = new HBox(content);
     box.setAlignment(Pos.CENTER_LEFT);
     box.setPrefWidth(width);
+    box.setMinWidth(40);
     return box;
   }
 

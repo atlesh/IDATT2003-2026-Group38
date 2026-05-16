@@ -88,7 +88,7 @@ public class StockMarketController implements Page, ModelObserver {
 
   private void handleSelect(Stock stock) {
     this.selectedSymbol = stock == null ? null : stock.getSymbol();
-    this.view.showSelectedStock(stock);
+    refresh();
   }
 
   private void handleBuy(Stock stock, int quantity) {
@@ -119,6 +119,7 @@ public class StockMarketController implements Page, ModelObserver {
    */
   private void refresh() {
     List<Stock> stocks = this.exchange.findStocks(this.searchQuery);
+    this.view.setSelectedSymbol(this.selectedSymbol);     // <-- add this line
     this.view.setStocks(stocks);
 
     Stock selected = findSelected(stocks);

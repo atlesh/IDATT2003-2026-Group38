@@ -5,6 +5,7 @@ import java.util.Objects;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -22,7 +23,7 @@ public class WeeklyStatisticsView {
 
   private static final String STYLESHEET = "/stylesheets/weekly.css";
 
-  private final VBox root;
+  private final ScrollPane root;
   private final StatPanel gainersPanel;
   private final StatPanel losersPanel;
 
@@ -39,11 +40,20 @@ public class WeeklyStatisticsView {
     HBox panels = new HBox(20, this.gainersPanel.getRoot(), this.losersPanel.getRoot());
     HBox.setHgrow(this.gainersPanel.getRoot(), Priority.ALWAYS);
     HBox.setHgrow(this.losersPanel.getRoot(), Priority.ALWAYS);
+    this.gainersPanel.getRoot().setMinWidth(0);
+    this.losersPanel.getRoot().setMinWidth(0);
     VBox.setVgrow(panels, Priority.ALWAYS);
 
-    this.root = new VBox(20, title, panels);
-    this.root.setPadding(new Insets(20));
-    this.root.getStyleClass().add("weekly-view");
+    VBox content = new VBox(20, title, panels);
+    content.setPadding(new Insets(20));
+    content.getStyleClass().add("weekly-view");
+
+    this.root = new ScrollPane(content);
+    this.root.setFitToWidth(true);
+    this.root.setFitToHeight(true);
+    this.root.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+    this.root.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+    this.root.getStyleClass().add("page-scroll");
   }
 
   /**

@@ -270,3 +270,14 @@
 .sparkline-flat {
     -fx-stroke: #9E9E9E;
 }
+
+/* Portfolio */
+
+.portfolio-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.portfolio-scroll > .viewport {
+    -fx-background-color: transparent;
+}
