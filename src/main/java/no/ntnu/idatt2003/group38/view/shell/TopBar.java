@@ -1,6 +1,7 @@
 package no.ntnu.idatt2003.group38.view.shell;
 
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -19,6 +20,7 @@ public class TopBar {
   private final Label cashLabel;
   private final Label netWorthLabel;
   private final Label statusLabel;
+  private final Button nextWeekButton;
 
   /**
    * Builds the top bar with placeholder values for week, cash, net worth and
@@ -40,11 +42,15 @@ public class TopBar {
     this.statusLabel = new Label();
     this.statusLabel.getStyleClass().add("top-bar-info");
 
+    this.nextWeekButton = new Button("Next week");
+    this.nextWeekButton.getStyleClass().add("top-bar-next-week");
+
     Region spacer = new Region();
     HBox.setHgrow(spacer, Priority.ALWAYS);
 
     HBox infoGroup = new HBox(32,
-        this.weekLabel, this.cashLabel, this.netWorthLabel, this.statusLabel);
+        this.weekLabel, this.cashLabel, this.netWorthLabel, this.statusLabel,
+        this.nextWeekButton);
     infoGroup.setAlignment(Pos.CENTER_RIGHT);
     infoGroup.getStyleClass().add("top-bar-info-group");
 
@@ -103,5 +109,14 @@ public class TopBar {
    */
   public void setStatus(String status) {
     this.statusLabel.setText("Status: " + status);
+  }
+
+  /**
+   * Registers the action to invoke when the user clicks the Next week button.
+   *
+   * @param onAdvance the action. Must not be {@code null}
+   */
+  public void setOnAdvanceClicked(Runnable onAdvance) {
+    this.nextWeekButton.setOnAction(e -> onAdvance.run());
   }
 }
