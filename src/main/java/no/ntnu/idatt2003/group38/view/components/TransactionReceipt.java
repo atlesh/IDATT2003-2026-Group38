@@ -74,6 +74,65 @@ public class TransactionReceipt {
   }
 
   /**
+   * Builds a receipt from manually computed totals.
+   *
+   * @param actionWord the verb to use in the summary line, e.g. {@code "Bought"} or {@code "Sold"}
+   * @param symbol the stock symbol involved
+   * @param quantity the total quantity transacted
+   * @param unitPrice the per-share price to show in the summary line
+   * @param gross the total gross value across all underlying transactions
+   * @param commission the total commission across all underlying transactions
+   * @param tax the total tax across all underlying transactions
+   * @param total the total net value across all underlying transactions
+   */
+  public TransactionReceipt(
+      String actionWord,
+      String symbol,
+      BigDecimal quantity,
+      BigDecimal unitPrice,
+      BigDecimal gross,
+      BigDecimal commission,
+      BigDecimal tax,
+      BigDecimal total) {
+
+    Objects.requireNonNull(actionWord, "actionWord cannot be null");
+    Objects.requireNonNull(symbol, "symbol cannot be null");
+
+    Label header = new Label("Transaction completed");
+    header.getStyleClass().add("receipt-header");
+
+    Label summary = new Label(String.format("%s %s × %s @ %s",
+        actionWord,
+        formatQuantity(quantity),
+        symbol,
+        formatAmount(unitPrice)));
+    summary.getStyleClass().add("receipt-summary");
+
+    VBox breakdown = new VBox(6,
+        row("Gross", gross),
+        row("Commission", commission),
+        row("Tax", tax));
+    breakdown.getStyleClass().add("receipt-breakdown");
+
+    Region divider = new Region();
+    divider.getStyleClass().add("receipt-divider");
+
+    HBox totalRow = row("Total", total);
+    totalRow.getStyleClass().add("receipt-total");
+
+    Button okButton = new Button("OK");
+    okButton.getStyleClass().add("receipt-ok-button");
+    okButton.setDefaultButton(true);
+    okButton.setOnAction(e -> this.onClose.run());
+
+    this.root = new VBox(14, header, summary, breakdown, divider, totalRow, okButton);
+    this.root.setAlignment(Pos.CENTER);
+    this.root.setMaxHeight(Region.USE_PREF_SIZE);
+    this.root.setMaxWidth(Region.USE_PREF_SIZE);
+    this.root.getStyleClass().add("receipt");
+  }
+
+  /**
    * Returns the root node so it can be mounted as modal content.
    *
    * @return the root layout container of the receipt

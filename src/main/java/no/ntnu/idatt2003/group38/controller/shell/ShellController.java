@@ -103,7 +103,7 @@ public class ShellController implements ModelObserver {
     return switch (destination) {
       case DASHBOARD -> new PlaceholderPage("Dashboard");
       case MARKET -> new StockMarketController(this.exchange, this.player, this.shell);
-      case PORTFOLIO -> new PortfolioController(this.exchange, this.player);
+      case PORTFOLIO -> new PortfolioController(this.exchange, this.player, this.shell);
       case TRANSACTIONS -> new TransactionHistoryController(this.exchange, this.player);
       case WEEKLY_STATISTICS -> new WeeklyStatisticsController(this.exchange);
     };
