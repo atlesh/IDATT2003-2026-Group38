@@ -20,6 +20,7 @@ import no.ntnu.idatt2003.group38.observer.ModelObserver;
 import no.ntnu.idatt2003.group38.view.shell.Page;
 import no.ntnu.idatt2003.group38.view.shell.ShellView;
 import no.ntnu.idatt2003.group38.view.shell.SideNav.Destination;
+import no.ntnu.idatt2003.group38.view.components.ConfirmDialog;
 
 /**
  * Owns the running game and orchestrates the application shell.
@@ -63,6 +64,7 @@ public class ShellController implements ModelObserver {
     this.moneyFormat = new DecimalFormat("#,##0", symbols);
 
     this.shell.getSideNav().setOnNavigate(this::navigateTo);
+    this.shell.getTopBar().setOnAdvanceClicked(this::handleAdvanceWeek);   // <-- add this line
     this.exchange.addObserver(this);
 
     refreshTopBar();
@@ -138,6 +140,19 @@ public class ShellController implements ModelObserver {
    */
   private String formatMoney(BigDecimal amount) {
     return this.moneyFormat.format(amount.setScale(0, RoundingMode.HALF_UP));
+  }
+
+  private void handleAdvanceWeek() {
+    ConfirmDialog dialog = new ConfirmDialog(
+        "Advance to Week " + (this.exchange.getWeek() + 1) + "?",
+        "All stock prices will update for the new trading week. This cannot be undone.",
+        "Advance");
+    dialog.setOnCancel(this.shell::hideModal);
+    dialog.setOnConfirm(() -> {
+      this.shell.hideModal();
+      this.exchange.advance();
+    });
+    this.shell.showModal(dialog.getRoot());
   }
 
   // Lifecycle
