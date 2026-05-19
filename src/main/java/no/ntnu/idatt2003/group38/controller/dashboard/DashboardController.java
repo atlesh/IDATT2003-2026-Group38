@@ -64,11 +64,11 @@ public class DashboardController implements Page, ModelObserver {
         refresh();
     }
 
-    public void handleAdvanceWeek() {
+    private void handleAdvanceWeek() {
         this.exchange.advance();
     }
 
-    public void refresh() {
+    private void refresh() {
         List<Share> lots = this.player.getPortfolio().getShares();
         List<Share> positions = aggregateShares(lots);
 

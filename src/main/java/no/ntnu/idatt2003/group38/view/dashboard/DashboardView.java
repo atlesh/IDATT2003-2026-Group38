@@ -198,7 +198,7 @@ public class DashboardView {
         replaceRows(this.recentActivityBox, rows, null);
     }
 
-    public VBox buildMetricCard(String titleText, Label valueLabel) {
+    private VBox buildMetricCard(String titleText, Label valueLabel) {
         Label titleLabel = new Label(titleText);
         titleLabel.getStyleClass().add("stock-card-title");
 
