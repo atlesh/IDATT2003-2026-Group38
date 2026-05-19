@@ -65,7 +65,7 @@ public class ShellController implements ModelObserver {
     this.moneyFormat = new DecimalFormat("#,##0", symbols);
 
     this.shell.getSideNav().setOnNavigate(this::navigateTo);
-    this.shell.getTopBar().setOnAdvanceClicked(this::handleAdvanceWeek);   // <-- add this line
+    this.shell.getTopBar().setOnAdvanceClicked(this::handleAdvanceWeek);
     this.exchange.addObserver(this);
 
     refreshTopBar();
@@ -143,6 +143,13 @@ public class ShellController implements ModelObserver {
     return this.moneyFormat.format(amount.setScale(0, RoundingMode.HALF_UP));
   }
 
+  /**
+   * Opens a confirmation dialog before advancing the market to the next week.
+   *
+   * <p>When confirmed, the exchange advances, the player's current net worth is
+   * recorded for charting purposes, and the active dashboard is refreshed if
+   * it is currently mounted.</p>
+   */
   private void handleAdvanceWeek() {
     ConfirmDialog dialog = new ConfirmDialog(
         "Advance to Week " + (this.exchange.getWeek() + 1) + "?",
@@ -152,6 +159,11 @@ public class ShellController implements ModelObserver {
     dialog.setOnConfirm(() -> {
       this.shell.hideModal();
       this.exchange.advance();
+      this.player.recordNetWorthSnapshot();
+
+      if (this.currentPage instanceof DashboardController dashboardController) {
+        dashboardController.refreshChart();
+      }
     });
     this.shell.showModal(dialog.getRoot());
   }

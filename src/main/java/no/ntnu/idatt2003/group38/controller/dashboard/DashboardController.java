@@ -19,6 +19,14 @@ import no.ntnu.idatt2003.group38.view.shell.Page;
 import no.ntnu.idatt2003.group38.calculator.PurchaseCalculator;
 import no.ntnu.idatt2003.group38.calculator.SaleCalculator;
 
+/**
+ * Controller for the dashboard page.
+ *
+ * <p>Aggregates player state, market movement and recent activity into a
+ * high-level overview shown on the dashboard. The controller observes the
+ * {@link Exchange} so the page stays synchronized when prices or the trading
+ * week change.
+ */
 public class DashboardController implements Page, ModelObserver {
 
     private final DashboardView view;
@@ -27,12 +35,17 @@ public class DashboardController implements Page, ModelObserver {
 
     private final DecimalFormat moneyFormat;
 
+    /**
+     * Creates a new dashboard controller.
+     *
+     * @param exchange the exchange providing market data. Must not be {@code null}
+     * @param player the player whose progress is shown. Must not be {@code null}
+     */
     public DashboardController(Exchange exchange, Player player) {
         this.exchange = Objects.requireNonNull(exchange, "Exchange cannot be null");
         this.player = Objects.requireNonNull(player, "Player cannot be null");
 
         this.view = new DashboardView();
-        this.view.setOnAdvanceWeek(this::handleAdvanceWeek);
 
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
         symbols.setGroupingSeparator(' ');
@@ -64,10 +77,17 @@ public class DashboardController implements Page, ModelObserver {
         refresh();
     }
 
-    private void handleAdvanceWeek() {
-        this.exchange.advance();
+    /**
+     * Refreshes the dashboard after the shell has recorded a new net-worth
+     * snapshot for the current week.
+     */
+    public void refreshChart() {
+        refresh();
     }
 
+    /**
+     * Recomputes the entire dashboard from the current player and exchange state.
+     */
     private void refresh() {
         List<Share> lots = this.player.getPortfolio().getShares();
         List<Share> positions = aggregateShares(lots);
@@ -107,10 +127,18 @@ public class DashboardController implements Page, ModelObserver {
                 formatPercent(cashRatio)
         );
 
+        this.view.setPerformanceHistory(this.player.getNetWorthHistory());
+
         this.view.setMarketMovers(gainers, losers);
         this.view.setRecentActivity(recentActivity);
     }
 
+    /**
+     * Aggregates raw share lots into one display position per stock symbol.
+     *
+     * @param shares the owned lots to aggregate
+     * @return one aggregated share per symbol
+     */
     private List<Share>  aggregateShares(List<Share> shares) {
         Map<String, ShareAccumulator> groups = new LinkedHashMap<>();
 
