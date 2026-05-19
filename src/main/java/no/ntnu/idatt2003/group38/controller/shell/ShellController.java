@@ -143,6 +143,13 @@ public class ShellController implements ModelObserver {
     return this.moneyFormat.format(amount.setScale(0, RoundingMode.HALF_UP));
   }
 
+  /**
+   * Opens a confirmation dialog before advancing the market to the next week.
+   *
+   * <p>When confirmed, the exchange advances, the player's current net worth is
+   * recorded for charting purposes, and the active dashboard is refreshed if
+   * it is currently mounted.</p>
+   */
   private void handleAdvanceWeek() {
     ConfirmDialog dialog = new ConfirmDialog(
         "Advance to Week " + (this.exchange.getWeek() + 1) + "?",

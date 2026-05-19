@@ -101,10 +101,24 @@ public class Player {
     return this.portfolio;
   }
 
+  /**
+   * Returns the player's recorded net-worth history.
+   *
+   * <p>The list is returned as an immutable snapshot in chronological order,
+   * starting with the initial starting capital.</p>
+   *
+   * @return the player's net-worth history
+   */
   public List<BigDecimal> getNetWorthHistory() {
     return List.copyOf(this.netWorthHistory);
   }
 
+  /**
+   * Records the player's current net worth as a new history snapshot.
+   *
+   * <p>This should be called after a completed week advance so the dashboard
+   * chart can show week-by-week progression.</p>
+   */
   public void recordNetWorthSnapshot() {
     this.netWorthHistory.add(getNetWorth());
   }

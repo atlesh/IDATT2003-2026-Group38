@@ -16,6 +16,13 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+/**
+ * The dashboard page view.
+ *
+ * <p>Presents a high-level overview of the current game state, including
+ * player metrics, portfolio snapshot, market movers, recent activity and a
+ * chart of net-worth history.
+ */
 public class DashboardView {
 
   private static final String STYLESHEET = "/stylesheets/market.css";
@@ -43,6 +50,9 @@ public class DashboardView {
   private final LineChart<Number, Number> performanceChart;
   private final XYChart.Series<Number, Number> performanceSeries;
 
+  /**
+   * Builds the dashboard view and all of its visual sections.
+   */
   public DashboardView() {
     this.welcomeLabel = new Label("Welcome");
     this.welcomeLabel.getStyleClass().add("market-title");
@@ -160,10 +170,20 @@ public class DashboardView {
     setRecentActivity(List.of("No transactions yet"));
   }
 
+  /**
+   * Returns the root node so the dashboard can be mounted in the shell.
+   *
+   * @return the root layout container of the dashboard
+   */
   public Region getRoot() {
     return this.root;
   }
 
+  /**
+   * Attaches the dashboard stylesheet to the given scene if it is not already present.
+   *
+   * @param scene the scene to attach the stylesheet to. Must not be {@code null}
+   */
   public void attachTo(Scene scene) {
     Objects.requireNonNull(scene, "scene cannot be null");
     String css = Objects.requireNonNull(
@@ -175,11 +195,26 @@ public class DashboardView {
     }
   }
 
+  /**
+   * Updates the welcome area with the current player, week and status.
+   *
+   * @param playerName the player's display name
+   * @param week the current trading week
+   * @param status the player's current status
+   */
   public void setHeader(String playerName, int week, String status) {
     this.welcomeLabel.setText("Welcome, " + playerName);
     this.statusLabel.setText("Week " + week + " | Status: " + status);
   }
 
+  /**
+   * Updates the top-level KPI cards.
+   *
+   * @param cash the formatted cash value
+   * @param portfolioValue the formatted portfolio value
+   * @param netWorth the formatted net-worth value
+   * @param positions the formatted number of open positions
+   */
   public void setOverview(String cash, String portfolioValue, String netWorth, String positions) {
     this.cashValueLabel.setText(cash);
     this.portfolioValueLabel.setText(portfolioValue);
@@ -187,6 +222,14 @@ public class DashboardView {
     this.positionsValueLabel.setText(positions);
   }
 
+  /**
+   * Updates the portfolio snapshot panel.
+   *
+   * @param largest the largest current position
+   * @param best the best-performing holding
+   * @param worst the weakest-performing holding
+   * @param cashRatio the cash ratio as a formatted percentage
+   */
   public void setPortfolioSnapshot(String largest, String best, String worst, String cashRatio) {
     this.largestPositionLabel.setText("Largest position: " + largest);
     this.bestHoldingLabel.setText("Best holding: " + best);
@@ -194,6 +237,11 @@ public class DashboardView {
     this.cashRatioLabel.setText("Cash ratio: " + cashRatio);
   }
 
+  /**
+   * Replaces the performance chart data with one net-worth value per week.
+   *
+   * @param history the chronological net-worth history to plot. Must not be {@code null}
+   */
   public void setPerformanceHistory(List<BigDecimal> history) {
     Objects.requireNonNull(history, "history cannot be null");
 
@@ -204,11 +252,22 @@ public class DashboardView {
     }
   }
 
+  /**
+   * Updates the market movers section with formatted gainers and losers.
+   *
+   * @param gainers the rows to show in the top gainers column. Must not be {@code null}
+   * @param losers the rows to show in the top losers column. Must not be {@code null}
+   */
   public void setMarketMovers(List<String> gainers, List<String> losers) {
     replaceRows(this.gainersBox, gainers, "change-positive");
     replaceRows(this.losersBox, losers, "change-negative");
   }
 
+  /**
+   * Updates the recent activity section.
+   *
+   * @param rows the transaction rows to display. Must not be {@code null}
+   */
   public void setRecentActivity(List<String> rows) {
     replaceRows(this.recentActivityBox, rows, null);
   }
