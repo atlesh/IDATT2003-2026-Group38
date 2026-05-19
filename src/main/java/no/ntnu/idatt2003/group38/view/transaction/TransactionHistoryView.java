@@ -258,21 +258,22 @@ public class TransactionHistoryView {
     this.salesLabel.setText("Sales: " + sales);
 
     BigDecimal spentValue = moneySpent.negate();
-    this.moneySpentLabel.setText("Money spent: " + formatSignedMoney(spentValue));
+    this.moneySpentLabel.setText("Money spent: " + formatSignedAmount(spentValue));
     applyChangeColor(this.moneySpentLabel, spentValue);
 
-    this.moneyEarnedLabel.setText("Money earned: " + formatSignedMoney(moneyEarned));
+    this.moneyEarnedLabel.setText("Money earned: " + formatSignedAmount(moneyEarned));
     applyChangeColor(this.moneyEarnedLabel, moneyEarned);
 
     BigDecimal commissionValue = totalCommission.negate();
-    this.totalCommissionLabel.setText("Total commission: " + formatSignedMoney(commissionValue));
+    this.totalCommissionLabel.setText("Total commission: " + formatSignedAmount(commissionValue));
     applyChangeColor(this.totalCommissionLabel, commissionValue);
 
     BigDecimal taxValue = totalTax.negate();
-    this.totalTaxLabel.setText("Total tax: " + formatSignedMoney(taxValue));
+    this.totalTaxLabel.setText("Total tax: " + formatSignedAmount(taxValue));
     applyChangeColor(this.totalTaxLabel, taxValue);
 
-    this.realizedProfitLossLabel.setText("Realized profit/loss: " + formatSignedMoney(realizedProfitLoss));
+    this.realizedProfitLossLabel.setText("Realized profit/loss: "
+        + formatSignedAmount(realizedProfitLoss));
     applyChangeColor(this.realizedProfitLossLabel, realizedProfitLoss);
   }
 
@@ -309,10 +310,10 @@ public class TransactionHistoryView {
     this.weekValueLabel.setText("Week: " + transaction.getWeek());
     this.quantityValueLabel.setText("Quantity: " + formatQuantity(transaction.getShare().getQuantity()));
     this.priceValueLabel.setText("Price/share: " + formatMoney(pricePerShare));
-    this.grossValueLabel.setText("Gross: " + formatMoney(gross));
-    this.commissionValueLabel.setText("Commission: " + formatSignedMoney(commission));
-    this.taxValueLabel.setText("Tax: " + formatSignedMoney(tax));
-    this.totalValueLabel.setText("Total: " + formatSignedMoney(total));
+    this.grossValueLabel.setText("Gross: " + formatAmount(gross));
+    this.commissionValueLabel.setText("Commission: " + formatSignedAmount(commission));
+    this.taxValueLabel.setText("Tax: " + formatSignedAmount(tax));
+    this.totalValueLabel.setText("Total: " + formatSignedAmount(total));
 
     applyChangeColor(this.commissionValueLabel, commission);
     applyChangeColor(this.taxValueLabel, tax);
@@ -394,9 +395,9 @@ public class TransactionHistoryView {
     Label stock = new Label(transaction.getShare().getStock().getSymbol());
     Label quantity = new Label(formatQuantity(transaction.getShare().getQuantity()));
     Label price = new Label(formatMoney(pricePerShare));
-    Label feesLabel = new Label(formatSignedMoney(fees));
-    Label taxLabel = new Label(formatSignedMoney(tax));
-    Label totalLabel = new Label(formatSignedMoney(total));
+    Label feesLabel = new Label(formatSignedAmount(fees));
+    Label taxLabel = new Label(formatSignedAmount(tax));
+    Label totalLabel = new Label(formatSignedAmount(total));
 
     applyChangeColor(type, isPurchase ? BigDecimal.ONE.negate() : BigDecimal.ONE);
     applyChangeColor(feesLabel, fees);
@@ -483,6 +484,18 @@ public class TransactionHistoryView {
 
   private String formatMoney(BigDecimal value) {
     return this.moneyFormat.format(value.setScale(0, RoundingMode.HALF_UP));
+  }
+
+  private String formatAmount(BigDecimal value) {
+    DecimalFormat fmt = new DecimalFormat("#,##0.00", this.moneyFormat.getDecimalFormatSymbols());
+    return fmt.format(value);
+  }
+
+  private String formatSignedAmount(BigDecimal value) {
+    if (value.signum() > 0) {
+      return "+" + formatAmount(value);
+    }
+    return formatAmount(value);
   }
 
   private String formatSignedMoney(BigDecimal value) {
