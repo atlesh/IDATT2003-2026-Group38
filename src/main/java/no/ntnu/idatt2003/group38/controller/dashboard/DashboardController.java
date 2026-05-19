@@ -13,7 +13,7 @@ import no.ntnu.idatt2003.group38.model.Share;
 import no.ntnu.idatt2003.group38.model.Stock;
 import no.ntnu.idatt2003.group38.observer.ModelObserver;
 import no.ntnu.idatt2003.group38.transaction.Transaction;
-import no.ntnu.idatt2003.group38.view.DashboardView;
+import no.ntnu.idatt2003.group38.view.dashboard.DashboardView;
 import no.ntnu.idatt2003.group38.transaction.Purchase;
 import no.ntnu.idatt2003.group38.view.shell.Page;
 import no.ntnu.idatt2003.group38.calculator.PurchaseCalculator;
