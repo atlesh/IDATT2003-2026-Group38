@@ -32,7 +32,6 @@ public class DashboardController implements Page, ModelObserver {
         this.player = Objects.requireNonNull(player, "Player cannot be null");
 
         this.view = new DashboardView();
-        this.view.setOnAdvanceWeek(this::handleAdvanceWeek);
 
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
         symbols.setGroupingSeparator(' ');
@@ -64,8 +63,8 @@ public class DashboardController implements Page, ModelObserver {
         refresh();
     }
 
-    private void handleAdvanceWeek() {
-        this.exchange.advance();
+    public void refreshChart() {
+        refresh();
     }
 
     private void refresh() {
@@ -106,6 +105,8 @@ public class DashboardController implements Page, ModelObserver {
                 formatHoldingSummary(worstHolding),
                 formatPercent(cashRatio)
         );
+
+        this.view.setPerformanceHistory(this.player.getNetWorthHistory());
 
         this.view.setMarketMovers(gainers, losers);
         this.view.setRecentActivity(recentActivity);

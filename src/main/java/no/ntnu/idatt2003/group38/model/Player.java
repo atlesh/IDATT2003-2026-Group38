@@ -3,6 +3,8 @@ package no.ntnu.idatt2003.group38.model;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 import no.ntnu.idatt2003.group38.transaction.TransactionArchive;
 
 /**
@@ -22,6 +24,7 @@ public class Player {
   private BigDecimal money;
   private final Portfolio portfolio;
   private final TransactionArchive transactionArchive;
+  private final List<BigDecimal> netWorthHistory;
 
   /**
    * Creates a new player.
@@ -37,6 +40,8 @@ public class Player {
     this.money = this.startingMoney;
     this.portfolio = new Portfolio();
     this.transactionArchive = new TransactionArchive();
+    this.netWorthHistory = new ArrayList<>();
+    this.netWorthHistory.add(this.startingMoney);
   }
 
   /**
@@ -94,6 +99,14 @@ public class Player {
    */
   public Portfolio getPortfolio() {
     return this.portfolio;
+  }
+
+  public List<BigDecimal> getNetWorthHistory() {
+    return List.copyOf(this.netWorthHistory);
+  }
+
+  public void recordNetWorthSnapshot() {
+    this.netWorthHistory.add(getNetWorth());
   }
 
   /**

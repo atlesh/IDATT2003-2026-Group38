@@ -65,7 +65,7 @@ public class ShellController implements ModelObserver {
     this.moneyFormat = new DecimalFormat("#,##0", symbols);
 
     this.shell.getSideNav().setOnNavigate(this::navigateTo);
-    this.shell.getTopBar().setOnAdvanceClicked(this::handleAdvanceWeek);   // <-- add this line
+    this.shell.getTopBar().setOnAdvanceClicked(this::handleAdvanceWeek);
     this.exchange.addObserver(this);
 
     refreshTopBar();
@@ -152,6 +152,11 @@ public class ShellController implements ModelObserver {
     dialog.setOnConfirm(() -> {
       this.shell.hideModal();
       this.exchange.advance();
+      this.player.recordNetWorthSnapshot();
+
+      if (this.currentPage instanceof DashboardController dashboardController) {
+        dashboardController.refreshChart();
+      }
     });
     this.shell.showModal(dialog.getRoot());
   }
