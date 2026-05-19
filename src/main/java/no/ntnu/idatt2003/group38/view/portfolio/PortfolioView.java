@@ -316,8 +316,9 @@ public class PortfolioView {
     this.quantityLabel.setText("Quantity: " + formatQuantity(share.getQuantity()));
     this.buyPriceLabel.setText("Buy price: " + formatMoney(share.getPurchasePrice()));
     this.currentPriceLabel.setText("Current price: " + formatMoney(currentPrice));
-    this.positionValueLabel.setText("Value: " + formatMoney(positionValue));
-    this.selectedGainLossLabel.setText("Gain/Loss: " + formatSignedMoney(gainLoss) + " (" + formatSignedPercent(gainLossPct) + ")");
+    this.positionValueLabel.setText("Value: " + formatAmount(positionValue));
+    this.selectedGainLossLabel.setText("Gain/Loss: " + formatSignedAmount(gainLoss)
+        + " (" + formatSignedPercent(gainLossPct) + ")");
     this.selectedAllocationLabel.setText("Allocation: " + formatPercent(allocationPct));
 
     this.historyChart.setPrices(share.getStock().getHistoricalPrices());
@@ -371,10 +372,11 @@ public class PortfolioView {
     Objects.requireNonNull(totalGainLoss, "Total gain loss cannot be null");
     Objects.requireNonNull(totalGainLossPct, "Total gain loss Pct cannot be null");
 
-    this.cashLabel.setText("Cash: " + formatMoney(cash));
-    this.portfolioValueLabel.setText("Portfolio: " + formatMoney(portfolioValue));
-    this.netWorthLabel.setText("Net worth: " + formatMoney(netWorth));
-    this.totalGainLossLabel.setText("Total gain/loss: " + formatSignedMoney(totalGainLoss) + " (" + formatSignedPercent(totalGainLossPct) + ")");
+    this.cashLabel.setText("Cash: " + formatAmount(cash));
+    this.portfolioValueLabel.setText("Portfolio: " + formatAmount(portfolioValue));
+    this.netWorthLabel.setText("Net worth: " + formatAmount(netWorth));
+    this.totalGainLossLabel.setText("Total gain/loss: " + formatSignedAmount(totalGainLoss)
+        + " (" + formatSignedPercent(totalGainLossPct) + ")");
     applyChangeColor(this.totalGainLossLabel, totalGainLoss);
   }
 
@@ -462,8 +464,9 @@ public class PortfolioView {
     Label quantity = new Label(formatQuantity(share.getQuantity()));
     Label buyPrice = new Label(formatMoney(share.getPurchasePrice()));
     Label current = new Label(formatMoney(currentPrice));
-    Label value = new Label(formatMoney(positionValue));
-    Label gainLossLabel = new Label(formatSignedMoney(gainLoss) + " (" + formatSignedPercent(gainLossPct) + ")");
+    Label value = new Label(formatAmount(positionValue));
+    Label gainLossLabel = new Label(formatSignedAmount(gainLoss)
+        + " (" + formatSignedPercent(gainLossPct) + ")");
     Label allocationLabel = new Label(formatPercent(allocationPct));
     applyChangeColor(gainLossLabel, gainLoss);
 
@@ -546,6 +549,16 @@ public class PortfolioView {
 
   private String formatMoney(BigDecimal value) {
     return this.moneyFormat.format(value.setScale(0, RoundingMode.HALF_UP));
+  }
+
+  private String formatAmount(BigDecimal value) {
+    DecimalFormat fmt = new DecimalFormat("#,##0.00", this.moneyFormat.getDecimalFormatSymbols());
+    return fmt.format(value);
+  }
+
+  private String formatSignedAmount(BigDecimal value) {
+    String sign = value.signum() > 0 ? "+" : "";
+    return sign + formatAmount(value);
   }
 
   private String formatSignedMoney(BigDecimal value) {

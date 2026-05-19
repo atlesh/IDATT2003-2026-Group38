@@ -205,16 +205,20 @@ public class StockCard {
     Share preview = new Share(this.currentStock, quantity, this.currentStock.getSalesPrice());
     PurchaseCalculator calc = new PurchaseCalculator(preview);
 
-    this.grossLabel.setText("Gross: " + formatPrice(calc.calculateGross()));
-    this.commissionLabel.setText("Commission: " + formatPrice(calc.calculateCommission()));
-    this.taxLabel.setText("Tax: " + formatPrice(calc.calculateTax()));
-    this.totalLabel.setText("Total: " + formatPrice(calc.calculateTotal()));
+    this.grossLabel.setText("Gross: " + formatAmount(calc.calculateGross()));
+    this.commissionLabel.setText("Commission: " + formatAmount(calc.calculateCommission()));
+    this.taxLabel.setText("Tax: " + formatAmount(calc.calculateTax()));
+    this.totalLabel.setText("Total: " + formatAmount(calc.calculateTotal()));
   }
 
   // Formatting
 
-  private String formatPrice(BigDecimal price) {
-    return price.setScale(0, RoundingMode.HALF_UP).toPlainString();
+  private String formatPrice(BigDecimal value) {
+    return value.setScale(0, RoundingMode.HALF_UP).toPlainString();
+  }
+
+  private String formatAmount(BigDecimal value) {
+    return value.setScale(2, RoundingMode.HALF_UP).toPlainString();
   }
 
   private String formatChange(BigDecimal pct) {
