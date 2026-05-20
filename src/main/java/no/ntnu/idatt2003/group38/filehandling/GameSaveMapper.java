@@ -16,12 +16,26 @@ import no.ntnu.idatt2003.group38.transaction.Transaction;
 import no.ntnu.idatt2003.group38.transaction.Sale;
 import no.ntnu.idatt2003.group38.transaction.Purchase;
 
+/**
+ * Maps between the in-memory game model and the serializable save-game format.
+ *
+ * <p>The mapper converts a running {@link Player}/{@link Exchange} pair into a
+ * {@link GameSave}, and reconstructs a {@link LoadedGame} from a previously
+ * saved snapshot.</p>
+ */
 public class GameSaveMapper {
 
     private GameSaveMapper() {
 
     }
 
+    /**
+     * Creates a serializable save snapshot from the current game state.
+     *
+     * @param player the current player; must not be {@code null}
+     * @param exchange the current exchange; must not be {@code null}
+     * @return a save snapshot containing the full game state
+     */
     public static GameSave toSave(Player player, Exchange exchange) {
         Objects.requireNonNull(player, "Player cannot be null");
         Objects.requireNonNull(exchange, "Exchange cannot be null");
@@ -34,6 +48,12 @@ public class GameSaveMapper {
         );
     }
 
+    /**
+     * Reconstructs a fully loaded game from a saved snapshot.
+     *
+     * @param save the saved game data to restore; must not be {@code null}
+     * @return a loaded game containing the restored player and exchange
+     */
     public static LoadedGame fromSave(GameSave save) {
         Objects.requireNonNull(save, "Save cannot be null");
 
