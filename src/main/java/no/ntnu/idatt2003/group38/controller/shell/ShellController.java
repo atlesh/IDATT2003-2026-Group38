@@ -1,5 +1,7 @@
 package no.ntnu.idatt2003.group38.controller.shell;
 
+import java.io.IOException;
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -9,6 +11,8 @@ import java.util.Objects;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.control.Alert;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import no.ntnu.idatt2003.group38.controller.dashboard.DashboardController;
 import no.ntnu.idatt2003.group38.controller.market.StockMarketController;
@@ -16,6 +20,7 @@ import no.ntnu.idatt2003.group38.controller.portfolio.PortfolioController;
 import no.ntnu.idatt2003.group38.controller.statistics.WeeklyStatisticsController;
 import no.ntnu.idatt2003.group38.controller.transaction.TransactionHistoryController;
 import no.ntnu.idatt2003.group38.exchange.Exchange;
+import no.ntnu.idatt2003.group38.filehandling.GameSaveFileWriter;
 import no.ntnu.idatt2003.group38.model.Player;
 import no.ntnu.idatt2003.group38.observer.ModelObserver;
 import no.ntnu.idatt2003.group38.view.shell.Page;
@@ -40,6 +45,7 @@ public class ShellController implements ModelObserver {
   private final Stage stage;
   private final Player player;
   private final Exchange exchange;
+  private final GameSaveFileWriter gameSaveFileWriter;
 
   private final DecimalFormat moneyFormat;
 
@@ -59,6 +65,9 @@ public class ShellController implements ModelObserver {
     this.stage = Objects.requireNonNull(stage, "stage cannot be null");
     this.player = Objects.requireNonNull(player, "player cannot be null");
     this.exchange = Objects.requireNonNull(exchange, "exchange cannot be null");
+
+    this.gameSaveFileWriter = new GameSaveFileWriter();
+    this.shell.getTopBar().setOnSaveClicked(this::handleSaveProgress);
 
     DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
     symbols.setGroupingSeparator(' ');
@@ -166,6 +175,63 @@ public class ShellController implements ModelObserver {
       }
     });
     this.shell.showModal(dialog.getRoot());
+  }
+
+  /**
+   * Opens a file chooser and writes the current game state to disk as JSON.
+   */
+  private void handleSaveProgress() {
+    FileChooser chooser = new FileChooser();
+    chooser.setTitle("Save Game");
+    chooser.getExtensionFilters().add(
+        new FileChooser.ExtensionFilter("JSON files (*.json)", "*.json"));
+    chooser.setInitialFileName(buildDefaultSaveFileName());
+
+    File selected = chooser.showSaveDialog(this.stage);
+    if (selected == null) {
+      return;
+    }
+
+    try {
+      this.gameSaveFileWriter.write(selected.toPath(), this.player, this.exchange);
+      showInfo("Game saved successfully.");
+    } catch (IOException e) {
+      showError("Could not save game: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Builds a default filename for the current save.
+   *
+   * @return a filename like {@code "sigurd-week-4.json"}
+   */
+  private String buildDefaultSaveFileName() {
+    String playerName = this.player.getName().trim().replaceAll("\\s+", "-");
+    return playerName + "-week-" + this.exchange.getWeek() + ".json";
+  }
+
+  /**
+   * Shows a simple informational alert to the user.
+   *
+   * @param message the message to display
+   */
+  private void showInfo(String message) {
+    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    alert.setHeaderText(null);
+    alert.setContentText(message);
+    alert.showAndWait();
+  }
+
+  /**
+   * Shows a simple error alert to the user.
+   *
+   * @param message the message to display
+   */
+  private void showError(String message) {
+    Alert alert = new Alert(Alert.AlertType.ERROR);
+    alert.setHeaderText(null);
+    alert.setContentText(message);
+    alert.showAndWait();
   }
 
   // Lifecycle

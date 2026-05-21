@@ -11,7 +11,8 @@ import javafx.scene.layout.Region;
  * The top bar of the application shell.
  *
  * <p>Displays the application title on the left and global game state on the
- * right: current week, available cash, net worth and player status.
+ * right: current week, available cash, net worth, player status and
+ * top-level game actions.
  */
 public class TopBar {
 
@@ -21,6 +22,7 @@ public class TopBar {
   private final Label netWorthLabel;
   private final Label statusLabel;
   private final Button nextWeekButton;
+  private final Button saveButton;
 
   /**
    * Builds the top bar with placeholder values for week, cash, net worth and
@@ -45,12 +47,15 @@ public class TopBar {
     this.nextWeekButton = new Button("Next week");
     this.nextWeekButton.getStyleClass().add("top-bar-next-week");
 
+    this.saveButton = new Button("Save");
+    this.saveButton.getStyleClass().add("top-bar-next-week");
+
     Region spacer = new Region();
     HBox.setHgrow(spacer, Priority.ALWAYS);
 
     HBox infoGroup = new HBox(32,
         this.weekLabel, this.cashLabel, this.netWorthLabel, this.statusLabel,
-        this.nextWeekButton);
+        this.nextWeekButton,  this.saveButton);
     infoGroup.setAlignment(Pos.CENTER_RIGHT);
     infoGroup.getStyleClass().add("top-bar-info-group");
 
@@ -118,5 +123,14 @@ public class TopBar {
    */
   public void setOnAdvanceClicked(Runnable onAdvance) {
     this.nextWeekButton.setOnAction(e -> onAdvance.run());
+  }
+
+  /**
+   * Registers the action to invoke when the user clicks the Save button.
+   *
+   * @param onSave the action. Must not be {@code null}
+   */
+  public void setOnSaveClicked(Runnable onSave) {
+    this.saveButton.setOnAction(e -> onSave.run());
   }
 }
