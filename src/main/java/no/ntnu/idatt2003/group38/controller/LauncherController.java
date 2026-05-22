@@ -1,10 +1,19 @@
 package no.ntnu.idatt2003.group38.controller;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.FileChooser;
 import no.ntnu.idatt2003.group38.view.LauncherView;
 import no.ntnu.idatt2003.group38.view.StartView;
+import no.ntnu.idatt2003.group38.controller.shell.ShellController;
+import no.ntnu.idatt2003.group38.filehandling.GameSaveFileReader;
+import no.ntnu.idatt2003.group38.filehandling.LoadedGame;
+import no.ntnu.idatt2003.group38.view.shell.ShellView;
+import no.ntnu.idatt2003.group38.exchange.Exchange;
+import no.ntnu.idatt2003.group38.model.Player;
 
 /**
  * Controller for {@link LauncherView}
@@ -15,6 +24,7 @@ public class LauncherController {
 
     private final LauncherView view;
     private final Stage stage;
+    private final GameSaveFileReader gameSaveFileReader;
 
     /**
      * Creates a new launcher controller and wires the view actions
@@ -29,6 +39,7 @@ public class LauncherController {
         this.view.setOnNewGame(this::handleNewGame);
         this.view.setOnLoadGame(this::handleLoadGame);
         this.view.setOnExit(this::handleExit);
+        this.gameSaveFileReader = new GameSaveFileReader();
     }
 
     /**
@@ -39,10 +50,28 @@ public class LauncherController {
     }
 
     /**
-     * Placeholder until save/load game is implemented
+     * POpens a save-file picker and loads the selected saved game
      */
     private void handleLoadGame() {
-        this.view.showError("Load saved game is not implemented yet");
+        this.view.showError(null);
+
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Load Saved Game");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON files (*.json)", "*.json"));
+
+        File selected = chooser.showOpenDialog(this.stage);
+        if (selected == null) {
+            return;
+        }
+
+        try {
+            LoadedGame loadedGame = this.gameSaveFileReader.read(selected.toPath());
+            navigateToShell(loadedGame.player(), loadedGame.exchange());
+        } catch (IOException e) {
+            this.view.showError("Could not load saved game: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            this.view.showError("Invalid save file: " + e.getMessage());
+        }
     }
 
     /**
@@ -65,4 +94,22 @@ public class LauncherController {
         this.stage.setScene(scene);
         this.stage.centerOnScreen();
     }
+
+    /**
+     * Navigates to the main game shell with the given restored game state.
+     *
+     * @param player the player to continue with
+     * @param exchange the exchange to continue with
+     */
+    private void navigateToShell(Player player, Exchange exchange) {
+        ShellView shellView = new ShellView();
+        new ShellController(shellView, this.stage, player, exchange);
+
+        Scene scene = new Scene(shellView.getRoot(), 1024, 720);
+        shellView.attachTo(scene);
+
+        this.stage.setScene(scene);
+        this.stage.centerOnScreen();
+    }
+
 }
