@@ -155,11 +155,13 @@ public class StartController {
    */
   private void navigateToDashboard(Player player, Exchange exchange) {
     ShellView shell = new ShellView();
-    new ShellController(shell, this.stage, player, exchange);
 
     Scene scene = new Scene(shell.getRoot(), 1024, 720);
     shell.attachTo(scene);
     this.stage.setScene(scene);
+
+    new ShellController(shell, this.stage, player, exchange);
+
     this.stage.centerOnScreen();
   }
 }
