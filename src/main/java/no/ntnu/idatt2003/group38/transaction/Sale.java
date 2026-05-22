@@ -4,6 +4,8 @@ import no.ntnu.idatt2003.group38.calculator.SaleCalculator;
 import no.ntnu.idatt2003.group38.model.Share;
 import no.ntnu.idatt2003.group38.model.Player;
 
+import java.math.BigDecimal;
+
 /**
  * Represents a sale of a {@link Share}.
  *
@@ -13,14 +15,28 @@ import no.ntnu.idatt2003.group38.model.Player;
  */
 public class Sale extends Transaction {
 
+  private final Share sourceShare;
+
+  /**
+   * Creates a sale transaction for the given share in the specified week
+   *
+   * @param share the share to be sold; must not be {@code null}
+   * @param week the week number when the sale occurs; must be >= 1
+   */
+  public Sale(Share share, int week) {
+    this(share, share, week);
+  }
+
   /**
    * Creates a sale transaction for the given share in the specified week.
    *
-   * @param share the share to be sold; must not be {@code null}
+   * @param soldShare the quantity being sold
+   * @param sourceShare the original share lot in the portfolio
    * @param week  the week number when the sale occurs; Must be >= 1
    */
-  public Sale(Share share, int week) {
-    super(share, week, new SaleCalculator(share));
+  public Sale(Share soldShare, Share sourceShare, int week) {
+    super(soldShare, week, new SaleCalculator(soldShare));
+    this.sourceShare = sourceShare;
   }
 
   /**
@@ -45,16 +61,23 @@ public class Sale extends Transaction {
       throw new IllegalStateException("Transaction already committed");
     }
 
-    if (!player.getPortfolio().contains(getShare())) {
+    if (!player.getPortfolio().contains(this.sourceShare)) {
       throw new IllegalStateException("Player does not own the share to be sold");
     }
 
-    player.getPortfolio().removeShare(getShare());
+    player.getPortfolio().removeShare(this.sourceShare);
+
+    BigDecimal remainingQuantity = this.sourceShare.getQuantity().subtract(getShare().getQuantity());
+    if (remainingQuantity.compareTo(BigDecimal.ZERO) > 0) {
+      Share remainder = new Share(
+              this.sourceShare.getStock(),
+              remainingQuantity,
+              this.sourceShare.getPurchasePrice());
+      player.getPortfolio().addShare(remainder);
+    }
 
     player.addMoney(getCalculator().calculateTotal());
-
     player.getTransactionArchive().add(this);
-
     setCommitted();
   }
 }

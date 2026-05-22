@@ -4,13 +4,13 @@ import no.ntnu.idatt2003.group38.model.Player;
 import no.ntnu.idatt2003.group38.model.Share;
 import no.ntnu.idatt2003.group38.model.Stock;
 import no.ntnu.idatt2003.group38.observer.Observable;
-import no.ntnu.idatt2003.group38.transaction.Purchase;
-import no.ntnu.idatt2003.group38.transaction.Sale;
 import no.ntnu.idatt2003.group38.transaction.Transaction;
+import no.ntnu.idatt2003.group38.transaction.Sale;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import no.ntnu.idatt2003.group38.transaction.TransactionFactory;
 
 /**
  * Represents a stock exchange where stocks are listed and can be traded by players
@@ -114,10 +114,11 @@ public class Exchange extends Observable{
   }
 
   /**
-   * Searches for stocks whose symbol or company name contains the given search term
+   * Searches for stocks whose symbol or company name contains the given search term.
+   * An empty or blank search term returns every stock on the exchange.
    *
-   * @param searchTerm the term to search for, or an empty list if none match
-   * @return a list of matching stocks, or an empty list if none match
+   * @param searchTerm the term to search for. Must not be {@code null}
+   * @return a list of matching stocks, never {@code null}
    * @throws IllegalArgumentException if {@code searchTerm} is {@code null}
    */
   public List<Stock> findStocks(String searchTerm) {
@@ -128,7 +129,7 @@ public class Exchange extends Observable{
     String normalized = searchTerm.trim().toUpperCase();
 
     if (normalized.isEmpty()) {
-      return new ArrayList<>();
+      return new ArrayList<>(this.stockMap.values());   // ← return all stocks
     }
 
     List<Stock> result = new ArrayList<>();
@@ -167,9 +168,9 @@ public class Exchange extends Observable{
     Stock stock = getStock(symbol);
     Share share = new Share(stock, quantity, stock.getSalesPrice());
 
-    Purchase purchase = new Purchase(share, this.week);
+    Transaction purchase = TransactionFactory.create(
+        TransactionFactory.Type.Purchase, share, this.week);
     purchase.commit(player);
-
     notifyObservers();
     return purchase;
   }
@@ -199,9 +200,40 @@ public class Exchange extends Observable{
       throw new IllegalArgumentException("Player does not own this share");
     }
 
-    Sale sale = new Sale(share, this.week);
+    Transaction sale = TransactionFactory.create(
+        TransactionFactory.Type.Sale, share, this.week);
     sale.commit(player);
+    notifyObservers();
+    return sale;
+  }
 
+  public Transaction sell(Share share, BigDecimal quantity, Player player) {
+    if (share == null) {
+      throw new IllegalArgumentException("Share cannot be null");
+    }
+    if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
+      throw new IllegalArgumentException("Quantity must be greater than 0");
+    }
+    if (player == null) {
+      throw new IllegalArgumentException("Player cannot be null");
+    }
+    if (share.getStock() == null) {
+      throw new IllegalArgumentException("Share must reference a stock");
+    }
+    if (!player.getPortfolio().contains(share)) {
+      throw new IllegalArgumentException("Player does not own this share");
+    }
+    if (quantity.compareTo(share.getQuantity()) > 0) {
+      throw new IllegalArgumentException("Cannot sell more than owned quantity");
+    }
+
+    if (quantity.compareTo(share.getQuantity()) == 0) {
+      return sell(share, player);
+    }
+
+    Share soldPart = new Share(share.getStock(), quantity, share.getPurchasePrice());
+    Transaction sale = new Sale(soldPart, share, this.week);
+    sale.commit(player);
     notifyObservers();
     return sale;
   }
@@ -233,9 +265,9 @@ public class Exchange extends Observable{
       newPrice = newPrice.setScale(2, RoundingMode.HALF_UP);
 
       stock.addNewSalesPrice(newPrice);
-
-      notifyObservers();
     }
+
+    notifyObservers();
   }
 
   /**
