@@ -57,6 +57,7 @@ public class PortfolioController implements Page, ModelObserver {
     this.view.setOnShareSelected(this::handleSelect);
     this.view.setOnBuySelected(this::handleBuySelected);
     this.view.setOnSellSelected(this::handleSellSelected);
+    this.view.setOnSellAll(this::handleSellAll);
   }
 
   // Page
@@ -149,6 +150,50 @@ public class PortfolioController implements Page, ModelObserver {
     }
   }
 
+  private void handleSellAll() {
+    List<Share> ownedLots = new ArrayList<>(this.player.getPortfolio().getShares());
+    if (ownedLots.isEmpty()) {
+      return;
+    }
+
+    Map<String, BigDecimal> unitPriceBySymbol = new LinkedHashMap<>();
+    Map<String, BigDecimal> grossBySymbol = new LinkedHashMap<>();
+    Map<String, BigDecimal> commissionBySymbol = new LinkedHashMap<>();
+    Map<String, BigDecimal> taxBySymbol = new LinkedHashMap<>();
+    Map<String, BigDecimal> netBySymbol = new LinkedHashMap<>();
+    Map<String, BigDecimal> quantityBySymbol = new LinkedHashMap<>();
+
+    try {
+      for (Share lot : ownedLots) {
+        String symbol = lot.getStock().getSymbol();
+        unitPriceBySymbol.putIfAbsent(symbol, this.exchange.getStock(symbol).getSalesPrice());
+
+        Transaction transaction = this.exchange.sell(lot, lot.getQuantity(), this.player);
+        grossBySymbol.merge(symbol, transaction.getCalculator().calculateGross(), BigDecimal::add);
+        commissionBySymbol.merge(symbol,
+            transaction.getCalculator().calculateCommission(), BigDecimal::add);
+        taxBySymbol.merge(symbol, transaction.getCalculator().calculateTax(), BigDecimal::add);
+        netBySymbol.merge(symbol, transaction.getCalculator().calculateTotal(), BigDecimal::add);
+        quantityBySymbol.merge(symbol, lot.getQuantity(), BigDecimal::add);
+      }
+    } catch (RuntimeException e) {
+      System.err.println("Sell all failed: " + e.getMessage());
+      return;
+    }
+
+    for (String symbol : quantityBySymbol.keySet()) {
+      showReceipt(
+          "Sold",
+          symbol,
+          quantityBySymbol.get(symbol),
+          unitPriceBySymbol.get(symbol),
+          grossBySymbol.get(symbol),
+          commissionBySymbol.get(symbol),
+          taxBySymbol.get(symbol),
+          netBySymbol.get(symbol));
+    }
+  }
+
   // Refresh
 
   /**
@@ -183,6 +228,7 @@ public class PortfolioController implements Page, ModelObserver {
       this.selectedSymbol = null;
       this.view.showSelectedShare(null);
     }
+    this.view.setHasHoldings(!actualShares.isEmpty());
   }
 
   private void showReceipt(Transaction transaction) {
