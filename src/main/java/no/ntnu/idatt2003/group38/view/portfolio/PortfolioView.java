@@ -40,6 +40,9 @@ public class PortfolioView {
 
   private static final String STYLESHEET = "/stylesheets/market.css";
 
+  private static final String SELL_ALL_DEFAULT_TEXT = "Sell all";
+  private static final String SELL_ALL_CONFIRM_TEXT = "Confirm";
+
   private final ScrollPane root;
   private final VBox rowsContainer;
 
@@ -61,6 +64,10 @@ public class PortfolioView {
 
   private final Spinner<Integer> buyQuantitySpinner;
   private final Spinner<Integer> sellQuantitySpinner;
+
+  private final Button sellAllButton;
+  private Runnable onSellAll = () -> {};
+  private boolean sellAllConfirming = false;
 
   private final Button buyButton;
   private final Button sellButton;
@@ -102,7 +109,17 @@ public class PortfolioView {
     rowsScroll.getStyleClass().add("market-scroll");
     VBox.setVgrow(rowsScroll, Priority.ALWAYS);
 
-    VBox listPanel = new VBox(16, title, header, rowsScroll);
+    this.sellAllButton = new Button(SELL_ALL_DEFAULT_TEXT);
+    this.sellAllButton.getStyleClass().add("sell-all-button");
+    this.sellAllButton.setOnAction(event -> handleSellAllClicked());
+    this.sellAllButton.setDisable(true);
+
+    Region titleSpacer = new Region();
+    HBox.setHgrow(titleSpacer, Priority.ALWAYS);
+    HBox titleRow = new HBox(8, title, titleSpacer, this.sellAllButton);
+    titleRow.setAlignment(Pos.CENTER_LEFT);
+
+    VBox listPanel = new VBox(16, titleRow, header, rowsScroll);
     listPanel.getStyleClass().add("market-panel");
     listPanel.setMinWidth(0);
     HBox.setHgrow(listPanel, Priority.ALWAYS);
@@ -170,11 +187,13 @@ public class PortfolioView {
 
     this.buyButton = new Button("BUY");
     this.buyButton.getStyleClass().add("buy-button");
-    this.buyButton.setOnAction(event -> this.onBuySelected.accept(this.buyQuantitySpinner.getValue()));
+    this.buyButton.setOnAction(event ->
+         this.onBuySelected.accept(this.buyQuantitySpinner.getValue()));
 
     this.sellButton = new Button("SELL");
     this.sellButton.getStyleClass().addAll("buy-button", "sell-button");
-    this.sellButton.setOnAction(event -> this.onSellSelected.accept(this.sellQuantitySpinner.getValue()));
+    this.sellButton.setOnAction(event ->
+        this.onSellSelected.accept(this.sellQuantitySpinner.getValue()));
 
     HBox actionButtons = new HBox(8, this.buyButton, this.sellButton);
     actionButtons.setAlignment(Pos.CENTER_LEFT);
@@ -332,7 +351,8 @@ public class PortfolioView {
     this.sellButton.setDisable(false);
 
     this.buyQuantitySpinner.getValueFactory().setValue(1);
-    SpinnerValueFactory.IntegerSpinnerValueFactory sellFactory = (SpinnerValueFactory.IntegerSpinnerValueFactory) this.sellQuantitySpinner.getValueFactory();
+    SpinnerValueFactory.IntegerSpinnerValueFactory sellFactory =
+        (SpinnerValueFactory.IntegerSpinnerValueFactory) this.sellQuantitySpinner.getValueFactory();
     int maxSell = share.getQuantity().intValueExact();
     sellFactory.setMax(maxSell);
     sellFactory.setValue(1);
@@ -357,7 +377,8 @@ public class PortfolioView {
    * @param portfolioValue the portfolio's current sale value. Must not be {@code null}
    * @param netWorth the player's total net worth. Must not be {@code null}
    * @param totalGainLoss the aggregated unrealized gain/loss. Must not be {@code null}
-   * @param totalGainLossPct the aggregated unrealized gain/loss percentage. Must not be {@code null}
+   * @param totalGainLossPct the aggregated unrealized gain/loss percentage.
+   *                         Must not be {@code null}
    */
   public void setSummary(
       BigDecimal cash,
@@ -386,7 +407,8 @@ public class PortfolioView {
    * @param onShareSelected the callback. Must not be {@code null}
    */
   public void setOnShareSelected(Consumer<Share> onShareSelected) {
-    this.onShareSelected = Objects.requireNonNull(onShareSelected, "onShareSelected cannot be null");
+    this.onShareSelected =
+        Objects.requireNonNull(onShareSelected, "onShareSelected cannot be null");
   }
 
   /**
@@ -395,7 +417,8 @@ public class PortfolioView {
    * @param onBuySelected the callback receiving the requested quantity. Must not be {@code null}
    */
   public void setOnBuySelected(IntConsumer onBuySelected) {
-    this.onBuySelected = Objects.requireNonNull(onBuySelected, "onBuySelected cannot be null");
+    this.onBuySelected =
+        Objects.requireNonNull(onBuySelected, "onBuySelected cannot be null");
   }
 
   /**
@@ -404,7 +427,42 @@ public class PortfolioView {
    * @param onSellSelected the callback receiving the requested quantity. Must not be {@code null}
    */
   public void setOnSellSelected(IntConsumer onSellSelected) {
-    this.onSellSelected = Objects.requireNonNull(onSellSelected, "onSellSelected cannot be null");
+    this.onSellSelected =
+        Objects.requireNonNull(onSellSelected, "onSellSelected cannot be null");
+  }
+
+  /**
+   * Registers the callback to invoke when the user confirms "Sell all".
+   *
+   * @param onSellAll the callback. Must not be {@code null}
+   */
+  public void setOnSellAll(Runnable onSellAll) {
+    this.onSellAll = Objects.requireNonNull(onSellAll, "onSellAll cannot be null");
+  }
+
+  /**
+   * Enables or disables the "Sell all" button and resets its confirm state.
+   *
+   * @param hasHoldings {@code true} if the player owns at least one share
+   */
+  public void setHasHoldings(boolean hasHoldings) {
+    this.sellAllButton.setDisable(!hasHoldings);
+    resetSellAllButton();
+  }
+
+  private void handleSellAllClicked() {
+    if (!this.sellAllConfirming) {
+      this.sellAllConfirming = true;
+      this.sellAllButton.setText(SELL_ALL_CONFIRM_TEXT);
+    } else {
+      resetSellAllButton();
+      this.onSellAll.run();
+    }
+  }
+
+  private void resetSellAllButton() {
+    this.sellAllConfirming = false;
+    this.sellAllButton.setText(SELL_ALL_DEFAULT_TEXT);
   }
 
   /**
