@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -58,6 +59,7 @@ public class ShellController implements ModelObserver {
 
   private Page currentPage;
 
+  private static final Path SAVE_DIRECTORY = Path.of("saves");
   private static final Path AUTOSAVE_PATH = Path.of("saves", "autosave.json");
 
   /**
@@ -233,6 +235,7 @@ public class ShellController implements ModelObserver {
     chooser.getExtensionFilters().add(
         new FileChooser.ExtensionFilter("JSON files (*.json)", "*.json"));
     chooser.setInitialFileName(buildDefaultSaveFileName());
+    configureSaveDirectory(chooser, true);
 
     File selected = chooser.showSaveDialog(this.stage);
     if (selected == null) {
@@ -255,6 +258,26 @@ public class ShellController implements ModelObserver {
   private String buildDefaultSaveFileName() {
     String playerName = this.player.getName().trim().replaceAll("\\s+", "-");
     return playerName + "-week-" + this.exchange.getWeek() + ".json";
+  }
+
+  /**
+   * Configures the save chooser to use the application's save directory.
+   *
+   * @param chooser the file chooser to configure
+   * @param createWhenMissing whether the save directory should be created if missing
+   */
+  private void configureSaveDirectory(FileChooser chooser, boolean createWhenMissing) {
+    try {
+      if (createWhenMissing) {
+        Files.createDirectories(SAVE_DIRECTORY);
+      }
+
+      if (Files.isDirectory(SAVE_DIRECTORY)) {
+        chooser.setInitialDirectory(SAVE_DIRECTORY.toFile());
+      }
+    } catch (IOException e) {
+      showError("Could not open save directory: " + e.getMessage());
+    }
   }
 
   /**

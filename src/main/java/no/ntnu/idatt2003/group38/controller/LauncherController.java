@@ -2,6 +2,8 @@ package no.ntnu.idatt2003.group38.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -21,6 +23,8 @@ import no.ntnu.idatt2003.group38.model.Player;
  * <p>Handles launcher actions and scene navigation to the new-game form</p>
  */
 public class LauncherController {
+
+    private static final Path SAVE_DIRECTORY = Path.of("saves");
 
     private final LauncherView view;
     private final Stage stage;
@@ -58,6 +62,7 @@ public class LauncherController {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Load Saved Game");
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON files (*.json)", "*.json"));
+        configureSaveDirectory(chooser);
 
         File selected = chooser.showOpenDialog(this.stage);
         if (selected == null) {
@@ -110,6 +115,17 @@ public class LauncherController {
 
         this.stage.setScene(scene);
         this.stage.centerOnScreen();
+    }
+
+    /**
+     * Configures the file chooser to open in the application's save directory.
+     *
+     * @param chooser the chooser to configure
+     */
+    private void configureSaveDirectory(FileChooser chooser) {
+        if (Files.isDirectory(SAVE_DIRECTORY)) {
+            chooser.setInitialDirectory(SAVE_DIRECTORY.toFile());
+        }
     }
 
 }
