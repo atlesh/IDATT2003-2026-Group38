@@ -23,6 +23,7 @@ public class TopBar {
   private final Label statusLabel;
   private final Button nextWeekButton;
   private final Button saveButton;
+  private final Button endGameButton;
 
   /**
    * Builds the top bar with placeholder values for week, cash, net worth and
@@ -50,12 +51,15 @@ public class TopBar {
     this.saveButton = new Button("Save");
     this.saveButton.getStyleClass().add("top-bar-next-week");
 
+    this.endGameButton = new Button("End game");
+    this.endGameButton.getStyleClass().add("top-bar-next-week");
+
     Region spacer = new Region();
     HBox.setHgrow(spacer, Priority.ALWAYS);
 
     HBox infoGroup = new HBox(32,
         this.weekLabel, this.cashLabel, this.netWorthLabel, this.statusLabel,
-        this.nextWeekButton,  this.saveButton);
+            this.saveButton, this. endGameButton, this.nextWeekButton);
     infoGroup.setAlignment(Pos.CENTER_RIGHT);
     infoGroup.getStyleClass().add("top-bar-info-group");
 
@@ -132,5 +136,14 @@ public class TopBar {
    */
   public void setOnSaveClicked(Runnable onSave) {
     this.saveButton.setOnAction(e -> onSave.run());
+  }
+
+  /**
+   * Registers the action to invoke when the user clicks the End Game button
+   *
+   * @param onEndGame the action, must not be {@code null}
+   */
+  public void setOnEndGameClicked(Runnable onEndGame) {
+    this.endGameButton.setOnAction(e -> onEndGame.run());
   }
 }

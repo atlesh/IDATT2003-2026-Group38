@@ -8,12 +8,14 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import java.util.Objects;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import no.ntnu.idatt2003.group38.controller.EndController;
 import no.ntnu.idatt2003.group38.controller.dashboard.DashboardController;
 import no.ntnu.idatt2003.group38.controller.market.StockMarketController;
 import no.ntnu.idatt2003.group38.controller.portfolio.PortfolioController;
@@ -23,6 +25,7 @@ import no.ntnu.idatt2003.group38.exchange.Exchange;
 import no.ntnu.idatt2003.group38.filehandling.GameSaveFileWriter;
 import no.ntnu.idatt2003.group38.model.Player;
 import no.ntnu.idatt2003.group38.observer.ModelObserver;
+import no.ntnu.idatt2003.group38.view.EndView;
 import no.ntnu.idatt2003.group38.view.shell.Page;
 import no.ntnu.idatt2003.group38.view.shell.ShellView;
 import no.ntnu.idatt2003.group38.view.shell.SideNav.Destination;
@@ -68,6 +71,8 @@ public class ShellController implements ModelObserver {
 
     this.gameSaveFileWriter = new GameSaveFileWriter();
     this.shell.getTopBar().setOnSaveClicked(this::handleSaveProgress);
+
+    this.shell.getTopBar().setOnEndGameClicked(this::handleEndGame);
 
     DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
     symbols.setGroupingSeparator(' ');
@@ -178,6 +183,36 @@ public class ShellController implements ModelObserver {
   }
 
   /**
+   * Opens a confirmation dialog before ending the current game
+   */
+  private void handleEndGame() {
+    ConfirmDialog dialog = new ConfirmDialog(
+            "End current game?",
+            "The current round will be closed and you will be taken to the summary screen.",
+            "End Game");
+
+    dialog.setOnCancel(this.shell::hideModal);
+    dialog.setOnConfirm(() -> {
+      this.shell.hideModal();
+      navigateToEndSummary;
+    });
+
+    this.shell.showModal(dialog.getRoot());
+  }
+
+  private void navigateToEndSummary() {
+    EndView endView = new EndView();
+    new EndController(endView, this.stage, this.player, this.exchange);
+
+    Scene scene = new Scene(endView.getRoot(), 760, 520);
+    endView.attachTo(scene);
+
+    dispose();
+    this.stage.setScene(scene);
+    this.stage.centerOnScreen();
+  }
+
+  /**
    * Opens a file chooser and writes the current game state to disk as JSON.
    */
   private void handleSaveProgress() {
@@ -251,7 +286,6 @@ public class ShellController implements ModelObserver {
   public Stage getStage() {
     return stage;
   }
-
 
   private static final class PlaceholderPage implements Page {
     private final Region root;
