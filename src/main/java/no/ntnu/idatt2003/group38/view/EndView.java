@@ -79,7 +79,7 @@ public class EndView {
         VBox actions = new VBox(12, this.startNewGameButton, this.exitButton);
         actions.setAlignment(Pos.CENTER);
 
-        this.root = new VBox(24, this.tittleLabel, this.subtitleLabel, summaryBox, actions);
+        this.root = new VBox(24, this.titleLabel, this.subtitleLabel, summaryBox, actions);
         this.root.setAlignment(Pos.CENTER);
         this.root.getStyleClass().add("start-view");
 
