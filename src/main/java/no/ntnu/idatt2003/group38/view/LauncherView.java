@@ -77,7 +77,8 @@ public class LauncherView {
      */
     public void attachTo(Scene scene) {
         Objects.requireNonNull(scene, "Scene cannot be null");
-        String css = Objects.requireNonNull(getClass().getResource(STYLESHEET), "Could not find stylesheet at " + STYLESHEET).toExternalForm();
+        String css = Objects.requireNonNull(getClass().getResource(STYLESHEET),
+            "Could not find stylesheet at " + STYLESHEET).toExternalForm();
 
         if (!scene.getStylesheets().contains(css)) {
             scene.getStylesheets().add(css);

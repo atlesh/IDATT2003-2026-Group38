@@ -107,14 +107,15 @@ public class LauncherController {
      * @param exchange the exchange to continue with
      */
     private void navigateToShell(Player player, Exchange exchange) {
-        ShellView shellView = new ShellView();
-        new ShellController(shellView, this.stage, player, exchange);
+      ShellView shell = new ShellView();
 
-        Scene scene = new Scene(shellView.getRoot(), 1024, 720);
-        shellView.attachTo(scene);
+      Scene scene = new Scene(shell.getRoot(), 1024, 720);
+      shell.attachTo(scene);
+      this.stage.setScene(scene);
 
-        this.stage.setScene(scene);
-        this.stage.centerOnScreen();
+      new ShellController(shell, this.stage, player, exchange);
+
+      this.stage.centerOnScreen();
     }
 
     /**
