@@ -22,7 +22,7 @@ public class EndView {
 
     private final VBox root;
 
-    private final Label tittleLabel;
+    private final Label titleLabel;
     private final Label subtitleLabel;
 
     private final Label playerLabel;
@@ -36,12 +36,14 @@ public class EndView {
     private final Button startNewGameButton;
     private final Button exitButton;
 
+    private static final double CONTENT_WIDTH = 320;
+
     /**
      * Builds the end view and all of its visual components
      */
     public EndView() {
-        this.tittleLabel = new Label("MILLIONS");
-        this.tittleLabel.getStyleClass().add("start-view-title");
+        this.titleLabel = new Label("MILLIONS");
+        this.titleLabel.getStyleClass().add("start-view-title");
 
         this.subtitleLabel = new Label("Game Summary");
         this.subtitleLabel.getStyleClass().add("field-label");
@@ -127,13 +129,13 @@ public class EndView {
             String netWorth,
             int transaction
     ) {
-        this.playerLabel.setText("PLayer: " + playerName);
+        this.playerLabel.setText("Player: " + playerName);
         this.weekLabel.setText("Week: " + week);
         this.statusLabel.setText("Status: " + status);
         this.cashLabel.setText("Cash: " + cash);
-        this.portfolioLabel.setText("Portfolio: " + portfolioValue);
+        this.portfolioLabel.setText("Portfolio Value: " + portfolioValue);
         this.netWorthLabel.setText("Net Worth: " + netWorth);
-        this.transactionsLabel.setText("Transactions: " + transactions);
+        this.transactionsLabel.setText("Transactions: " + transaction);
     }
 
     /**

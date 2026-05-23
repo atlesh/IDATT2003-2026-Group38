@@ -194,7 +194,7 @@ public class ShellController implements ModelObserver {
     dialog.setOnCancel(this.shell::hideModal);
     dialog.setOnConfirm(() -> {
       this.shell.hideModal();
-      navigateToEndSummary;
+      navigateToEndSummary();
     });
 
     this.shell.showModal(dialog.getRoot());
