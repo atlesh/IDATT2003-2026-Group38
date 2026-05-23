@@ -198,14 +198,22 @@ public class ShellController implements ModelObserver {
    */
   private void handleEndGame() {
     ConfirmDialog dialog = new ConfirmDialog(
-            "End current game?",
-            "The current round will be closed and you will be taken to the summary screen.",
+            "Sell all holdings and end game?",
+            "All owned shares will be sold before the game summary is shown",
             "End Game");
 
     dialog.setOnCancel(this.shell::hideModal);
     dialog.setOnConfirm(() -> {
       this.shell.hideModal();
-      navigateToEndSummary();
+
+      try {
+        if (!this.player.getPortfolio().getShares().isEmpty()) {
+          this.exchange.sellAll(this.player);
+        }
+        navigateToEndSummary();
+      } catch (RuntimeException e) {
+        showError("Could not end game: " + e.getMessage());
+      }
     });
 
     this.shell.showModal(dialog.getRoot());
