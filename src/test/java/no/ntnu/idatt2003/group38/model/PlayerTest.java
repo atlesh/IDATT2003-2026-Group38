@@ -175,4 +175,81 @@ public class PlayerTest {
 
     assertEquals("Investor", player.getPlayerStatus());
   }
+
+  // getNetWorthHistory
+
+  @Test
+  void newPlayer_containsStartingMoney() {
+    List<BigDecimal> history = player.getNetWorthHistory();
+
+    assertEquals(1, history.size());
+    assertEquals(0, history.getFirst().compareTo(new BigDecimal("5000")));
+  }
+
+  @Test
+  void returnsImmutableCopy() {
+    List<BigDecimal> history = player.getNetWorthHistory();
+
+    assertThrows(UnsupportedOperationException.class,
+        () -> history.add(new BigDecimal("9999")));
+  }
+
+  @Test
+  void returnsSnapshot_notLiveView() {
+    List<BigDecimal> historyBefore = player.getNetWorthHistory();
+    assertEquals(1, historyBefore.size());
+
+    player.recordNetWorthSnapshot();
+
+    assertEquals(1, historyBefore.size());
+    assertEquals(2, player.getNetWorthHistory().size());
+  }
+
+  // recordNetWorthSnapshot
+
+  @Test
+  void appendsCurrentNetWorthToHistory() {
+    player.addMoney(new BigDecimal("1000"));
+
+    player.recordNetWorthSnapshot();
+    List<BigDecimal> history = player.getNetWorthHistory();
+
+    assertEquals(2, history.size());
+    assertEquals(0, history.get(0).compareTo(new BigDecimal("5000")));
+    assertEquals(0, history.get(1).compareTo(new BigDecimal("6000")));
+  }
+
+  @Test
+  void multipleCalls_preservesChronologicalOrder() {
+    player.addMoney(new BigDecimal("1000"));
+    player.recordNetWorthSnapshot(); // 6000
+
+    player.withdrawMoney(new BigDecimal("2000"));
+    player.recordNetWorthSnapshot(); // 4000
+
+    player.addMoney(new BigDecimal("500"));
+    player.recordNetWorthSnapshot(); // 4500
+
+    List<BigDecimal> history = player.getNetWorthHistory();
+
+    assertEquals(4, history.size());
+    assertEquals(0, history.get(0).compareTo(new BigDecimal("5000")));
+    assertEquals(0, history.get(1).compareTo(new BigDecimal("6000")));
+    assertEquals(0, history.get(2).compareTo(new BigDecimal("4000")));
+    assertEquals(0, history.get(3).compareTo(new BigDecimal("4500")));
+  }
+
+  @Test
+  void includesPortfolioValue() {
+    Stock stock = new Stock("AAPL", "Apple", new BigDecimal("150"));
+    stock.addNewSalesPrice(new BigDecimal("200"));
+    Share share = new Share(stock, new BigDecimal("10"), new BigDecimal("150"));
+    player.getPortfolio().addShare(share);
+
+    player.recordNetWorthSnapshot();
+    List<BigDecimal> history = player.getNetWorthHistory();
+
+    assertEquals(2, history.size());
+    assertEquals(0, history.get(1).compareTo(player.getNetWorth()));
+  }
 }

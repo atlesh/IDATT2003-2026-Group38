@@ -249,4 +249,92 @@ public class ExchangeTest {
     void getLosers_negativeLimitThrowsException() {
         assertThrows(IllegalArgumentException.class, () -> exchange.getLosers(-1));
     }
+
+
+  // 3-arg sell(Share, BigDecimal, Player) - happy paths
+
+  @Test
+  void sellWithQuantity_partialSale_reducesOwnedQuantity() {
+    exchange.buy("AAPL", new BigDecimal("10"), player);
+    Share ownedShare = player.getPortfolio().getShares().getFirst();
+
+    appleStock.addNewSalesPrice(new BigDecimal("200"));
+
+    Transaction transaction = exchange.sell(ownedShare, new BigDecimal("4"), player);
+
+    assertNotNull(transaction);
+    // The original lot is removed and a remainder of 6 is added back
+    assertEquals(1, player.getPortfolio().getShares().size());
+    assertEquals(0, player.getPortfolio().getShares().getFirst()
+        .getQuantity().compareTo(new BigDecimal("6")));
+    assertTrue(player.getTransactionArchive().getTransactions().contains(transaction));
+  }
+
+  @Test
+  void sellWithQuantity_fullQuantity_delegatesToFullSale() {
+    exchange.buy("AAPL", new BigDecimal("10"), player);
+    Share ownedShare = player.getPortfolio().getShares().getFirst();
+
+    appleStock.addNewSalesPrice(new BigDecimal("200"));
+
+    Transaction transaction = exchange.sell(ownedShare, new BigDecimal("10"), player);
+
+    assertNotNull(transaction);
+    assertFalse(player.getPortfolio().contains(ownedShare));
+    assertTrue(player.getPortfolio().getShares().isEmpty());
+  }
+
+// sell with 3 arguments
+
+  @Test
+  void nullShare_throwsException() {
+    assertThrows(IllegalArgumentException.class,
+        () -> exchange.sell(null, new BigDecimal("1"), player));
+  }
+
+  @Test
+  void nullQuantity_throwsException() {
+    exchange.buy("AAPL", new BigDecimal("10"), player);
+    Share ownedShare = player.getPortfolio().getShares().getFirst();
+
+    assertThrows(IllegalArgumentException.class,
+        () -> exchange.sell(ownedShare, null, player));
+  }
+
+  @Test
+  void zeroOrNegativeQuantity_throwsException() {
+    exchange.buy("AAPL", new BigDecimal("10"), player);
+    Share ownedShare = player.getPortfolio().getShares().getFirst();
+
+    assertThrows(IllegalArgumentException.class,
+        () -> exchange.sell(ownedShare, BigDecimal.ZERO, player));
+    assertThrows(IllegalArgumentException.class,
+        () -> exchange.sell(ownedShare, new BigDecimal("-1"), player));
+  }
+
+  @Test
+  void nullPlayer_throwsException() {
+    exchange.buy("AAPL", new BigDecimal("10"), player);
+    Share ownedShare = player.getPortfolio().getShares().getFirst();
+
+    assertThrows(IllegalArgumentException.class,
+        () -> exchange.sell(ownedShare, new BigDecimal("1"), null));
+  }
+
+  @Test
+  void shareNotOwned_throwsException() {
+    Share notOwned = new Share(appleStock, new BigDecimal("10"), new BigDecimal("150"));
+
+    assertThrows(IllegalArgumentException.class,
+        () -> exchange.sell(notOwned, new BigDecimal("5"), player));
+  }
+
+  @Test
+  void quantityExceedsOwned_throwsException() {
+    exchange.buy("AAPL", new BigDecimal("10"), player);
+    Share ownedShare = player.getPortfolio().getShares().getFirst();
+
+    assertThrows(IllegalArgumentException.class,
+        () -> exchange.sell(ownedShare, new BigDecimal("11"), player));
+  }
 }
