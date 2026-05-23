@@ -47,6 +47,8 @@ public class DashboardView {
   private final VBox losersBox;
   private final VBox recentActivityBox;
 
+  private final NumberAxis xAxis;
+  private final NumberAxis yAxis;
   private final LineChart<Number, Number> performanceChart;
   private final XYChart.Series<Number, Number> performanceSeries;
 
@@ -84,16 +86,26 @@ public class DashboardView {
     Label performanceTitle = new Label("Portfolio Performance");
     performanceTitle.getStyleClass().add("stock-card-title");
 
-    NumberAxis xAxis = new NumberAxis();
-    xAxis.setLabel("Week");
-    xAxis.setForceZeroInRange(false);
+    this.xAxis = new NumberAxis();
+    this.xAxis.setLabel("Week");
+    this.xAxis.setForceZeroInRange(false);
+    this.xAxis.setAutoRanging(false);
+    this.xAxis.setLowerBound(1);
+    this.xAxis.setUpperBound(2);
+    this.xAxis.setTickUnit(1);
+    this.xAxis.setMinorTickVisible(false);
 
-    NumberAxis yAxis = new NumberAxis();
-    yAxis.setLabel("Net Worth");
-    yAxis.setForceZeroInRange(false);
+    this.yAxis = new NumberAxis();
+    this.yAxis.setLabel("Net Worth");
+    this.yAxis.setForceZeroInRange(false);
+    this.yAxis.setAutoRanging(false);
+    this.yAxis.setLowerBound(0);
+    this.yAxis.setUpperBound(1);
+    this.yAxis.setTickUnit(1);
+    this.yAxis.setMinorTickVisible(false);
 
     this.performanceSeries = new XYChart.Series<>();
-    this.performanceChart = new LineChart<>(xAxis, yAxis);
+    this.performanceChart = new LineChart<>(this.xAxis, this.yAxis);
     this.performanceChart.setLegendVisible(false);
     this.performanceChart.setAnimated(false);
     this.performanceChart.setCreateSymbols(false);
@@ -250,6 +262,8 @@ public class DashboardView {
       this.performanceSeries.getData().add(
           new XYChart.Data<>(i + 1, history.get(i).doubleValue()));
     }
+
+    updatePerformanceAxes(history);
   }
 
   /**
@@ -294,6 +308,43 @@ public class DashboardView {
     label.getStyleClass().add("stock-card-line");
     label.setWrapText(true);
     return label;
+  }
+
+  private void updatePerformanceAxes(List<BigDecimal> history) {
+    if (history.isEmpty()) {
+      this.xAxis.setLowerBound(1);
+      this.xAxis.setUpperBound(2);
+      this.xAxis.setTickUnit(1);
+
+      this.yAxis.setLowerBound(0);
+      this.yAxis.setUpperBound(1);
+      this.yAxis.setTickUnit(1);
+      return;
+    }
+
+    int weeks = Math.max(2, history.size());
+    this.xAxis.setLowerBound(1);
+    this.xAxis.setUpperBound(weeks);
+    this.xAxis.setTickUnit(1);
+
+    double min = history.stream()
+        .mapToDouble(BigDecimal::doubleValue)
+        .min()
+        .orElse(0);
+    double max = history.stream()
+        .mapToDouble(BigDecimal::doubleValue)
+        .max()
+        .orElse(1);
+
+    double span = max - min;
+    double padding = span == 0 ? Math.max(1.0, Math.abs(max) * 0.1) : span * 0.1;
+    double lower = min - padding;
+    double upper = max + padding;
+    double tickUnit = Math.max(1.0, (upper - lower) / 4.0);
+
+    this.yAxis.setLowerBound(lower);
+    this.yAxis.setUpperBound(upper);
+    this.yAxis.setTickUnit(tickUnit);
   }
 
   private void replaceRows(VBox container, List<String> rows, String extraStyleClass) {

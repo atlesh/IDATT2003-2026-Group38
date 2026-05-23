@@ -36,6 +36,12 @@
     -fx-padding: 0 0 0 24;
 }
 
+.top-bar-save-status {
+    -fx-font-family: "Roboto";
+    -fx-font-size: 12px;
+    -fx-text-fill: #9AD7A7;
+}
+
 /* Side navigation */
 
 .side-nav {

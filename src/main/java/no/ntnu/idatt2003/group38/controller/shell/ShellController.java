@@ -1,23 +1,35 @@
 package no.ntnu.idatt2003.group38.controller.shell;
 
+import java.io.IOException;
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import java.util.Objects;
+import javafx.animation.PauseTransition;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.control.Alert;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+import no.ntnu.idatt2003.group38.controller.EndController;
 import no.ntnu.idatt2003.group38.controller.dashboard.DashboardController;
 import no.ntnu.idatt2003.group38.controller.market.StockMarketController;
 import no.ntnu.idatt2003.group38.controller.portfolio.PortfolioController;
 import no.ntnu.idatt2003.group38.controller.statistics.WeeklyStatisticsController;
 import no.ntnu.idatt2003.group38.controller.transaction.TransactionHistoryController;
 import no.ntnu.idatt2003.group38.exchange.Exchange;
+import no.ntnu.idatt2003.group38.filehandling.GameSaveFileWriter;
 import no.ntnu.idatt2003.group38.model.Player;
 import no.ntnu.idatt2003.group38.observer.ModelObserver;
+import no.ntnu.idatt2003.group38.view.EndView;
 import no.ntnu.idatt2003.group38.view.shell.Page;
 import no.ntnu.idatt2003.group38.view.shell.ShellView;
 import no.ntnu.idatt2003.group38.view.shell.SideNav.Destination;
@@ -40,10 +52,15 @@ public class ShellController implements ModelObserver {
   private final Stage stage;
   private final Player player;
   private final Exchange exchange;
+  private final GameSaveFileWriter gameSaveFileWriter;
 
   private final DecimalFormat moneyFormat;
+  private final PauseTransition saveStatusReset;
 
   private Page currentPage;
+
+  private static final Path SAVE_DIRECTORY = Path.of("saves");
+  private static final Path AUTOSAVE_PATH = Path.of("saves", "autosave.json");
 
   /**
    * Creates a new shell controller, wires the side nav, observes the model and
@@ -60,9 +77,16 @@ public class ShellController implements ModelObserver {
     this.player = Objects.requireNonNull(player, "player cannot be null");
     this.exchange = Objects.requireNonNull(exchange, "exchange cannot be null");
 
+    this.gameSaveFileWriter = new GameSaveFileWriter();
+    this.shell.getTopBar().setOnSaveClicked(this::handleSaveProgress);
+
+    this.shell.getTopBar().setOnEndGameClicked(this::handleEndGame);
+
     DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
     symbols.setGroupingSeparator(' ');
     this.moneyFormat = new DecimalFormat("#,##0", symbols);
+    this.saveStatusReset = new PauseTransition(Duration.seconds(2));
+    this.saveStatusReset.setOnFinished(event -> this.shell.getTopBar().clearSaveStatus());
 
     this.shell.getSideNav().setOnNavigate(this::navigateTo);
     this.shell.getTopBar().setOnAdvanceClicked(this::handleAdvanceWeek);
@@ -160,12 +184,135 @@ public class ShellController implements ModelObserver {
       this.shell.hideModal();
       this.exchange.advance();
       this.player.recordNetWorthSnapshot();
+      writeAutosave();
 
       if (this.currentPage instanceof DashboardController dashboardController) {
         dashboardController.refreshChart();
       }
     });
     this.shell.showModal(dialog.getRoot());
+  }
+
+  /**
+   * Opens a confirmation dialog before ending the current game
+   */
+  private void handleEndGame() {
+    ConfirmDialog dialog = new ConfirmDialog(
+            "End current game?",
+            "The current round will be closed and you will be taken to the summary screen.",
+            "End Game");
+
+    dialog.setOnCancel(this.shell::hideModal);
+    dialog.setOnConfirm(() -> {
+      this.shell.hideModal();
+      navigateToEndSummary();
+    });
+
+    this.shell.showModal(dialog.getRoot());
+  }
+
+  /**
+   * Navigates from the shell to the end-of-game summary screen.
+   */
+  private void navigateToEndSummary() {
+    EndView endView = new EndView();
+    new EndController(endView, this.stage, this.player, this.exchange);
+
+    Scene scene = new Scene(endView.getRoot(), 760, 520);
+    endView.attachTo(scene);
+
+    dispose();
+    this.stage.setScene(scene);
+    this.stage.centerOnScreen();
+  }
+
+  /**
+   * Opens a file chooser and writes the current game state to disk as JSON.
+   */
+  private void handleSaveProgress() {
+    FileChooser chooser = new FileChooser();
+    chooser.setTitle("Save Game");
+    chooser.getExtensionFilters().add(
+        new FileChooser.ExtensionFilter("JSON files (*.json)", "*.json"));
+    chooser.setInitialFileName(buildDefaultSaveFileName());
+    configureSaveDirectory(chooser, true);
+
+    File selected = chooser.showSaveDialog(this.stage);
+    if (selected == null) {
+      return;
+    }
+
+    try {
+      this.gameSaveFileWriter.write(selected.toPath(), this.player, this.exchange);
+      showSaveStatus("Saved");
+    } catch (IOException e) {
+      showError("Could not save game: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Builds a default filename for the current save.
+   *
+   * @return a filename like {@code "sigurd-week-4.json"}
+   */
+  private String buildDefaultSaveFileName() {
+    String playerName = this.player.getName().trim().replaceAll("\\s+", "-");
+    return playerName + "-week-" + this.exchange.getWeek() + ".json";
+  }
+
+  /**
+   * Configures the save chooser to use the application's save directory.
+   *
+   * @param chooser the file chooser to configure
+   * @param createWhenMissing whether the save directory should be created if missing
+   */
+  private void configureSaveDirectory(FileChooser chooser, boolean createWhenMissing) {
+    try {
+      if (createWhenMissing) {
+        Files.createDirectories(SAVE_DIRECTORY);
+      }
+
+      if (Files.isDirectory(SAVE_DIRECTORY)) {
+        chooser.setInitialDirectory(SAVE_DIRECTORY.toFile());
+      }
+    } catch (IOException e) {
+      showError("Could not open save directory: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Writes the current game state to the autosave location.
+   */
+  private void writeAutosave() {
+    try {
+      this.gameSaveFileWriter.write(AUTOSAVE_PATH, this.player, this.exchange);
+      showSaveStatus("Autosaved");
+    } catch (IOException e) {
+      showError("Could not write autosave: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Shows a short save-status message in the top bar.
+   *
+   * @param message the message to display
+   */
+  private void showSaveStatus(String message) {
+    this.shell.getTopBar().setSaveStatus(message);
+    this.saveStatusReset.stop();
+    this.saveStatusReset.playFromStart();
+  }
+
+  /**
+   * Shows a simple error alert to the user.
+   *
+   * @param message the message to display
+   */
+  private void showError(String message) {
+    Alert alert = new Alert(Alert.AlertType.ERROR);
+    alert.setHeaderText(null);
+    alert.setContentText(message);
+    alert.showAndWait();
   }
 
   // Lifecycle
@@ -179,13 +326,18 @@ public class ShellController implements ModelObserver {
       this.currentPage.onDetach();
       this.currentPage = null;
     }
+    this.saveStatusReset.stop();
     this.exchange.removeObserver(this);
   }
 
+  /**
+   * Returns the stage currently used by the shell.
+   *
+   * @return the primary stage
+   */
   public Stage getStage() {
     return stage;
   }
-
 
   private static final class PlaceholderPage implements Page {
     private final Region root;

@@ -324,4 +324,25 @@ public class Exchange extends Observable{
       throw new IllegalArgumentException("Limit cannot be negative");
     }
   }
+
+  /**
+   * Restores an exchange from previously saved game data.
+   *
+   * @param name the exchange name
+   * @param week the current trading week
+   * @param stocks the stocks to populate the exchange with
+   * @return an exchange populated from the provided saved state
+   */
+  public static Exchange restore(String name, int week, List<Stock> stocks) {
+    Objects.requireNonNull(name, "Name cannot be null");
+    Objects.requireNonNull(stocks, "Stocks cannot be null");
+
+    if (week < 1) {
+      throw new IllegalArgumentException("Week must be at least 1");
+    }
+
+    Exchange exchange = new Exchange(name, stocks);
+    exchange.week = week;
+    return exchange;
+  }
 }

@@ -11,7 +11,8 @@ import javafx.scene.layout.Region;
  * The top bar of the application shell.
  *
  * <p>Displays the application title on the left and global game state on the
- * right: current week, available cash, net worth and player status.
+ * right: current week, available cash, net worth, player status and
+ * top-level game actions.
  */
 public class TopBar {
 
@@ -20,7 +21,10 @@ public class TopBar {
   private final Label cashLabel;
   private final Label netWorthLabel;
   private final Label statusLabel;
+  private final Label saveStatusLabel;
   private final Button nextWeekButton;
+  private final Button saveButton;
+  private final Button endGameButton;
 
   /**
    * Builds the top bar with placeholder values for week, cash, net worth and
@@ -42,15 +46,26 @@ public class TopBar {
     this.statusLabel = new Label();
     this.statusLabel.getStyleClass().add("top-bar-info");
 
+    this.saveStatusLabel = new Label();
+    this.saveStatusLabel.getStyleClass().add("top-bar-save-status");
+    this.saveStatusLabel.setVisible(false);
+    this.saveStatusLabel.setManaged(false);
+
     this.nextWeekButton = new Button("Next week");
     this.nextWeekButton.getStyleClass().add("top-bar-next-week");
+
+    this.saveButton = new Button("Save");
+    this.saveButton.getStyleClass().add("top-bar-next-week");
+
+    this.endGameButton = new Button("End game");
+    this.endGameButton.getStyleClass().add("top-bar-next-week");
 
     Region spacer = new Region();
     HBox.setHgrow(spacer, Priority.ALWAYS);
 
     HBox infoGroup = new HBox(32,
         this.weekLabel, this.cashLabel, this.netWorthLabel, this.statusLabel,
-        this.nextWeekButton);
+        this.saveStatusLabel, this.saveButton, this.endGameButton, this.nextWeekButton);
     infoGroup.setAlignment(Pos.CENTER_RIGHT);
     infoGroup.getStyleClass().add("top-bar-info-group");
 
@@ -118,5 +133,43 @@ public class TopBar {
    */
   public void setOnAdvanceClicked(Runnable onAdvance) {
     this.nextWeekButton.setOnAction(e -> onAdvance.run());
+  }
+
+  /**
+   * Registers the action to invoke when the user clicks the Save button.
+   *
+   * @param onSave the action. Must not be {@code null}
+   */
+  public void setOnSaveClicked(Runnable onSave) {
+    this.saveButton.setOnAction(e -> onSave.run());
+  }
+
+  /**
+   * Registers the action to invoke when the user clicks the End Game button
+   *
+   * @param onEndGame the action, must not be {@code null}
+   */
+  public void setOnEndGameClicked(Runnable onEndGame) {
+    this.endGameButton.setOnAction(e -> onEndGame.run());
+  }
+
+  /**
+   * Shows a short save-status message in the top bar.
+   *
+   * @param message the save-status message to display
+   */
+  public void setSaveStatus(String message) {
+    this.saveStatusLabel.setText(message);
+    this.saveStatusLabel.setVisible(true);
+    this.saveStatusLabel.setManaged(true);
+  }
+
+  /**
+   * Clears any save-status message currently shown in the top bar.
+   */
+  public void clearSaveStatus() {
+    this.saveStatusLabel.setText("");
+    this.saveStatusLabel.setVisible(false);
+    this.saveStatusLabel.setManaged(false);
   }
 }

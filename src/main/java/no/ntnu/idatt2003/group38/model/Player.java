@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
+import no.ntnu.idatt2003.group38.transaction.Transaction;
 import no.ntnu.idatt2003.group38.transaction.TransactionArchive;
 
 /**
@@ -166,5 +167,58 @@ public class Player {
     } else {
       return "Novice";
     }
+  }
+
+  /**
+   * Returns the player's initial starting capital.
+   *
+   * @return the amount the player started with
+   */
+  public BigDecimal getStartingMoney() {
+    return this.startingMoney;
+  }
+
+  /**
+   * Restores a player from previously saved game data.
+   *
+   * <p>Rebuilds the player's current cash balance, portfolio, transaction
+   * history and net-worth history from persisted state.</p>
+   *
+   * @param name the player name
+   * @param startingMoney the original starting capital
+   * @param money the player's current cash balance
+   * @param shares the shares currently held in the portfolio
+   * @param transactions the transaction history to restore
+   * @param netWorthHistory the historical net-worth snapshots to restore
+   * @return a player populated from the provided saved state
+   */
+  public static Player restore(
+          String name,
+          BigDecimal startingMoney,
+          BigDecimal money,
+          List<Share> shares,
+          List<Transaction> transactions,
+          List<BigDecimal> netWorthHistory
+   ) {
+    Objects.requireNonNull(name,  "Name cannot be null");
+    Objects.requireNonNull(startingMoney, "Starting money cannot be null");
+    Objects.requireNonNull(money, "Money cannot be null");
+    Objects.requireNonNull(shares, "Shares cannot be null");
+    Objects.requireNonNull(transactions, "Transactions cannot be null");
+    Objects.requireNonNull(netWorthHistory, "Net worth history cannot be null");
+
+    Player player = new Player(name, startingMoney);
+    player.money = money;
+
+    player.getPortfolio().getShares().clear();
+    player.getPortfolio().getShares().addAll(shares);
+
+    player.getTransactionArchive().getTransactions().clear();
+    player.getTransactionArchive().getTransactions().addAll(transactions);
+
+    player.netWorthHistory.clear();
+    player.netWorthHistory.addAll(netWorthHistory);
+
+    return player;
   }
 }
