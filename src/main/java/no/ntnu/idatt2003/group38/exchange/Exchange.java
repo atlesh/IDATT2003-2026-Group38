@@ -306,9 +306,9 @@ public class Exchange extends Observable{
     validateLimit(limit);
 
     List<Stock> result = new ArrayList<>(this.stockMap.values());
-    result.removeIf(stock -> stock.getLatestPriceChange().compareTo(BigDecimal.ZERO) <= 0);
+    result.removeIf(stock -> percentChange(stock).compareTo(BigDecimal.ZERO) <= 0);
     result.sort(
-        Comparator.comparing(Stock::getLatestPriceChange)
+        Comparator.comparing(this::percentChange)
             .reversed()
             .thenComparing(Stock::getSymbol)
     );
@@ -331,13 +331,35 @@ public class Exchange extends Observable{
     validateLimit(limit);
 
     List<Stock> result = new ArrayList<>(this.stockMap.values());
-    result.removeIf(stock -> stock.getLatestPriceChange().compareTo(BigDecimal.ZERO) >= 0);
+    result.removeIf(stock -> percentChange(stock).compareTo(BigDecimal.ZERO) >= 0);
     result.sort(
-        Comparator.comparing(Stock::getLatestPriceChange)
+        Comparator.comparing(this::percentChange)
             .thenComparing(Stock::getSymbol)
     );
 
     return new ArrayList<>(result.subList(0, Math.min(limit, result.size())));
+  }
+
+  /**
+   * Returns the percentage change between the latest and previous registered
+   * sales price of the given stock.
+   *
+   * @param stock the stock to compute the change for
+   * @return the percentage change
+   */
+  private BigDecimal percentChange(Stock stock) {
+    List<BigDecimal> prices = stock.getHistoricalPrices();
+    if (prices.size() < 2) {
+      return BigDecimal.ZERO;
+    }
+    BigDecimal previous = prices.get(prices.size() - 2);
+    if (previous.compareTo(BigDecimal.ZERO) == 0) {
+      return BigDecimal.ZERO;
+    }
+    BigDecimal current = prices.getLast();
+    return current.subtract(previous)
+        .divide(previous, 6, RoundingMode.HALF_UP)
+        .multiply(new BigDecimal("100"));
   }
 
   private void validateLimit(int limit) {
