@@ -239,6 +239,27 @@ public class Exchange extends Observable{
   }
 
   /**
+   * Sells every named share in the player's portfolio
+   *
+   * @param player the player whose holdings should be liquidated
+   * @return the committed sale transactions
+   * @throws IllegalArgumentException if {@code player} is {@code null}
+   */
+  public List<Transaction> sellAll(Player player) {
+    if (player == null) {
+      throw new IllegalArgumentException("Player cannot be null");
+    }
+    List<Share> ownedShares = new ArrayList<>(player.getPortfolio().getShares());
+    List<Transaction> transactions = new ArrayList<>();
+
+    for (Share share : ownedShares) {
+      transactions.add(sell(share, share.getQuantity(), player));
+    }
+
+    return transactions;
+  }
+
+  /**
    * Advances the exchange to the next trading week
    *
    * <p>Increments the week number and applies a small random percentage

@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.Region;
 import no.ntnu.idatt2003.group38.exchange.Exchange;
 import no.ntnu.idatt2003.group38.model.Player;
@@ -44,6 +45,7 @@ public class PortfolioController implements Page, ModelObserver {
    *
    * @param exchange the exchange that provides current stock prices. Must not be {@code null}
    * @param player the player whose portfolio is being displayed. Must not be {@code null}
+   * @param shell the shell used to show modal receipts and error dialogs. Must not be {@code null}
    */
   public PortfolioController(Exchange exchange, Player player, ShellView shell) {
     this.exchange = Objects.requireNonNull(exchange, "exchange cannot be null");
@@ -91,11 +93,21 @@ public class PortfolioController implements Page, ModelObserver {
 
   // Events
 
+  /**
+   * Updates the selected portfolio row and refreshes the detail panel.
+   *
+   * @param share the selected aggregated share, or {@code null} to clear the selection
+   */
   private void handleSelect(Share share) {
       this.selectedSymbol = share == null ? null : share.getStock().getSymbol();
       refresh();
   }
 
+  /**
+   * Attempts to buy the requested quantity of the currently selected stock.
+   *
+   * @param quantity the quantity to buy
+   */
   private void handleBuySelected(int quantity) {
     if (this.selectedSymbol == null || quantity <= 0) {
       return;
@@ -105,10 +117,15 @@ public class PortfolioController implements Page, ModelObserver {
           this.selectedSymbol, BigDecimal.valueOf(quantity), this.player);
       showReceipt(transaction);
     } catch (RuntimeException e) {
-      System.err.println("Buy failed: " + e.getMessage());
+      showError("Could not complete buy: " + e.getMessage());
     }
   }
 
+  /**
+   * Attempts to sell the requested quantity of the currently selected holding.
+   *
+   * @param quantity the quantity to sell
+   */
   private void handleSellSelected(int quantity) {
     if (this.selectedSymbol == null || quantity <= 0) {
       return;
@@ -140,19 +157,29 @@ public class PortfolioController implements Page, ModelObserver {
         remaining = remaining.subtract(sellQuantity);
       }
     } catch (RuntimeException e) {
-      System.err.println("Sell failed: " + e.getMessage());
+      showError("Could not complete sale: " + e.getMessage());
       return;
     }
 
     if (totalQuantity.compareTo(BigDecimal.ZERO) > 0) {
-      showReceipt("Sold", symbol, totalQuantity, unitPrice,                    // <-- use local
+      showReceipt("Sold", symbol, totalQuantity, unitPrice,
           totalGross, totalCommission, totalTax, totalNet);
     }
   }
 
+  /**
+   * Sells every owned share and shows one grouped receipt per stock symbol.
+   */
   private void handleSellAll() {
-    List<Share> ownedLots = new ArrayList<>(this.player.getPortfolio().getShares());
-    if (ownedLots.isEmpty()) {
+    if (this.player.getPortfolio().getShares().isEmpty()) {
+      return;
+    }
+
+    List<Transaction> transactions;
+    try {
+      transactions = this.exchange.sellAll(this.player);
+    } catch (RuntimeException e) {
+      showError("Could not sell all holdings: " + e.getMessage());
       return;
     }
 
@@ -164,20 +191,19 @@ public class PortfolioController implements Page, ModelObserver {
     Map<String, BigDecimal> quantityBySymbol = new LinkedHashMap<>();
 
     try {
-      for (Share lot : ownedLots) {
-        String symbol = lot.getStock().getSymbol();
+      for (Transaction transaction : transactions) {
+        String symbol = transaction.getShare().getStock().getSymbol();
         unitPriceBySymbol.putIfAbsent(symbol, this.exchange.getStock(symbol).getSalesPrice());
 
-        Transaction transaction = this.exchange.sell(lot, lot.getQuantity(), this.player);
         grossBySymbol.merge(symbol, transaction.getCalculator().calculateGross(), BigDecimal::add);
         commissionBySymbol.merge(symbol,
-            transaction.getCalculator().calculateCommission(), BigDecimal::add);
+                transaction.getCalculator().calculateCommission(), BigDecimal::add);
         taxBySymbol.merge(symbol, transaction.getCalculator().calculateTax(), BigDecimal::add);
         netBySymbol.merge(symbol, transaction.getCalculator().calculateTotal(), BigDecimal::add);
-        quantityBySymbol.merge(symbol, lot.getQuantity(), BigDecimal::add);
+        quantityBySymbol.merge(symbol, transaction.getShare().getQuantity(), BigDecimal::add);
       }
     } catch (RuntimeException e) {
-      System.err.println("Sell all failed: " + e.getMessage());
+      showError("Could not build sell-all receipt: " + e.getMessage());
       return;
     }
 
@@ -231,12 +257,29 @@ public class PortfolioController implements Page, ModelObserver {
     this.view.setHasHoldings(!actualShares.isEmpty());
   }
 
+  /**
+   * Shows a receipt for one committed transaction.
+   *
+   * @param transaction the committed transaction to present
+   */
   private void showReceipt(Transaction transaction) {
     TransactionReceipt receipt = new TransactionReceipt(transaction);
     receipt.setOnClose(this.shell::hideModal);
     this.shell.showModal(receipt.getRoot());
   }
 
+  /**
+   * Shows a grouped receipt for one completed sell action.
+   *
+   * @param action the action label to display
+   * @param symbol the stock symbol
+   * @param quantity the total quantity sold
+   * @param unitPrice the current unit price
+   * @param gross the gross sale value
+   * @param commission the total commission
+   * @param tax the total tax
+   * @param total the net amount received
+   */
   private void showReceipt(String action, String symbol, BigDecimal quantity,
                            BigDecimal unitPrice, BigDecimal gross, BigDecimal commission,
                            BigDecimal tax, BigDecimal total) {
@@ -293,6 +336,10 @@ public class PortfolioController implements Page, ModelObserver {
   /**
    * Returns {@code value} as a percentage of {@code base}, or zero if
    * {@code base} is zero.
+   *
+   * @param value the value to compare against the base
+   * @param base the base value
+   * @return the percentage representation of {@code value} relative to {@code base}
    */
   private BigDecimal calculatePercent(BigDecimal value, BigDecimal base) {
     if (base.compareTo(BigDecimal.ZERO) == 0) {
@@ -300,6 +347,18 @@ public class PortfolioController implements Page, ModelObserver {
     }
     return value.divide(base, 4, RoundingMode.HALF_UP)
         .multiply(BigDecimal.valueOf(100));
+  }
+
+  /**
+   * Shows a simple error alert to the user.
+   *
+   * @param message the message to display
+   */
+  private void showError(String message) {
+    Alert alert = new Alert(Alert.AlertType.ERROR);
+    alert.setHeaderText(null);
+    alert.setContentText(message);
+    alert.showAndWait();
   }
 
   /**
