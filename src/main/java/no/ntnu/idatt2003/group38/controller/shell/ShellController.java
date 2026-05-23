@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import java.util.Objects;
+import javafx.animation.PauseTransition;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
@@ -16,6 +17,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import no.ntnu.idatt2003.group38.controller.EndController;
 import no.ntnu.idatt2003.group38.controller.dashboard.DashboardController;
 import no.ntnu.idatt2003.group38.controller.market.StockMarketController;
@@ -52,6 +54,7 @@ public class ShellController implements ModelObserver {
   private final GameSaveFileWriter gameSaveFileWriter;
 
   private final DecimalFormat moneyFormat;
+  private final PauseTransition saveStatusReset;
 
   private Page currentPage;
 
@@ -80,6 +83,8 @@ public class ShellController implements ModelObserver {
     DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
     symbols.setGroupingSeparator(' ');
     this.moneyFormat = new DecimalFormat("#,##0", symbols);
+    this.saveStatusReset = new PauseTransition(Duration.seconds(2));
+    this.saveStatusReset.setOnFinished(event -> this.shell.getTopBar().clearSaveStatus());
 
     this.shell.getSideNav().setOnNavigate(this::navigateTo);
     this.shell.getTopBar().setOnAdvanceClicked(this::handleAdvanceWeek);
@@ -236,7 +241,7 @@ public class ShellController implements ModelObserver {
 
     try {
       this.gameSaveFileWriter.write(selected.toPath(), this.player, this.exchange);
-      showInfo("Game saved successfully.");
+      showSaveStatus("Saved");
     } catch (IOException e) {
       showError("Could not save game: " + e.getMessage());
     }
@@ -258,21 +263,21 @@ public class ShellController implements ModelObserver {
   private void writeAutosave() {
     try {
       this.gameSaveFileWriter.write(AUTOSAVE_PATH, this.player, this.exchange);
+      showSaveStatus("Autosaved");
     } catch (IOException e) {
       showError("Could not write autosave: " + e.getMessage());
     }
   }
 
   /**
-   * Shows a simple informational alert to the user.
+   * Shows a short save-status message in the top bar.
    *
    * @param message the message to display
    */
-  private void showInfo(String message) {
-    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-    alert.setHeaderText(null);
-    alert.setContentText(message);
-    alert.showAndWait();
+  private void showSaveStatus(String message) {
+    this.shell.getTopBar().setSaveStatus(message);
+    this.saveStatusReset.stop();
+    this.saveStatusReset.playFromStart();
   }
 
   /**
@@ -298,6 +303,7 @@ public class ShellController implements ModelObserver {
       this.currentPage.onDetach();
       this.currentPage = null;
     }
+    this.saveStatusReset.stop();
     this.exchange.removeObserver(this);
   }
 

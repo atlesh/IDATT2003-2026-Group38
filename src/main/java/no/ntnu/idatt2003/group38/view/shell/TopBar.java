@@ -21,6 +21,7 @@ public class TopBar {
   private final Label cashLabel;
   private final Label netWorthLabel;
   private final Label statusLabel;
+  private final Label saveStatusLabel;
   private final Button nextWeekButton;
   private final Button saveButton;
   private final Button endGameButton;
@@ -45,6 +46,11 @@ public class TopBar {
     this.statusLabel = new Label();
     this.statusLabel.getStyleClass().add("top-bar-info");
 
+    this.saveStatusLabel = new Label();
+    this.saveStatusLabel.getStyleClass().add("top-bar-save-status");
+    this.saveStatusLabel.setVisible(false);
+    this.saveStatusLabel.setManaged(false);
+
     this.nextWeekButton = new Button("Next week");
     this.nextWeekButton.getStyleClass().add("top-bar-next-week");
 
@@ -59,7 +65,7 @@ public class TopBar {
 
     HBox infoGroup = new HBox(32,
         this.weekLabel, this.cashLabel, this.netWorthLabel, this.statusLabel,
-            this.saveButton, this. endGameButton, this.nextWeekButton);
+        this.saveStatusLabel, this.saveButton, this.endGameButton, this.nextWeekButton);
     infoGroup.setAlignment(Pos.CENTER_RIGHT);
     infoGroup.getStyleClass().add("top-bar-info-group");
 
@@ -145,5 +151,25 @@ public class TopBar {
    */
   public void setOnEndGameClicked(Runnable onEndGame) {
     this.endGameButton.setOnAction(e -> onEndGame.run());
+  }
+
+  /**
+   * Shows a short save-status message in the top bar.
+   *
+   * @param message the save-status message to display
+   */
+  public void setSaveStatus(String message) {
+    this.saveStatusLabel.setText(message);
+    this.saveStatusLabel.setVisible(true);
+    this.saveStatusLabel.setManaged(true);
+  }
+
+  /**
+   * Clears any save-status message currently shown in the top bar.
+   */
+  public void clearSaveStatus() {
+    this.saveStatusLabel.setText("");
+    this.saveStatusLabel.setVisible(false);
+    this.saveStatusLabel.setManaged(false);
   }
 }

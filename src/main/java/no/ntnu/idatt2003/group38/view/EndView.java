@@ -8,13 +8,13 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
 /**
- * The end view of the Millions application
+ * The end view of the Millions application.
  *
  * <p>Shows a summary of the finished game and lets the user either
- * start a new game, or exit the application </p>
+ * start a new game or exit the application.</p>
  *
- * <p>The view does not perform navigation or business logic. The controller
- * is responsible for pushing summary values into the view and wiring button actions</p>
+ * <p>The view does not perform navigation or business logic. The controller is
+ * responsible for pushing summary values into the view and wiring button actions.</p>
  */
 public class EndView {
 
@@ -39,7 +39,7 @@ public class EndView {
     private static final double CONTENT_WIDTH = 320;
 
     /**
-     * Builds the end view and all of its visual components
+     * Builds the end view and all of its visual components.
      */
     public EndView() {
         this.titleLabel = new Label("MILLIONS");
@@ -87,7 +87,7 @@ public class EndView {
     }
 
     /**
-     * Returns the root node so the application can attach it to a scene
+     * Returns the root node so the application can attach it to a scene.
      *
      * @return the root layout container of the end view
      */
@@ -96,7 +96,7 @@ public class EndView {
     }
 
     /**
-     * Attaches the end-view stylesheet to the given scene
+     * Attaches the end-view stylesheet to the given scene.
      *
      * @param scene the scene to attach the stylesheet to, must not be {@code null}
      */
@@ -110,7 +110,7 @@ public class EndView {
     }
 
     /**
-     * Updates the summary labels shown in the view
+     * Updates the summary labels shown in the view.
      *
      * @param playerName the player name
      * @param week the last played week
@@ -139,7 +139,7 @@ public class EndView {
     }
 
     /**
-     * Registers the action ro run when the user clicks "Start New Game"
+     * Registers the action to run when the user clicks Start New Game.
      *
      * @param action the action to execute, must not be {@code null}
      */
@@ -149,7 +149,7 @@ public class EndView {
     }
 
     /**
-     * Registers the action to run when the user clicks "Exit Application"
+     * Registers the action to run when the user clicks Exit Application.
      *
      * @param action the action to execute, must not be {@code null}
      */
