@@ -1,5 +1,7 @@
 ### IDATT2003-2026-Group38 Mappeoppgave
 
+<img src="Documentation/logo.png" alt="My screenshot" width="400">
+
 Members: Sigurd Mjølstad-Svendsen, Atle Sandnes Halvorsen
 
 Velkommen til mappeprosjekt i IDATT1003 Programmering 2 for gruppe 38.
