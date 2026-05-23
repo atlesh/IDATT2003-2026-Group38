@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
@@ -53,6 +54,8 @@ public class ShellController implements ModelObserver {
   private final DecimalFormat moneyFormat;
 
   private Page currentPage;
+
+  private static final Path AUTOSAVE_PATH = Path.of("saves", "autosave.json");
 
   /**
    * Creates a new shell controller, wires the side nav, observes the model and
@@ -174,6 +177,7 @@ public class ShellController implements ModelObserver {
       this.shell.hideModal();
       this.exchange.advance();
       this.player.recordNetWorthSnapshot();
+      writeAutosave();
 
       if (this.currentPage instanceof DashboardController dashboardController) {
         dashboardController.refreshChart();
@@ -200,6 +204,9 @@ public class ShellController implements ModelObserver {
     this.shell.showModal(dialog.getRoot());
   }
 
+  /**
+   * Navigates from the shell to the end-of-game summary screen.
+   */
   private void navigateToEndSummary() {
     EndView endView = new EndView();
     new EndController(endView, this.stage, this.player, this.exchange);
@@ -246,6 +253,17 @@ public class ShellController implements ModelObserver {
   }
 
   /**
+   * Writes the current game state to the autosave location.
+   */
+  private void writeAutosave() {
+    try {
+      this.gameSaveFileWriter.write(AUTOSAVE_PATH, this.player, this.exchange);
+    } catch (IOException e) {
+      showError("Could not write autosave: " + e.getMessage());
+    }
+  }
+
+  /**
    * Shows a simple informational alert to the user.
    *
    * @param message the message to display
@@ -283,6 +301,11 @@ public class ShellController implements ModelObserver {
     this.exchange.removeObserver(this);
   }
 
+  /**
+   * Returns the stage currently used by the shell.
+   *
+   * @return the primary stage
+   */
   public Stage getStage() {
     return stage;
   }
