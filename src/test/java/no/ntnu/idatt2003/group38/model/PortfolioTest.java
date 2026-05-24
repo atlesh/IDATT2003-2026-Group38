@@ -8,6 +8,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for {@link Portfolio}.
+ */
 public class PortfolioTest {
 
   private Portfolio portfolio;

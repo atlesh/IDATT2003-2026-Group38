@@ -8,6 +8,9 @@ import no.ntnu.idatt2003.group38.model.Stock;
 import no.ntnu.idatt2003.group38.model.Share;
 import no.ntnu.idatt2003.group38.model.Player;
 
+/**
+ * Unit tests for {@link Transaction}.
+ */
 public class TransactionTest {
   private Share appleShare;
   private Player player;

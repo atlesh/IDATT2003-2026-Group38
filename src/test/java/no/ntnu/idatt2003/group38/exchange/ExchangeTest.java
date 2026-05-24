@@ -11,6 +11,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * Unit tests for {@link Exchange}.
+ */
 public class ExchangeTest {
 
     private Exchange exchange;
@@ -337,4 +340,34 @@ public class ExchangeTest {
     assertThrows(IllegalArgumentException.class,
         () -> exchange.sell(ownedShare, new BigDecimal("11"), player));
   }
+
+  @Test
+    void sellAll_multipleOwnedShares_clearsPortfolioAndReturnsCommittedSales() {
+        Stock microsoftStock = new Stock("MSFT", "Microsoft", new BigDecimal("300"));
+        Exchange liquidationExchange = new Exchange("Liquidation Exchange", List.of(appleStock, microsoftStock));
+
+        liquidationExchange.buy("AAPL", new BigDecimal("10"), player);
+        liquidationExchange.buy("MSFT", new BigDecimal("5"), player);
+
+        List<Transaction> sales = liquidationExchange.sellAll(player);
+
+        assertEquals(2, sales.size());
+        assertTrue(player.getPortfolio().getShares().isEmpty());
+        assertTrue(sales.stream().allMatch(Transaction::isCommitted));
+        assertEquals(4, player.getTransactionArchive().getTransactions().size());
+    }
+
+    @Test
+    void sellAll_emptyPortfolio_returnsEmptyList() {
+        List<Transaction> sales = exchange.sellAll(player);
+
+        assertTrue(sales.isEmpty());
+        assertTrue(player.getPortfolio().getShares().isEmpty());
+        assertTrue(player.getTransactionArchive().getTransactions().isEmpty());
+    }
+
+    @Test
+    void sellAll_nullPlayer_throwsException() {
+        assertThrows(IllegalArgumentException.class,  () -> exchange.sell(null, player));
+    }
 }
