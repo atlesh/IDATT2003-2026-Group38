@@ -8,6 +8,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for {@link Observable}.
+ */
 public class ObservableTest {
 
   private static final class TestObservable extends Observable {

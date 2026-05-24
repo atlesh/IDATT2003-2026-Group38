@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.math.BigDecimal;
 
+/**
+ * Unit tests for {@link SaleCalculator}.
+ */
 public class SaleCalculatorTest {
 
     private Stock createStockWithSalesPrice(BigDecimal salesPrice) {
