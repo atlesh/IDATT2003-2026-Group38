@@ -13,6 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+/**
+ * Unit tests for {@link TransactionFactory}.
+ */
 public class TransactionFactoryTest {
   private Share appleShare;
 

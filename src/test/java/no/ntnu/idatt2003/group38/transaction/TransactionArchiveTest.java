@@ -12,6 +12,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 
+/**
+ * Unit tests for {@link TransactionArchive}.
+ */
 public class TransactionArchiveTest {
   private TransactionArchive archive;
   private Share appleShare;
