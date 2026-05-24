@@ -34,6 +34,9 @@ import no.ntnu.idatt2003.group38.view.shell.Page;
 import no.ntnu.idatt2003.group38.view.shell.ShellView;
 import no.ntnu.idatt2003.group38.view.shell.SideNav.Destination;
 import no.ntnu.idatt2003.group38.view.components.ConfirmDialog;
+import java.util.List;
+import no.ntnu.idatt2003.group38.event.EventNotice;
+
 
 /**
  * Owns the running game and orchestrates the application shell.
@@ -189,9 +192,15 @@ public class ShellController implements ModelObserver {
       if (this.currentPage instanceof DashboardController dashboardController) {
         dashboardController.refreshChart();
       }
+
+      List<EventNotice> events = this.exchange.getLastWeekEvents();
+      if (!events.isEmpty()) {
+        showNewsDialog(events);
+      }
     });
     this.shell.showModal(dialog.getRoot());
   }
+
 
   /**
    * Opens a confirmation dialog before ending the current game
@@ -299,6 +308,31 @@ public class ShellController implements ModelObserver {
       showError("Could not write autosave: " + e.getMessage());
     }
   }
+
+  /**
+   * Shows a modal news dialog summarising the events that fired during the
+   * most recent week advance.
+   *
+   * @param events the events to summarise. Must not be {@code null} or empty.
+   */
+  private void showNewsDialog(List<EventNotice> events) {
+    StringBuilder body = new StringBuilder();
+    for (EventNotice notice : events) {
+      body.append("• ")
+          .append(notice.stock().getSymbol())
+          .append(" — ")
+          .append(notice.headline())
+          .append("\n");
+    }
+    ConfirmDialog dialog = new ConfirmDialog(
+        "This Week in the News",
+        body.toString(),
+        "Continue");
+    dialog.setOnConfirm(this.shell::hideModal);
+    dialog.setOnCancel(this.shell::hideModal);
+    this.shell.showModal(dialog.getRoot());
+  }
+
 
   /**
    * Shows a short save-status message in the top bar.

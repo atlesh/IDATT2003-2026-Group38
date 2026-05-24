@@ -6,6 +6,9 @@ import no.ntnu.idatt2003.group38.model.Stock;
 import no.ntnu.idatt2003.group38.observer.Observable;
 import no.ntnu.idatt2003.group38.transaction.Transaction;
 import no.ntnu.idatt2003.group38.transaction.Sale;
+import no.ntnu.idatt2003.group38.event.EventGenerator;
+import no.ntnu.idatt2003.group38.event.EventNotice;
+import no.ntnu.idatt2003.group38.event.MarketEvent;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -27,6 +30,8 @@ public class Exchange extends Observable{
   private int week;
   private final Map<String, Stock> stockMap;
   private final Random random;
+  private final EventGenerator eventGenerator;
+  private final List<EventNotice> lastWeekEvents = new ArrayList<>();
 
   /**
    * Creates a new stock exchange with the given name and listed stocks
@@ -40,6 +45,7 @@ public class Exchange extends Observable{
     this.name = Objects.requireNonNull(name, "Name cannot be null");
     this.week = 1;
     this.random = new Random();
+    this.eventGenerator = new EventGenerator(this.random);
     this.stockMap = new HashMap<>();
 
     for (Stock stock : stocks) {
@@ -260,36 +266,56 @@ public class Exchange extends Observable{
   }
 
   /**
-   * Advances the exchange to the next trading week
+   * Advances the exchange to the next trading week.
    *
-   * <p>Increments the week number and applies a small random percentage
-   * change to the sales price of each listed stock</p>
+   * <p>For each listed stock the exchange first asks the
+   * {@link EventGenerator} whether a random market event should fire.
+   * If one fires, the event computes the new price, otherwise default.
    */
   public void advance() {
     this.week++;
+    this.lastWeekEvents.clear();
 
     final BigDecimal maxChange = new BigDecimal("0.05");
 
     for (Stock stock : this.stockMap.values()) {
       BigDecimal current = stock.getSalesPrice();
+      BigDecimal newPrice;
 
-      double r = (this.random.nextDouble() * 2.0) - 1.0;
-      BigDecimal change = maxChange.multiply(BigDecimal.valueOf(r));
-
-      BigDecimal factor = BigDecimal.ONE.add(change);
-      BigDecimal newPrice = current.multiply(factor);
+      Optional<MarketEvent> event = this.eventGenerator.sample();
+      if (event.isPresent()) {
+        MarketEvent fired = event.get();
+        newPrice = fired.apply(stock, current);
+        this.lastWeekEvents.add(
+            new EventNotice(stock, fired.getHeadline(), current, newPrice));
+      } else {
+        double r = (this.random.nextDouble() * 2.0) - 1.0;
+        BigDecimal change = maxChange.multiply(BigDecimal.valueOf(r));
+        BigDecimal factor = BigDecimal.ONE.add(change);
+        newPrice = current.multiply(factor);
+      }
 
       if (newPrice.compareTo(new BigDecimal("0.01")) < 0) {
         newPrice = new BigDecimal("0.01");
       }
 
       newPrice = newPrice.setScale(2, RoundingMode.HALF_UP);
-
       stock.addNewSalesPrice(newPrice);
     }
 
     notifyObservers();
   }
+
+  /**
+   * Returns the market events that fired during the most recent
+   * {@link #advance()} call.
+   *
+   * @return an unmodifiable list of event notices, empty if no events fired
+   */
+  public List<EventNotice> getLastWeekEvents() {
+    return List.copyOf(this.lastWeekEvents);
+  }
+
 
   /**
    * Returns the stocks with the largest positive price change since the previous trading week
@@ -298,7 +324,7 @@ public class Exchange extends Observable{
    * The result is sorted by price change in descending order and
    * limited to the given number of stocks.</p>
    *
-   * @param limit the maximum number of stocks to return; must be greater than or equal to 0
+   * @param limit the maximum number of stocks to return. Must be greater than or equal to 0
    * @return a list of the top gaining stocks, or an empty list if none have increased
    * @throws IllegalArgumentException if {@code limit} is negative
    */
