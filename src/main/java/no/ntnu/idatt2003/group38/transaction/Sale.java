@@ -80,4 +80,24 @@ public class Sale extends Transaction {
     player.getTransactionArchive().add(this);
     setCommitted();
   }
+
+  private Sale(Share soldShare, Share sourceShare, int week, BigDecimal salesPrice, boolean committed) {
+    super(soldShare, week, new SaleCalculator(soldShare, salesPrice));
+    this.sourceShare = sourceShare;
+    if (committed) {
+      setCommitted();
+    }
+  }
+
+  /**
+   * Restores a committed sale from saved game data.
+   *
+   * @param soldShare the share quantity that was sold
+   * @param week the week in which the sale occurred
+   * @param salesPrice the historical sale price to calculate the transaction from
+   * @return a committed sale representing the saved transaction
+   */
+  public static Sale restore(Share soldShare, int week, BigDecimal salesPrice) {
+    return new Sale(soldShare, soldShare, week, salesPrice, true);
+  }
 }

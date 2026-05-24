@@ -37,10 +37,31 @@ public class SaleCalculator implements TransactionCalculator {
      */
     public SaleCalculator(Share share) {
         Objects.requireNonNull(share, "Share cannot be null");
-        Objects.requireNonNull(share.getStock(), "Share cannot be null");
+        Objects.requireNonNull(share.getStock(), "Share stock cannot be null");
 
         this.purchasePrice = share.getPurchasePrice();
         this.salesPrice = share.getStock().getSalesPrice();
+        this.quantity = share.getQuantity();
+    }
+
+    /**
+     * Creates a sale calculator using an explicit historical sale price.
+     *
+     * <p>This constructor is intended for restored transactions where the sale
+     * must be recalculated from the saved price rather than the stock's current
+     * price on the exchange.</p>
+     *
+     * @param share the share to calculate values for; must not be {@code null}
+     * @param salesPrice the saved sale price to use; must not be {@code null}
+     * @throws NullPointerException if {@code share}, its stock, or {@code salesPrice} is {@code null}
+     */
+    public SaleCalculator(Share share, BigDecimal salesPrice) {
+        Objects.requireNonNull(share, "Share cannot be null");
+        Objects.requireNonNull(share.getStock(), "Share stock cannot be null");
+        Objects.requireNonNull(salesPrice, "Sale price cannot be null");
+
+        this.purchasePrice = share.getPurchasePrice();
+        this.salesPrice = salesPrice;
         this.quantity = share.getQuantity();
     }
 

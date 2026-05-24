@@ -239,6 +239,27 @@ public class Exchange extends Observable{
   }
 
   /**
+   * Sells every named share in the player's portfolio
+   *
+   * @param player the player whose holdings should be liquidated
+   * @return the committed sale transactions
+   * @throws IllegalArgumentException if {@code player} is {@code null}
+   */
+  public List<Transaction> sellAll(Player player) {
+    if (player == null) {
+      throw new IllegalArgumentException("Player cannot be null");
+    }
+    List<Share> ownedShares = new ArrayList<>(player.getPortfolio().getShares());
+    List<Transaction> transactions = new ArrayList<>();
+
+    for (Share share : ownedShares) {
+      transactions.add(sell(share, share.getQuantity(), player));
+    }
+
+    return transactions;
+  }
+
+  /**
    * Advances the exchange to the next trading week
    *
    * <p>Increments the week number and applies a small random percentage
@@ -285,9 +306,9 @@ public class Exchange extends Observable{
     validateLimit(limit);
 
     List<Stock> result = new ArrayList<>(this.stockMap.values());
-    result.removeIf(stock -> stock.getLatestPriceChange().compareTo(BigDecimal.ZERO) <= 0);
+    result.removeIf(stock -> percentChange(stock).compareTo(BigDecimal.ZERO) <= 0);
     result.sort(
-        Comparator.comparing(Stock::getLatestPriceChange)
+        Comparator.comparing(this::percentChange)
             .reversed()
             .thenComparing(Stock::getSymbol)
     );
@@ -310,18 +331,61 @@ public class Exchange extends Observable{
     validateLimit(limit);
 
     List<Stock> result = new ArrayList<>(this.stockMap.values());
-    result.removeIf(stock -> stock.getLatestPriceChange().compareTo(BigDecimal.ZERO) >= 0);
+    result.removeIf(stock -> percentChange(stock).compareTo(BigDecimal.ZERO) >= 0);
     result.sort(
-        Comparator.comparing(Stock::getLatestPriceChange)
+        Comparator.comparing(this::percentChange)
             .thenComparing(Stock::getSymbol)
     );
 
     return new ArrayList<>(result.subList(0, Math.min(limit, result.size())));
   }
 
+  /**
+   * Returns the percentage change between the latest and previous registered
+   * sales price of the given stock.
+   *
+   * @param stock the stock to compute the change for
+   * @return the percentage change
+   */
+  private BigDecimal percentChange(Stock stock) {
+    List<BigDecimal> prices = stock.getHistoricalPrices();
+    if (prices.size() < 2) {
+      return BigDecimal.ZERO;
+    }
+    BigDecimal previous = prices.get(prices.size() - 2);
+    if (previous.compareTo(BigDecimal.ZERO) == 0) {
+      return BigDecimal.ZERO;
+    }
+    BigDecimal current = prices.getLast();
+    return current.subtract(previous)
+        .divide(previous, 6, RoundingMode.HALF_UP)
+        .multiply(new BigDecimal("100"));
+  }
+
   private void validateLimit(int limit) {
     if (limit < 0) {
       throw new IllegalArgumentException("Limit cannot be negative");
     }
+  }
+
+  /**
+   * Restores an exchange from previously saved game data.
+   *
+   * @param name the exchange name
+   * @param week the current trading week
+   * @param stocks the stocks to populate the exchange with
+   * @return an exchange populated from the provided saved state
+   */
+  public static Exchange restore(String name, int week, List<Stock> stocks) {
+    Objects.requireNonNull(name, "Name cannot be null");
+    Objects.requireNonNull(stocks, "Stocks cannot be null");
+
+    if (week < 1) {
+      throw new IllegalArgumentException("Week must be at least 1");
+    }
+
+    Exchange exchange = new Exchange(name, stocks);
+    exchange.week = week;
+    return exchange;
   }
 }

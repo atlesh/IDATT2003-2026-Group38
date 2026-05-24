@@ -59,4 +59,22 @@ public class Purchase extends Transaction {
 
     setCommitted();
   }
+
+  private Purchase(Share share, int week, boolean committed) {
+    super(share, week, new PurchaseCalculator(share));
+    if (committed) {
+      setCommitted();
+    }
+  }
+
+  /**
+   * Restores a committed purchase from saved game data.
+   *
+   * @param share the share that was bought
+   * @param week the week in which the purchase occurred
+   * @return a committed purchase representing the saved transaction
+   */
+  public static Purchase restore(Share share, int week) {
+    return new Purchase(share, week, true);
+  }
 }

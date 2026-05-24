@@ -281,3 +281,26 @@
 .portfolio-scroll > .viewport {
     -fx-background-color: transparent;
 }
+
+.sell-all-button {
+    -fx-font-family: "Roboto";
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-text-fill: #FFFFFF;
+    -fx-background-color: #C62828;
+    -fx-background-radius: 14;
+    -fx-padding: 5 16 5 16;
+    -fx-cursor: hand;
+}
+
+.sell-all-button:hover {
+    -fx-background-color: #B71C1C;
+}
+
+.sell-all-button:pressed {
+    -fx-background-color: #8E1717;
+}
+
+.sell-all-button:disabled {
+    -fx-opacity: 0.4;
+}
