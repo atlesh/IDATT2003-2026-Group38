@@ -36,6 +36,7 @@ import no.ntnu.idatt2003.group38.view.shell.SideNav.Destination;
 import no.ntnu.idatt2003.group38.view.components.ConfirmDialog;
 import java.util.List;
 import no.ntnu.idatt2003.group38.event.EventNotice;
+import no.ntnu.idatt2003.group38.event.Rumor;
 
 
 /**
@@ -194,10 +195,12 @@ public class ShellController implements ModelObserver {
       }
 
       List<EventNotice> events = this.exchange.getLastWeekEvents();
-      if (!events.isEmpty()) {
-        showNewsDialog(events);
+      List<Rumor> rumors = this.exchange.getActiveRumors();
+      if (!events.isEmpty() || !rumors.isEmpty()) {
+        showNewsDialog(events, rumors);
       }
     });
+
     this.shell.showModal(dialog.getRoot());
   }
 
@@ -310,28 +313,45 @@ public class ShellController implements ModelObserver {
   }
 
   /**
-   * Shows a modal news dialog summarising the events that fired during the
-   * most recent week advance.
+   * Shows a modal news dialog summarising the events that fired this week
+   * and any rumors circulating about next week.
    *
-   * @param events the events to summarise. Must not be {@code null} or empty.
+   * @param events the events to summarise. Must not be {@code null}.
+   * @param rumors the rumors to surface. Must not be {@code null}.
    */
-  private void showNewsDialog(List<EventNotice> events) {
+  private void showNewsDialog(List<EventNotice> events, List<Rumor> rumors) {
     StringBuilder body = new StringBuilder();
-    for (EventNotice notice : events) {
-      body.append("• ")
-          .append(notice.stock().getSymbol())
-          .append(" — ")
-          .append(notice.headline())
-          .append("\n");
+
+    if (!events.isEmpty()) {
+      body.append("This week:\n");
+      for (EventNotice notice : events) {
+        body.append("• ")
+            .append(notice.stock().getSymbol())
+            .append(" — ")
+            .append(notice.headline())
+            .append("\n");
+      }
     }
+
+    if (!rumors.isEmpty()) {
+      if (!events.isEmpty()) {
+        body.append("\n");
+      }
+      body.append("On the street:\n");
+      for (Rumor rumor : rumors) {
+        body.append("• ").append(rumor.getHeadline()).append("\n");
+      }
+    }
+
     ConfirmDialog dialog = new ConfirmDialog(
-        "This Week in the News",
+        "Trading news!",
         body.toString(),
         "Continue");
     dialog.setOnConfirm(this.shell::hideModal);
     dialog.setOnCancel(this.shell::hideModal);
     this.shell.showModal(dialog.getRoot());
   }
+
 
 
   /**

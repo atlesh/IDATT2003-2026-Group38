@@ -24,7 +24,7 @@ public class ScandalEvent implements MarketEvent {
 
   @Override
   public String getHeadline() {
-    return "Company scandal rocks investors";
+    return "Scandal has seen it drop heavily";
   }
 
   @Override

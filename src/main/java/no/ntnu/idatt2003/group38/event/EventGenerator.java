@@ -11,12 +11,7 @@ import java.util.function.Function;
  *
  * <p>Each time {@link #sample()} is called, the generator rolls a die and
  * either returns an empty {@link Optional} (no event) or a randomly chosen
- * event. The chance of an event firing is intentionally low so that events
- * feel like rare news rather than weekly noise.</p>
- *
- * <p>Events are constructed lazily through factory lambdas, so each call to
- * {@link #sample()} returns a fresh instance — useful if events ever carry
- * per-instance state.</p>
+ * event.
  */
 public class EventGenerator {
 
@@ -31,7 +26,7 @@ public class EventGenerator {
    * per stock per week, and the default event catalogue
    * ({@link EarningsBeatEvent} and {@link ScandalEvent}).
    *
-   * @param random the source of randomness; must not be {@code null}
+   * @param random the source of randomness. Must not be {@code null}
    */
   public EventGenerator(Random random) {
     this(random, DEFAULT_EVENT_CHANCE, List.of(
@@ -43,13 +38,9 @@ public class EventGenerator {
   /**
    * Creates a generator with a custom firing chance and event catalogue.
    *
-   * <p>Useful for testing: supply a seeded {@code Random}, {@code eventChance = 1.0}
-   * and a single factory to make the outcome deterministic.</p>
-   *
-   * @param random the source of randomness; must not be {@code null}
+   * @param random the source of randomness.
    * @param eventChance the chance of an event firing per call, in {@code [0.0, 1.0]}
-   * @param eventFactories factories for each event type the generator may pick from;
-   *     must not be {@code null} or empty
+   * @param eventFactories factories for each event type the generator may pick from.
    * @throws NullPointerException if any argument is {@code null}
    * @throws IllegalArgumentException if {@code eventChance} is outside
    *     {@code [0.0, 1.0]} or {@code eventFactories} is empty

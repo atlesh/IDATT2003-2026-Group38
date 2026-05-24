@@ -24,7 +24,7 @@ public class EarningsBeatEvent implements MarketEvent {
 
   @Override
   public String getHeadline() {
-    return "Earnings beat expectations";
+    return "Has risen significantly in the last week";
   }
 
   @Override
@@ -32,8 +32,7 @@ public class EarningsBeatEvent implements MarketEvent {
     Objects.requireNonNull(stock, "stock cannot be null");
     Objects.requireNonNull(currentPrice, "currentPrice cannot be null");
 
-    // Boost between 15 % and 25 %.
-    double boost = 0.15 + (this.random.nextDouble() * 0.10);
+    double boost = 0.06 + (this.random.nextDouble() * 0.14);
     BigDecimal factor = BigDecimal.ONE.add(BigDecimal.valueOf(boost));
     return currentPrice.multiply(factor);
   }
