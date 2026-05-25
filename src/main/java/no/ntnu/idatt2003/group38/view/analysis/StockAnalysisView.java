@@ -36,6 +36,7 @@ public class StockAnalysisView {
     private final Label investedLabel;
     private final Label currentValueLabel;
     private final Label gainLossLabel;
+    private final Label ownershipStateLabel;
 
     private final PriceSparkline historyChart;
     private final VBox recentTransactionsBox;
@@ -79,10 +80,14 @@ public class StockAnalysisView {
         this.investedLabel = createLineLabel();
         this.currentValueLabel = createLineLabel();
         this.gainLossLabel = createLineLabel();
+        this.ownershipStateLabel = createLineLabel();
+        this.ownershipStateLabel.setVisible(false);
+        this.ownershipStateLabel.setManaged(false);
 
         VBox positionSection = new VBox(
                 8,
                 positionSectionTitle,
+                this.ownershipStateLabel,
                 this.quantityLabel,
                 this.investedLabel,
                 this.currentValueLabel,
@@ -218,6 +223,24 @@ public class StockAnalysisView {
         this.gainLossLabel.setText("Gain/Loss: " + gainLoss);
 
         applySignedStyle(this.gainLossLabel, gainLoss);
+    }
+
+    /**
+     * Updates the ownership-state message for the selected stock.
+     *
+     * @param message the message to display, or blank to hide it
+     */
+    public void setOwnershipState(String message) {
+        if (message == null || message.isBlank()) {
+            this.ownershipStateLabel.setText("");
+            this.ownershipStateLabel.setVisible(false);
+            this.ownershipStateLabel.setManaged(false);
+            return;
+        }
+
+        this.ownershipStateLabel.setText(message);
+        this.ownershipStateLabel.setVisible(true);
+        this.ownershipStateLabel.setManaged(true);
     }
 
     /**

@@ -77,6 +77,7 @@ public class StockAnalysisController {
         }
 
         BigDecimal gainLoss = totalCurrentValue.subtract(totalInvested);
+        BigDecimal gainLossPercent = calculatePercent(gainLoss, totalInvested);
 
         this.view.setHeader(this.stock.getSymbol(), this.stock.getCompany());
 
@@ -88,11 +89,14 @@ public class StockAnalysisController {
         );
 
         this.view.setPositionStats(
-                totalQuantity.setScale(0, RoundingMode.HALF_UP).toPlainString(),
+                formatQuantity(totalQuantity),
                 formatMoney(totalInvested),
                 formatMoney(totalCurrentValue),
-                formatSignedMoney(gainLoss)
+                formatSignedMoney(gainLoss) + " (" + formatSignedPercent(gainLossPercent) + ")"
         );
+        this.view.setOwnershipState(totalQuantity.compareTo(BigDecimal.ZERO) == 0
+                ? "You do not currently own this stock."
+                : "");
 
         this.view.setPriceHistory(this.stock.getHistoricalPrices());
         this.view.setRecentTransactions(buildRecentTransactions());
@@ -129,12 +133,50 @@ public class StockAnalysisController {
         for (int i = matching.size() - 1; i >= 0 && rows.size() < 5; i--) {
             Transaction transaction = matching.get(i);
             String type = transaction instanceof Purchase ? "Buy" : "Sale";
-            String amount = formatMoney(transaction.getCalculator().calculateTotal());
+            String quantity = formatQuantity(transaction.getShare().getQuantity());
+            String unitPrice = formatMoney(extractUnitPrice(transaction));
+            String total = formatMoney(transaction.getCalculator().calculateTotal());
 
-            rows.add("W" + transaction.getWeek() + " " + type +  " " + amount);
+            rows.add("W" + transaction.getWeek()
+                    + "  " + type
+                    + "  " + quantity
+                    + " @ " + unitPrice
+                    + "  Total " + total);
         }
 
         return rows;
+    }
+
+    /**
+     * Returns the historical unit price represented by the given transaction.
+     *
+     * @param transaction the transaction to inspect
+     * @return the unit price used for the transaction
+     */
+    private BigDecimal extractUnitPrice(Transaction transaction) {
+        BigDecimal quantity = transaction.getShare().getQuantity();
+        if (quantity.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+
+        return transaction.getCalculator().calculateGross()
+                .divide(quantity, 10, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * Returns {@code value} as a percentage of {@code base}, or zero if
+     * {@code base} is zero.
+     *
+     * @param value the value to compare against the base
+     * @param base the base value
+     * @return the percentage representation of {@code value} relative to {@code base}
+     */
+    private BigDecimal calculatePercent(BigDecimal value, BigDecimal base) {
+        if (base.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+        return value.divide(base, 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
     }
 
     /**
@@ -167,5 +209,15 @@ public class StockAnalysisController {
     private String formatSignedPercent(BigDecimal value) {
         String sign = value.signum() > 0 ? "+" : "";
         return sign + value.setScale(2, RoundingMode.HALF_UP).toPlainString() + "%";
+    }
+
+    /**
+     * Formats a quantity value for presentation.
+     *
+     * @param quantity the quantity to format
+     * @return a formatted quantity string without unnecessary trailing zeros
+     */
+    private String formatQuantity(BigDecimal quantity) {
+        return quantity.stripTrailingZeros().toPlainString();
     }
 }
