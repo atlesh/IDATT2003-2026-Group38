@@ -2,16 +2,19 @@ package no.ntnu.idatt2003.group38.view.market;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import no.ntnu.idatt2003.group38.model.Stock;
-import java.util.function.BiConsumer;
 import javafx.scene.control.Spinner;
 import no.ntnu.idatt2003.group38.calculator.PurchaseCalculator;
 import no.ntnu.idatt2003.group38.model.Share;
+import no.ntnu.idatt2003.group38.model.Stock;
 import no.ntnu.idatt2003.group38.view.components.PriceSparkline;
 
 /**
@@ -38,9 +41,12 @@ public class StockCard {
   private final Label taxLabel;
   private final Label totalLabel;
   private final Label errorLabel;
+  private final Button analyzeButton;
+  private final HBox actionRow;
 
   private Stock currentStock;
   private BiConsumer<Stock, Integer> onBuy = (stock, qty) -> { };
+  private Consumer<Stock> onAnalyze = stock -> { };
 
   /**
    * Builds an empty stock card.
@@ -98,8 +104,19 @@ public class StockCard {
       }
     });
 
+    this.analyzeButton = new Button("Analyze");
+    this.analyzeButton.getStyleClass().add("buy-button");
+    this.analyzeButton.setOnAction(e -> {
+      if (this.currentStock != null) {
+        this.onAnalyze.accept(this.currentStock);
+      }
+    });
+
+    this.actionRow = new HBox(8, this.analyzeButton, this.buyButton);
+    this.actionRow.setAlignment(Pos.CENTER);
+
     this.errorLabel = new Label();
-    this.errorLabel.setStyle("-fx-text-fill: red;"); //didn't connect with css
+    this.errorLabel.setStyle("-fx-text-fill: red;");
 
     this.root = new VBox(8,
         titleLabel,
@@ -116,7 +133,7 @@ public class StockCard {
         this.commissionLabel,
         this.taxLabel,
         this.totalLabel,
-        this.buyButton,
+        this.actionRow,
         this.errorLabel);
     this.root.setAlignment(Pos.TOP_CENTER);
     this.root.getStyleClass().addAll("market-panel", "stock-card");
@@ -176,7 +193,17 @@ public class StockCard {
    *              must not be {@code null}
    */
   public void setOnBuy(BiConsumer<Stock, Integer> onBuy) {
-    this.onBuy = onBuy;
+    this.onBuy = Objects.requireNonNull(onBuy, "onBuy cannot be null");
+  }
+
+  /**
+   * Registers the action to invoke when the user clicks Analyze.
+   *
+   * @param onAnalyze the action to invoke with the currently selected stock;
+   *                  must not be {@code null}
+   */
+  public void setOnAnalyze(Consumer<Stock> onAnalyze) {
+    this.onAnalyze = Objects.requireNonNull(onAnalyze, "onAnalyze cannot be null");
   }
 
   // Helpers
@@ -185,9 +212,9 @@ public class StockCard {
     for (var node : new javafx.scene.Node[] {
         this.companyLabel, this.priceLabel, this.changeLabel,
         this.highLabel, this.lowLabel,
-        this.sparkline.getRoot(),    // <-- here
+        this.sparkline.getRoot(),
         this.quantitySpinner, this.grossLabel, this.commissionLabel,
-        this.taxLabel, this.totalLabel, this.buyButton }) {
+        this.taxLabel, this.totalLabel, this.actionRow }) {
       node.setVisible(visible);
       node.setManaged(visible);
     }

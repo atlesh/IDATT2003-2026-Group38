@@ -72,6 +72,9 @@ public class PortfolioView {
   private final Button buyButton;
   private final Button sellButton;
 
+  private final Button analyzeButton;
+  private Runnable onAnalyzeSelected = () -> {};
+
   private Consumer<Share> onShareSelected = share -> {
   };
 
@@ -195,7 +198,11 @@ public class PortfolioView {
     this.sellButton.setOnAction(event ->
         this.onSellSelected.accept(this.sellQuantitySpinner.getValue()));
 
-    HBox actionButtons = new HBox(8, this.buyButton, this.sellButton);
+    this.analyzeButton = new Button("Analyze");
+    this.analyzeButton.getStyleClass().add("buy-button");
+    this.analyzeButton.setOnAction(event -> this.onAnalyzeSelected.run());
+
+    HBox actionButtons = new HBox(8, this.analyzeButton, this.buyButton, this.sellButton);
     actionButtons.setAlignment(Pos.CENTER_LEFT);
 
     VBox detailsPanel = new VBox(
@@ -317,6 +324,7 @@ public class PortfolioView {
       this.sellQuantitySpinner.getValueFactory().setValue(1);
       this.buyQuantitySpinner.setDisable(true);
       this.sellQuantitySpinner.setDisable(true);
+      this.analyzeButton.setDisable(true);
       this.buyButton.setDisable(true);
       this.sellButton.setDisable(true);
       applyChangeColor(this.selectedGainLossLabel, BigDecimal.ZERO);
@@ -347,6 +355,7 @@ public class PortfolioView {
     this.historyChart.getRoot().setVisible(true);
     this.buyQuantitySpinner.setDisable(false);
     this.sellQuantitySpinner.setDisable(false);
+    this.analyzeButton.setDisable(false);
     this.buyButton.setDisable(false);
     this.sellButton.setDisable(false);
 
@@ -438,6 +447,16 @@ public class PortfolioView {
    */
   public void setOnSellAll(Runnable onSellAll) {
     this.onSellAll = Objects.requireNonNull(onSellAll, "onSellAll cannot be null");
+  }
+
+  /**
+   * Registers the callback to invoke when the user clicks Analyze.
+   *
+   * @param onAnalyzeSelected the callback. Must not be {@code null}
+   */
+  public void setOnAnalyzeSelected(Runnable onAnalyzeSelected) {
+    this.onAnalyzeSelected = Objects.requireNonNull(
+        onAnalyzeSelected, "onAnalyzeSelected cannot be null");
   }
 
   /**

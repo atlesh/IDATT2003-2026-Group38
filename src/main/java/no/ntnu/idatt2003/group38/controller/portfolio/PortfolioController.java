@@ -22,6 +22,8 @@ import no.ntnu.idatt2003.group38.view.portfolio.PortfolioView;
 import no.ntnu.idatt2003.group38.view.shell.Page;
 import no.ntnu.idatt2003.group38.calculator.PurchaseCalculator;
 import no.ntnu.idatt2003.group38.view.shell.ShellView;
+import no.ntnu.idatt2003.group38.controller.analysis.StockAnalysisController;
+import no.ntnu.idatt2003.group38.model.Stock;
 
 /**
  * Controller for the Portfolio page.
@@ -60,6 +62,7 @@ public class PortfolioController implements Page, ModelObserver {
     this.view.setOnBuySelected(this::handleBuySelected);
     this.view.setOnSellSelected(this::handleSellSelected);
     this.view.setOnSellAll(this::handleSellAll);
+    this.view.setOnAnalyzeSelected(this::handleAnalyzeSelected);
   }
 
   // Page
@@ -218,6 +221,20 @@ public class PortfolioController implements Page, ModelObserver {
           taxBySymbol.get(symbol),
           netBySymbol.get(symbol));
     }
+  }
+
+  /**
+   * Opens the stock-analysis modal for the currently selected holding.
+   */
+  private void handleAnalyzeSelected() {
+    if (this.selectedSymbol == null) {
+      return;
+    }
+
+    Stock stock = this.exchange.getStock(this.selectedSymbol);
+    StockAnalysisController controller =
+        new StockAnalysisController(this.player, this.shell, stock);
+    controller.show();
   }
 
   // Refresh
