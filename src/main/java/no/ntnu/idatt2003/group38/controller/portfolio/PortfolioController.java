@@ -135,11 +135,20 @@ public class PortfolioController implements Page, ModelObserver {
     }
 
     String symbol = this.selectedSymbol;
-    BigDecimal unitPrice = this.exchange.getStock(symbol).getSalesPrice();
-
-    BigDecimal remaining = BigDecimal.valueOf(quantity);
     List<Share> ownedLots = new ArrayList<>(
         this.player.getPortfolio().getShares(symbol));
+    BigDecimal requestedQuantity = BigDecimal.valueOf(quantity);
+    BigDecimal ownedQuantity = ownedLots.stream()
+        .map(Share::getQuantity)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    if (ownedQuantity.compareTo(requestedQuantity) < 0) {
+      showError("Could not complete sale: requested quantity exceeds owned quantity.");
+      return;
+    }
+
+    BigDecimal unitPrice = this.exchange.getStock(symbol).getSalesPrice();
+    BigDecimal remaining = requestedQuantity;
 
     BigDecimal totalGross = BigDecimal.ZERO;
     BigDecimal totalCommission = BigDecimal.ZERO;

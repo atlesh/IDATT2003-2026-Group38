@@ -75,7 +75,9 @@ public class RumorGenerator {
   public List<Rumor> generate(Collection<Stock> stocks) {
     Objects.requireNonNull(stocks, "stocks cannot be null");
 
-    if (stocks.isEmpty() || this.random.nextDouble() >= this.rumorChance) {
+    if (stocks.isEmpty()
+        || this.maxRumorsPerWeek == 0
+        || this.random.nextDouble() >= this.rumorChance) {
       return List.of();
     }
 

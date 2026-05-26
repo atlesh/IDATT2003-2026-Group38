@@ -111,8 +111,8 @@ public class StockMarketController implements Page, ModelObserver {
       Transaction transaction = this.exchange.buy(
           stock.getSymbol(), BigDecimal.valueOf(quantity), this.player);
       showReceipt(transaction);
-    } catch (RuntimeException e) {
-      this.view.showBuyError("Insufficient funds");
+    } catch (IllegalArgumentException | IllegalStateException e) {
+      this.view.showBuyError("Could not complete buy: " + e.getMessage());
     }
   }
 
