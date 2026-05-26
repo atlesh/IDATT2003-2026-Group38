@@ -221,7 +221,7 @@ public class ShellController implements ModelObserver {
           this.exchange.sellAll(this.player);
         }
         navigateToEndSummary();
-      } catch (RuntimeException e) {
+      } catch (IllegalArgumentException | IllegalStateException e) {
         showError("Could not end game: " + e.getMessage());
       }
     });

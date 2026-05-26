@@ -118,7 +118,7 @@ public class PortfolioController implements Page, ModelObserver {
       Transaction transaction = this.exchange.buy(
           this.selectedSymbol, BigDecimal.valueOf(quantity), this.player);
       showReceipt(transaction);
-    } catch (RuntimeException e) {
+    } catch (IllegalArgumentException | IllegalStateException e) {
       showError("Could not complete buy: " + e.getMessage());
     }
   }
@@ -167,7 +167,7 @@ public class PortfolioController implements Page, ModelObserver {
         totalQuantity = totalQuantity.add(sellQuantity);
         remaining = remaining.subtract(sellQuantity);
       }
-    } catch (RuntimeException e) {
+    } catch (IllegalArgumentException | IllegalStateException e) {
       showError("Could not complete sale: " + e.getMessage());
       return;
     }
@@ -189,7 +189,7 @@ public class PortfolioController implements Page, ModelObserver {
     List<Transaction> transactions;
     try {
       transactions = this.exchange.sellAll(this.player);
-    } catch (RuntimeException e) {
+    } catch (IllegalArgumentException | IllegalStateException e) {
       showError("Could not sell all holdings: " + e.getMessage());
       return;
     }
@@ -213,7 +213,7 @@ public class PortfolioController implements Page, ModelObserver {
         netBySymbol.merge(symbol, transaction.getCalculator().calculateTotal(), BigDecimal::add);
         quantityBySymbol.merge(symbol, transaction.getShare().getQuantity(), BigDecimal::add);
       }
-    } catch (RuntimeException e) {
+    } catch (IllegalArgumentException e) {
       showError("Could not build sell-all receipt: " + e.getMessage());
       return;
     }
