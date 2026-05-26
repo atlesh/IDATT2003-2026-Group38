@@ -1,15 +1,17 @@
 package no.ntnu.idatt2003.group38.transaction;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.math.BigDecimal;
+import java.util.List;
 import no.ntnu.idatt2003.group38.model.Player;
 import no.ntnu.idatt2003.group38.model.Share;
 import no.ntnu.idatt2003.group38.model.Stock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 
 /**

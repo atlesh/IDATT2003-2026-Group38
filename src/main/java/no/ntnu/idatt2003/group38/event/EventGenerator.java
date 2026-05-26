@@ -41,12 +41,12 @@ public class EventGenerator {
   /**
    * Creates a generator with a custom firing chance and event catalogue.
    *
-   * @param random the source of randomness; must not be {@code null}
-   * @param eventChance the chance of an event firing per call, in {@code [0.0, 1.0]}
+   * @param random         the source of randomness; must not be {@code null}
+   * @param eventChance    the chance of an event firing per call, in {@code [0.0, 1.0]}
    * @param eventFactories factories for each event type the generator may pick from.
-   * @throws NullPointerException if any argument is {@code null}
+   * @throws NullPointerException     if any argument is {@code null}
    * @throws IllegalArgumentException if {@code eventChance} is outside
-   *     {@code [0.0, 1.0]} or {@code eventFactories} is empty
+   *                                  {@code [0.0, 1.0]} or {@code eventFactories} is empty
    */
   public EventGenerator(
       Random random,

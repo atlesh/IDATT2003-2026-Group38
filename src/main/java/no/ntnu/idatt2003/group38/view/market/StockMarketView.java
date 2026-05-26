@@ -35,10 +35,14 @@ public class StockMarketView {
 
   private String selectedSymbol;
 
-  private Consumer<String> onSearch = query -> { };
-  private Consumer<Stock> onStockSelected = stock -> { };
-  private Consumer<Stock> onAnalyze = stock -> { };
-  private BiConsumer<Stock, BigDecimal> onBuy = (stock, qty) -> { };
+  private Consumer<String> onSearch = query -> {
+  };
+  private Consumer<Stock> onStockSelected = stock -> {
+  };
+  private Consumer<Stock> onAnalyze = stock -> {
+  };
+  private BiConsumer<Stock, BigDecimal> onBuy = (stock, qty) -> {
+  };
 
   /**
    * Builds the market view with an empty stock list and an empty stock card.
@@ -57,8 +61,6 @@ public class StockMarketView {
     this.rowsContainer = new VBox(8);
     this.rowsContainer.getStyleClass().add("market-rows");
 
-    HBox header = buildHeaderRow();
-
     ScrollPane rowsScroll = new ScrollPane(this.rowsContainer);
     rowsScroll.setFitToWidth(true);
     rowsScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -66,6 +68,7 @@ public class StockMarketView {
     rowsScroll.getStyleClass().add("market-scroll");
     VBox.setVgrow(rowsScroll, Priority.ALWAYS);
 
+    HBox header = buildHeaderRow();
     VBox listPanel = new VBox(16, title, searchField, header, rowsScroll);
     listPanel.getStyleClass().add("market-panel");
     listPanel.setMinWidth(0);
@@ -246,7 +249,7 @@ public class StockMarketView {
   // Stylesheet
 
   /**
-   * Attaches this view's stylesheet to the given scene
+   * Attaches this view's stylesheet to the given scene.
    *
    * @param scene the scene to attach the stylesheet to; must not be {@code null}
    */

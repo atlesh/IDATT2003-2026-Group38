@@ -20,15 +20,25 @@ public class SideNav {
    * Pages reachable from the side navigation.
    */
   public enum Destination {
-    /** Opens the dashboard page. */
+    /**
+     * Opens the dashboard page.
+     */
     DASHBOARD("Dashboard"),
-    /** Opens the market page. */
+    /**
+     * Opens the market page.
+     */
     MARKET("Market"),
-    /** Opens the portfolio page. */
+    /**
+     * Opens the portfolio page.
+     */
     PORTFOLIO("Portfolio"),
-    /** Opens the transaction-history page. */
+    /**
+     * Opens the transaction-history page.
+     */
     TRANSACTIONS("Transactions"),
-    /** Opens the weekly-statistics page. */
+    /**
+     * Opens the weekly-statistics page.
+     */
     WEEKLY_STATISTICS("Weekly Statistics");
 
     private final String label;
@@ -50,7 +60,8 @@ public class SideNav {
   private final VBox root;
   private final Map<Destination, Button> buttons;
 
-  private Consumer<Destination> onNavigate = destination -> { };
+  private Consumer<Destination> onNavigate = destination -> {
+  };
   private Destination activeDestination;
 
   /**

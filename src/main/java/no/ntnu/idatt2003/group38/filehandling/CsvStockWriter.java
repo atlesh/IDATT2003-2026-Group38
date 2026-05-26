@@ -1,7 +1,5 @@
 package no.ntnu.idatt2003.group38.filehandling;
 
-import no.ntnu.idatt2003.group38.model.Stock;
-
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -9,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
+import no.ntnu.idatt2003.group38.model.Stock;
 
 /**
  * A {@link StockFileWriter} implementation that writes stock data to a CSV file.
@@ -27,44 +26,44 @@ import java.util.Objects;
  */
 public class CsvStockWriter implements StockFileWriter {
 
-    private static final String DELIMITER = ",";
-    private static final String FILE_HEADER = "# symbol,name,price";
+  private static final String DELIMITER = ",";
+  private static final String FILE_HEADER = "# symbol,name,price";
 
-    /**
-     * Writes a list of stocks to a CSV file at the given path.
-     *
-     * @param stocks the list of stocks to write; must not be {@code null}
-     * @param path   the path to write to; must not be {@code null}
-     * @throws IOException if the file cannot be written
-     * @throws NullPointerException if {@code stocks} or {@code path} is {@code null}
-     */
-    @Override
-    public void writeStocks(List<Stock> stocks, Path path) throws IOException {
-        Objects.requireNonNull(stocks, "Stocks cannot be null");
-        Objects.requireNonNull(path, "Path cannot be null");
+  /**
+   * Writes a list of stocks to a CSV file at the given path.
+   *
+   * @param stocks the list of stocks to write; must not be {@code null}
+   * @param path   the path to write to; must not be {@code null}
+   * @throws IOException          if the file cannot be written
+   * @throws NullPointerException if {@code stocks} or {@code path} is {@code null}
+   */
+  @Override
+  public void writeStocks(List<Stock> stocks, Path path) throws IOException {
+    Objects.requireNonNull(stocks, "Stocks cannot be null");
+    Objects.requireNonNull(path, "Path cannot be null");
 
-        try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-            writer.write(FILE_HEADER);
-            writer.newLine();
+    try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+      writer.write(FILE_HEADER);
+      writer.newLine();
 
-            for (Stock stock : stocks) {
-                writer.write(formatLine(stock));
-                writer.newLine();
-            }
-        }
+      for (Stock stock : stocks) {
+        writer.write(formatLine(stock));
+        writer.newLine();
+      }
     }
+  }
 
-    /**
-     * Formats a {@link Stock} as a CSV line: {@code symbol,name,price}.
-     *
-     * @param stock the stock to format; must not be {@code null}
-     * @return the formatted CSV line
-     */
-    private String formatLine(Stock stock) {
-        return stock.getSymbol()
-                + DELIMITER
-                + stock.getCompany()
-                + DELIMITER
-                + stock.getSalesPrice().toPlainString();
-    }
+  /**
+   * Formats a {@link Stock} as a CSV line: {@code symbol,name,price}.
+   *
+   * @param stock the stock to format; must not be {@code null}
+   * @return the formatted CSV line
+   */
+  private String formatLine(Stock stock) {
+    return stock.getSymbol()
+        + DELIMITER
+        + stock.getCompany()
+        + DELIMITER
+        + stock.getSalesPrice().toPlainString();
+  }
 }

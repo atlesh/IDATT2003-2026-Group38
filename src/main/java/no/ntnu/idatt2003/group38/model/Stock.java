@@ -1,14 +1,14 @@
 package no.ntnu.idatt2003.group38.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.math.RoundingMode;
 
 /**
- * Represents a stock listed on the exchange
+ * Represents a stock listed on the exchange.
  *
  * <p>A stock has a symbol, a company name and a history of sales prices</p>
  */
@@ -21,10 +21,10 @@ public class Stock {
   /**
    * Creates a new stock.
    *
-   * @param symbol the stock ticker symbol; must not be {@code null} or blank
-   * @param company the company name. Must not be {@code null} or blank
+   * @param symbol      the stock ticker symbol; must not be {@code null} or blank
+   * @param company     the company name. Must not be {@code null} or blank
    * @param salesPrices the initial sales price. Must not be {@code null}
-   * @throws NullPointerException if anything is {@code null}
+   * @throws NullPointerException     if anything is {@code null}
    * @throws IllegalArgumentException if {@code symbol} or {@code company} is blank
    */
   public Stock(String symbol, String company, BigDecimal salesPrices) {

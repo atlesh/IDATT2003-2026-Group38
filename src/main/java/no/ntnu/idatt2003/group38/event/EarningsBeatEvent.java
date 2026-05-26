@@ -22,13 +22,17 @@ public class EarningsBeatEvent implements MarketEvent {
     this.random = Objects.requireNonNull(random, "random cannot be null");
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String getHeadline() {
     return "Has risen significantly in the last week";
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public BigDecimal apply(Stock stock, BigDecimal currentPrice) {
     Objects.requireNonNull(stock, "stock cannot be null");

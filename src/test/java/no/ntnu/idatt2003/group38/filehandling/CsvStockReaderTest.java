@@ -1,10 +1,8 @@
 package no.ntnu.idatt2003.group38.filehandling;
 
-import java.util.Objects;
-import no.ntnu.idatt2003.group38.model.Stock;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -14,8 +12,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Objects;
+import no.ntnu.idatt2003.group38.model.Stock;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Unit tests for {@link CsvStockReader}.

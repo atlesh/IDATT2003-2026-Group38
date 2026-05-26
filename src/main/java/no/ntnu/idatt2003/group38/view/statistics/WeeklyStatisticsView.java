@@ -37,11 +37,11 @@ public class WeeklyStatisticsView {
     this.gainersPanel = new StatPanel("Weekly Gainers");
     this.losersPanel = new StatPanel("Weekly Losers");
 
-    HBox panels = new HBox(20, this.gainersPanel.getRoot(), this.losersPanel.getRoot());
     HBox.setHgrow(this.gainersPanel.getRoot(), Priority.ALWAYS);
     HBox.setHgrow(this.losersPanel.getRoot(), Priority.ALWAYS);
     this.gainersPanel.getRoot().setMinWidth(0);
     this.losersPanel.getRoot().setMinWidth(0);
+    HBox panels = new HBox(20, this.gainersPanel.getRoot(), this.losersPanel.getRoot());
     VBox.setVgrow(panels, Priority.ALWAYS);
 
     VBox content = new VBox(20, title, panels);

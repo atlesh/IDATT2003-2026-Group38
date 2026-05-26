@@ -20,7 +20,7 @@ public class InvalidStockDataException extends IOException {
    * Creates a new invalid-stock-data exception with the given message and cause.
    *
    * @param message the validation error message
-   * @param cause the underlying cause
+   * @param cause   the underlying cause
    */
   public InvalidStockDataException(String message, Throwable cause) {
     super(message, cause);

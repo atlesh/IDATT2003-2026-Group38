@@ -92,7 +92,7 @@ public class ShellView {
    *
    * @param scene the scene to attach the stylesheet to. Must not be {@code null}
    * @throws NullPointerException if {@code scene} is {@code null} or if the
-   * stylesheet resource cannot be found on the classpath
+   *                              stylesheet resource cannot be found on the classpath
    */
   public void attachTo(Scene scene) {
     Objects.requireNonNull(scene, "scene cannot be null");

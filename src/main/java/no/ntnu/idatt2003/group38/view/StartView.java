@@ -46,14 +46,6 @@ public class StartView {
     Label title = new Label("MILLIONS");
     title.getStyleClass().add("start-view-title");
 
-    this.usernameField = new TextField();
-    this.usernameField.setPromptText("Username");
-    VBox usernameGroup = buildField("Choose Username", this.usernameField);
-
-    this.capitalField = new TextField();
-    this.capitalField.setPromptText("0.0");
-    VBox capitalGroup = buildField("Starting Capital", this.capitalField);
-
     this.fileField = new TextField();
     this.fileField.setEditable(false);
     this.fileField.setPromptText("No File Picked Yet");
@@ -80,6 +72,12 @@ public class StartView {
     this.errorLabel.setVisible(false);
     this.errorLabel.setManaged(false);
 
+    this.usernameField = new TextField();
+    this.usernameField.setPromptText("Username");
+    this.capitalField = new TextField();
+    this.capitalField.setPromptText("0.0");
+    VBox capitalGroup = buildField("Starting Capital", this.capitalField);
+    VBox usernameGroup = buildField("Choose Username", this.usernameField);
     VBox form = new VBox(18, usernameGroup, capitalGroup, fileGroup);
     form.setAlignment(Pos.CENTER);
 

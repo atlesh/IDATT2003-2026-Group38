@@ -10,11 +10,11 @@ import no.ntnu.idatt2003.group38.exchange.Exchange;
 import no.ntnu.idatt2003.group38.model.Player;
 import no.ntnu.idatt2003.group38.model.Stock;
 import no.ntnu.idatt2003.group38.observer.ModelObserver;
+import no.ntnu.idatt2003.group38.transaction.Transaction;
+import no.ntnu.idatt2003.group38.view.components.TransactionReceipt;
 import no.ntnu.idatt2003.group38.view.market.StockMarketView;
 import no.ntnu.idatt2003.group38.view.shell.Page;
 import no.ntnu.idatt2003.group38.view.shell.ShellView;
-import no.ntnu.idatt2003.group38.view.components.TransactionReceipt;
-import no.ntnu.idatt2003.group38.transaction.Transaction;
 
 /**
  * Controller for the Market page.
@@ -38,8 +38,8 @@ public class StockMarketController implements Page, ModelObserver {
    * Creates a new market controller.
    *
    * @param exchange the exchange the user is trading on; must not be {@code null}
-   * @param player the player making purchases; must not be {@code null}
-   * @param shell the shell used to show modal dialogs and receipts; must not be {@code null}
+   * @param player   the player making purchases; must not be {@code null}
+   * @param shell    the shell used to show modal dialogs and receipts; must not be {@code null}
    */
   public StockMarketController(Exchange exchange, Player player, ShellView shell) {
     this.exchange = Objects.requireNonNull(exchange, "exchange cannot be null");

@@ -1,10 +1,9 @@
 package no.ntnu.idatt2003.group38.transaction;
 
-import no.ntnu.idatt2003.group38.calculator.SaleCalculator;
-import no.ntnu.idatt2003.group38.model.Share;
-import no.ntnu.idatt2003.group38.model.Player;
-
 import java.math.BigDecimal;
+import no.ntnu.idatt2003.group38.calculator.SaleCalculator;
+import no.ntnu.idatt2003.group38.model.Player;
+import no.ntnu.idatt2003.group38.model.Share;
 
 /**
  * Represents a sale of a {@link Share}.
@@ -18,10 +17,10 @@ public class Sale extends Transaction {
   private final Share sourceShare;
 
   /**
-   * Creates a sale transaction for the given share in the specified week
+   * Creates a sale transaction for the given share in the specified week.
    *
    * @param share the share to be sold; must not be {@code null}
-   * @param week the week number when the sale occurs; must be >= 1
+   * @param week  the week number when the sale occurs; must be >= 1
    */
   public Sale(Share share, int week) {
     this(share, share, week);
@@ -30,17 +29,26 @@ public class Sale extends Transaction {
   /**
    * Creates a sale transaction for the given share in the specified week.
    *
-   * @param soldShare the quantity being sold
+   * @param soldShare   the quantity being sold
    * @param sourceShare the original share lot in the portfolio
-   * @param week  the week number when the sale occurs; Must be >= 1
+   * @param week        the week number when the sale occurs; Must be >= 1
    */
   public Sale(Share soldShare, Share sourceShare, int week) {
     super(soldShare, week, new SaleCalculator(soldShare));
     this.sourceShare = sourceShare;
   }
 
+  private Sale(Share soldShare, Share sourceShare, int week, BigDecimal salesPrice,
+               boolean committed) {
+    super(soldShare, week, new SaleCalculator(soldShare, salesPrice));
+    this.sourceShare = sourceShare;
+    if (committed) {
+      setCommitted();
+    }
+  }
+
   /**
-   * Commits the sale:
+   * Commits the sale.
    * <ul>
    *   <li>Ensures the transaction has not been committed before.</li>
    *   <li>Verifies the player actually owns the share being sold.</li>
@@ -52,8 +60,9 @@ public class Sale extends Transaction {
    * </ul>
    *
    * @param player the player performing the sale; must not be {@code null}
-   * @throws IllegalStateException    if the transaction is already committed or the player does not own the share
-   * @throws NullPointerException     if {@code player} is {@code null}
+   * @throws IllegalStateException if the transaction is already committed
+   *                               or the player does not own the share
+   * @throws NullPointerException  if {@code player} is {@code null}
    */
   @Override
   public void commit(Player player) {
@@ -67,12 +76,13 @@ public class Sale extends Transaction {
 
     player.getPortfolio().removeShare(this.sourceShare);
 
-    BigDecimal remainingQuantity = this.sourceShare.getQuantity().subtract(getShare().getQuantity());
+    BigDecimal remainingQuantity =
+        this.sourceShare.getQuantity().subtract(getShare().getQuantity());
     if (remainingQuantity.compareTo(BigDecimal.ZERO) > 0) {
       Share remainder = new Share(
-              this.sourceShare.getStock(),
-              remainingQuantity,
-              this.sourceShare.getPurchasePrice());
+          this.sourceShare.getStock(),
+          remainingQuantity,
+          this.sourceShare.getPurchasePrice());
       player.getPortfolio().addShare(remainder);
     }
 
@@ -81,19 +91,11 @@ public class Sale extends Transaction {
     setCommitted();
   }
 
-  private Sale(Share soldShare, Share sourceShare, int week, BigDecimal salesPrice, boolean committed) {
-    super(soldShare, week, new SaleCalculator(soldShare, salesPrice));
-    this.sourceShare = sourceShare;
-    if (committed) {
-      setCommitted();
-    }
-  }
-
   /**
    * Restores a committed sale from saved game data.
    *
-   * @param soldShare the share quantity that was sold
-   * @param week the week in which the sale occurred
+   * @param soldShare  the share quantity that was sold
+   * @param week       the week in which the sale occurred
    * @param salesPrice the historical sale price to calculate the transaction from
    * @return a committed sale representing the saved transaction
    */

@@ -38,7 +38,7 @@ public class StartController {
   /**
    * Creates a new controller and wires the view's actions.
    *
-   * @param view the start view to control. Must not be {@code null}
+   * @param view  the start view to control. Must not be {@code null}
    * @param stage the primary stage used for scene transitions. Must not be {@code null}
    */
   public StartController(StartView view, Stage stage) {
@@ -154,7 +154,7 @@ public class StartController {
   /**
    * Navigates from the start scene to the dashboard.
    *
-   * @param player the player that was just created
+   * @param player   the player that was just created
    * @param exchange the exchange that was just created
    */
   private void navigateToDashboard(Player player, Exchange exchange) {

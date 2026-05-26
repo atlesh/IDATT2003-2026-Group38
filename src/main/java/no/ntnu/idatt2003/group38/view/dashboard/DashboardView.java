@@ -53,8 +53,8 @@ public class DashboardView {
   private final VBox losersBox;
   private final VBox recentActivityBox;
 
-  private final NumberAxis xAxis;
-  private final NumberAxis yAxis;
+  private final NumberAxis axisX;
+  private final NumberAxis axisY;
   private final LineChart<Number, Number> performanceChart;
   private final XYChart.Series<Number, Number> performanceSeries;
   private final DecimalFormat axisMoneyFormat;
@@ -67,7 +67,8 @@ public class DashboardView {
     DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
     symbols.setGroupingSeparator(' ');
     this.axisMoneyFormat = new DecimalFormat("#,##0", symbols);
-    this.axisCompactMoneyFormat = new DecimalFormat("0.#", DecimalFormatSymbols.getInstance(Locale.ROOT));
+    this.axisCompactMoneyFormat =
+        new DecimalFormat("0.#", DecimalFormatSymbols.getInstance(Locale.ROOT));
 
     this.welcomeLabel = new Label("Welcome");
     this.welcomeLabel.getStyleClass().add("market-title");
@@ -82,49 +83,40 @@ public class DashboardView {
     heroPanel.getStyleClass().add("market-panel");
     HBox.setHgrow(heroPanel, Priority.ALWAYS);
 
-    HBox topRow = new HBox(20, heroPanel);
-
     this.cashValueLabel = createMetricValueLabel();
     this.portfolioValueLabel = createMetricValueLabel();
     this.netWorthValueLabel = createMetricValueLabel();
     this.positionsValueLabel = createMetricValueLabel();
 
-    HBox metricsRow = new HBox(
-        20,
-        buildMetricCard("Cash", this.cashValueLabel),
-        buildMetricCard("Portfolio Value", this.portfolioValueLabel),
-        buildMetricCard("Net Worth", this.netWorthValueLabel),
-        buildMetricCard("Open Positions", this.positionsValueLabel));
-
     Label performanceTitle = new Label("Portfolio Performance");
     performanceTitle.getStyleClass().add("stock-card-title");
 
-    this.xAxis = new NumberAxis();
-    this.xAxis.setLabel("Week");
-    this.xAxis.setForceZeroInRange(false);
-    this.xAxis.setAutoRanging(false);
-    this.xAxis.setLowerBound(1);
-    this.xAxis.setUpperBound(2);
-    this.xAxis.setTickUnit(1);
-    this.xAxis.setMinorTickVisible(false);
-    this.xAxis.setTickLabelsVisible(true);
-    this.xAxis.setTickMarkVisible(true);
-    this.xAxis.setTickLabelFormatter(createWeekAxisFormatter());
+    this.axisX = new NumberAxis();
+    this.axisX.setLabel("Week");
+    this.axisX.setForceZeroInRange(false);
+    this.axisX.setAutoRanging(false);
+    this.axisX.setLowerBound(1);
+    this.axisX.setUpperBound(2);
+    this.axisX.setTickUnit(1);
+    this.axisX.setMinorTickVisible(false);
+    this.axisX.setTickLabelsVisible(true);
+    this.axisX.setTickMarkVisible(true);
+    this.axisX.setTickLabelFormatter(createWeekAxisFormatter());
 
-    this.yAxis = new NumberAxis();
-    this.yAxis.setLabel("Net Worth");
-    this.yAxis.setForceZeroInRange(false);
-    this.yAxis.setAutoRanging(false);
-    this.yAxis.setLowerBound(0);
-    this.yAxis.setUpperBound(1);
-    this.yAxis.setTickUnit(1);
-    this.yAxis.setMinorTickVisible(false);
-    this.yAxis.setTickLabelsVisible(true);
-    this.yAxis.setTickMarkVisible(true);
-    this.yAxis.setTickLabelFormatter(createMoneyAxisFormatter());
+    this.axisY = new NumberAxis();
+    this.axisY.setLabel("Net Worth");
+    this.axisY.setForceZeroInRange(false);
+    this.axisY.setAutoRanging(false);
+    this.axisY.setLowerBound(0);
+    this.axisY.setUpperBound(1);
+    this.axisY.setTickUnit(1);
+    this.axisY.setMinorTickVisible(false);
+    this.axisY.setTickLabelsVisible(true);
+    this.axisY.setTickMarkVisible(true);
+    this.axisY.setTickLabelFormatter(createMoneyAxisFormatter());
 
     this.performanceSeries = new XYChart.Series<>();
-    this.performanceChart = new LineChart<>(this.xAxis, this.yAxis);
+    this.performanceChart = new LineChart<>(this.axisX, this.axisY);
     this.performanceChart.setLegendVisible(false);
     this.performanceChart.setAnimated(false);
     this.performanceChart.setCreateSymbols(false);
@@ -176,8 +168,6 @@ public class DashboardView {
     snapshotPanel.getStyleClass().addAll("market-panel", "stock-card");
     snapshotPanel.setAlignment(Pos.TOP_LEFT);
 
-    HBox middleRow = new HBox(20, marketMoversPanel, snapshotPanel);
-
     Label recentTitle = new Label("Recent Activity");
     recentTitle.getStyleClass().add("stock-card-title");
 
@@ -185,7 +175,17 @@ public class DashboardView {
     VBox recentActivityPanel = new VBox(12, recentTitle, this.recentActivityBox);
     recentActivityPanel.getStyleClass().add("market-panel");
 
-    this.content = new VBox(20, topRow, metricsRow, performancePanel, middleRow, recentActivityPanel);
+    HBox topRow = new HBox(20, heroPanel);
+    HBox metricsRow = new HBox(
+        20,
+        buildMetricCard("Cash", this.cashValueLabel),
+        buildMetricCard("Portfolio Value", this.portfolioValueLabel),
+        buildMetricCard("Net Worth", this.netWorthValueLabel),
+        buildMetricCard("Open Positions", this.positionsValueLabel));
+    HBox middleRow = new HBox(20, marketMoversPanel, snapshotPanel);
+
+    this.content =
+        new VBox(20, topRow, metricsRow, performancePanel, middleRow, recentActivityPanel);
     this.content.setPadding(new Insets(20));
     this.content.getStyleClass().add("market-view");
 
@@ -231,8 +231,8 @@ public class DashboardView {
    * Updates the welcome area with the current player, week and status.
    *
    * @param playerName the player's display name
-   * @param week the current trading week
-   * @param status the player's current status
+   * @param week       the current trading week
+   * @param status     the player's current status
    */
   public void setHeader(String playerName, int week, String status) {
     this.welcomeLabel.setText("Welcome, " + playerName);
@@ -242,10 +242,10 @@ public class DashboardView {
   /**
    * Updates the top-level KPI cards.
    *
-   * @param cash the formatted cash value
+   * @param cash           the formatted cash value
    * @param portfolioValue the formatted portfolio value
-   * @param netWorth the formatted net-worth value
-   * @param positions the formatted number of open positions
+   * @param netWorth       the formatted net-worth value
+   * @param positions      the formatted number of open positions
    */
   public void setOverview(String cash, String portfolioValue, String netWorth, String positions) {
     this.cashValueLabel.setText(cash);
@@ -257,9 +257,9 @@ public class DashboardView {
   /**
    * Updates the portfolio snapshot panel.
    *
-   * @param largest the largest current position
-   * @param best the best-performing holding
-   * @param worst the weakest-performing holding
+   * @param largest   the largest current position
+   * @param best      the best-performing holding
+   * @param worst     the weakest-performing holding
    * @param cashRatio the cash ratio as a formatted percentage
    */
   public void setPortfolioSnapshot(String largest, String best, String worst, String cashRatio) {
@@ -290,7 +290,7 @@ public class DashboardView {
    * Updates the market movers section with formatted gainers and losers.
    *
    * @param gainers the rows to show in the top gainers column. Must not be {@code null}
-   * @param losers the rows to show in the top losers column. Must not be {@code null}
+   * @param losers  the rows to show in the top losers column. Must not be {@code null}
    */
   public void setMarketMovers(List<String> gainers, List<String> losers) {
     replaceRows(this.gainersBox, gainers, "change-positive");
@@ -332,20 +332,20 @@ public class DashboardView {
 
   private void updatePerformanceAxes(List<BigDecimal> history) {
     if (history.isEmpty()) {
-      this.xAxis.setLowerBound(1);
-      this.xAxis.setUpperBound(2);
-      this.xAxis.setTickUnit(1);
+      this.axisX.setLowerBound(1);
+      this.axisX.setUpperBound(2);
+      this.axisX.setTickUnit(1);
 
-      this.yAxis.setLowerBound(0);
-      this.yAxis.setUpperBound(1);
-      this.yAxis.setTickUnit(1);
+      this.axisY.setLowerBound(0);
+      this.axisY.setUpperBound(1);
+      this.axisY.setTickUnit(1);
       return;
     }
 
     int weeks = Math.max(2, history.size());
-    this.xAxis.setLowerBound(1);
-    this.xAxis.setUpperBound(weeks);
-    this.xAxis.setTickUnit(calculateWeekTickUnit(weeks));
+    this.axisX.setLowerBound(1);
+    this.axisX.setUpperBound(weeks);
+    this.axisX.setTickUnit(calculateWeekTickUnit(weeks));
 
     double min = history.stream()
         .mapToDouble(BigDecimal::doubleValue)
@@ -368,9 +368,9 @@ public class DashboardView {
       snappedUpper = snappedLower + tickUnit;
     }
 
-    this.yAxis.setLowerBound(snappedLower);
-    this.yAxis.setUpperBound(snappedUpper);
-    this.yAxis.setTickUnit(tickUnit);
+    this.axisY.setLowerBound(snappedLower);
+    this.axisY.setUpperBound(snappedUpper);
+    this.axisY.setTickUnit(tickUnit);
   }
 
   private StringConverter<Number> createWeekAxisFormatter() {
