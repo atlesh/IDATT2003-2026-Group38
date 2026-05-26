@@ -1,7 +1,10 @@
 package no.ntnu.idatt2003.group38.view.dashboard;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -15,6 +18,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.util.StringConverter;
 
 /**
  * The dashboard page view.
@@ -26,6 +30,8 @@ import javafx.scene.layout.VBox;
 public class DashboardView {
 
   private static final String STYLESHEET = "/stylesheets/market.css";
+  private static final int CHART_TARGET_X_TICKS = 8;
+  private static final int CHART_TARGET_Y_TICKS = 5;
 
   private final ScrollPane root;
   private final VBox content;
@@ -51,11 +57,18 @@ public class DashboardView {
   private final NumberAxis yAxis;
   private final LineChart<Number, Number> performanceChart;
   private final XYChart.Series<Number, Number> performanceSeries;
+  private final DecimalFormat axisMoneyFormat;
+  private final DecimalFormat axisCompactMoneyFormat;
 
   /**
    * Builds the dashboard view and all of its visual sections.
    */
   public DashboardView() {
+    DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
+    symbols.setGroupingSeparator(' ');
+    this.axisMoneyFormat = new DecimalFormat("#,##0", symbols);
+    this.axisCompactMoneyFormat = new DecimalFormat("0.#", DecimalFormatSymbols.getInstance(Locale.ROOT));
+
     this.welcomeLabel = new Label("Welcome");
     this.welcomeLabel.getStyleClass().add("market-title");
 
@@ -94,6 +107,9 @@ public class DashboardView {
     this.xAxis.setUpperBound(2);
     this.xAxis.setTickUnit(1);
     this.xAxis.setMinorTickVisible(false);
+    this.xAxis.setTickLabelsVisible(true);
+    this.xAxis.setTickMarkVisible(true);
+    this.xAxis.setTickLabelFormatter(createWeekAxisFormatter());
 
     this.yAxis = new NumberAxis();
     this.yAxis.setLabel("Net Worth");
@@ -103,6 +119,9 @@ public class DashboardView {
     this.yAxis.setUpperBound(1);
     this.yAxis.setTickUnit(1);
     this.yAxis.setMinorTickVisible(false);
+    this.yAxis.setTickLabelsVisible(true);
+    this.yAxis.setTickMarkVisible(true);
+    this.yAxis.setTickLabelFormatter(createMoneyAxisFormatter());
 
     this.performanceSeries = new XYChart.Series<>();
     this.performanceChart = new LineChart<>(this.xAxis, this.yAxis);
@@ -110,6 +129,7 @@ public class DashboardView {
     this.performanceChart.setAnimated(false);
     this.performanceChart.setCreateSymbols(false);
     this.performanceChart.setPrefHeight(240);
+    this.performanceChart.getStyleClass().add("dashboard-performance-chart");
     this.performanceChart.getData().add(this.performanceSeries);
 
     VBox performancePanel = new VBox(12, performanceTitle, this.performanceChart);
@@ -325,7 +345,7 @@ public class DashboardView {
     int weeks = Math.max(2, history.size());
     this.xAxis.setLowerBound(1);
     this.xAxis.setUpperBound(weeks);
-    this.xAxis.setTickUnit(1);
+    this.xAxis.setTickUnit(calculateWeekTickUnit(weeks));
 
     double min = history.stream()
         .mapToDouble(BigDecimal::doubleValue)
@@ -340,11 +360,111 @@ public class DashboardView {
     double padding = span == 0 ? Math.max(1.0, Math.abs(max) * 0.1) : span * 0.1;
     double lower = min - padding;
     double upper = max + padding;
-    double tickUnit = Math.max(1.0, (upper - lower) / 4.0);
+    double tickUnit = calculateNiceNumber(Math.max(1.0, (upper - lower) / CHART_TARGET_Y_TICKS));
+    double snappedLower = Math.floor(lower / tickUnit) * tickUnit;
+    double snappedUpper = Math.ceil(upper / tickUnit) * tickUnit;
 
-    this.yAxis.setLowerBound(lower);
-    this.yAxis.setUpperBound(upper);
+    if (Double.compare(snappedLower, snappedUpper) == 0) {
+      snappedUpper = snappedLower + tickUnit;
+    }
+
+    this.yAxis.setLowerBound(snappedLower);
+    this.yAxis.setUpperBound(snappedUpper);
     this.yAxis.setTickUnit(tickUnit);
+  }
+
+  private StringConverter<Number> createWeekAxisFormatter() {
+    return new StringConverter<>() {
+      @Override
+      public String toString(Number value) {
+        return String.valueOf((int) Math.round(value.doubleValue()));
+      }
+
+      @Override
+      public Number fromString(String string) {
+        return Integer.parseInt(string.trim());
+      }
+    };
+  }
+
+  private StringConverter<Number> createMoneyAxisFormatter() {
+    return new StringConverter<>() {
+      @Override
+      public String toString(Number value) {
+        return formatAxisMoney(value.doubleValue());
+      }
+
+      @Override
+      public Number fromString(String string) {
+        return parseAxisMoney(string);
+      }
+    };
+  }
+
+  private double calculateWeekTickUnit(int weeks) {
+    return Math.max(1, Math.ceil(weeks / (double) CHART_TARGET_X_TICKS));
+  }
+
+  private double calculateNiceNumber(double value) {
+    if (value <= 0) {
+      return 1.0;
+    }
+
+    double exponent = Math.floor(Math.log10(value));
+    double fraction = value / Math.pow(10, exponent);
+    double niceFraction;
+
+    if (fraction <= 1) {
+      niceFraction = 1;
+    } else if (fraction <= 2) {
+      niceFraction = 2;
+    } else if (fraction <= 5) {
+      niceFraction = 5;
+    } else {
+      niceFraction = 10;
+    }
+
+    return niceFraction * Math.pow(10, exponent);
+  }
+
+  private String formatAxisMoney(double value) {
+    double normalized = Math.abs(value) < 0.5 ? 0.0 : value;
+    double absoluteValue = Math.abs(normalized);
+    String sign = normalized < 0 ? "-" : "";
+
+    if (absoluteValue >= 1_000_000_000d) {
+      return sign + this.axisCompactMoneyFormat.format(absoluteValue / 1_000_000_000d) + "B";
+    }
+    if (absoluteValue >= 1_000_000d) {
+      return sign + this.axisCompactMoneyFormat.format(absoluteValue / 1_000_000d) + "M";
+    }
+    if (absoluteValue >= 1_000d) {
+      return sign + this.axisCompactMoneyFormat.format(absoluteValue / 1_000d) + "k";
+    }
+
+    return sign + this.axisMoneyFormat.format(absoluteValue);
+  }
+
+  private Number parseAxisMoney(String string) {
+    String normalized = string.trim().replace(" ", "");
+    if (normalized.isEmpty()) {
+      return 0d;
+    }
+
+    double multiplier = 1d;
+    char suffix = normalized.charAt(normalized.length() - 1);
+    if (suffix == 'k' || suffix == 'K') {
+      multiplier = 1_000d;
+      normalized = normalized.substring(0, normalized.length() - 1);
+    } else if (suffix == 'M') {
+      multiplier = 1_000_000d;
+      normalized = normalized.substring(0, normalized.length() - 1);
+    } else if (suffix == 'B') {
+      multiplier = 1_000_000_000d;
+      normalized = normalized.substring(0, normalized.length() - 1);
+    }
+
+    return Double.parseDouble(normalized) * multiplier;
   }
 
   private void replaceRows(VBox container, List<String> rows, String extraStyleClass) {

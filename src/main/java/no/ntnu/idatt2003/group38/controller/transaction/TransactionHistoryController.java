@@ -1,7 +1,6 @@
 package no.ntnu.idatt2003.group38.controller.transaction;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,11 +17,24 @@ import no.ntnu.idatt2003.group38.view.shell.Page;
 import no.ntnu.idatt2003.group38.observer.ModelObserver;
 import no.ntnu.idatt2003.group38.view.transaction.TransactionHistoryView;
 
+/**
+ * Controller for the Transaction History page.
+ *
+ * <p>Connects {@link TransactionHistoryView} to the player's transaction archive.
+ * Handles filtering, searching, and selection of transactions, and observes the
+ * {@link Exchange} so the page stays synchronized with model updates.</p>
+ */
 public class TransactionHistoryController implements Page, ModelObserver {
 
+    /**
+     * Available filters for the transaction list.
+     */
     public enum FilterMode {
+        /** Shows all transactions. */
         ALL,
+        /** Shows only purchase transactions. */
         BUY,
+        /** Shows only sale transactions. */
         SELL
     }
 
@@ -34,6 +46,12 @@ public class TransactionHistoryController implements Page, ModelObserver {
     private String searchQuery = "";
     private Transaction selectedTransaction;
 
+    /**
+     * Creates a new transaction-history controller.
+     *
+     * @param exchange the exchange to observe for model updates; must not be {@code null}
+     * @param player the player whose transaction history is shown; must not be {@code null}
+     */
     public TransactionHistoryController(Exchange exchange, Player player) {
         this.exchange = Objects.requireNonNull(exchange, "Exchange cannot be null");
         this.player = Objects.requireNonNull(player, "Player cannot be null");
@@ -44,11 +62,22 @@ public class TransactionHistoryController implements Page, ModelObserver {
         this.view.setOnTransaction(this::handleSelect);
     }
 
+    /**
+     * Returns the root node of the page.
+     *
+     * @return the root region for this page
+     */
     @Override
     public Region getRoot() {
         return this.view.getRoot();
     }
 
+    /**
+     * Attaches the page to the shell lifecycle.
+     *
+     * <p>Registers the controller as an observer, attaches the stylesheet if the
+     * view is part of a scene, and refreshes the displayed data.</p>
+     */
     @Override
     public void onAttach() {
         this.exchange.addObserver(this);
@@ -59,11 +88,19 @@ public class TransactionHistoryController implements Page, ModelObserver {
         refresh();
     }
 
+    /**
+     * Detaches the page from the shell lifecycle.
+     *
+     * <p>Removes the controller as an observer from the exchange.</p>
+     */
     @Override
     public void onDetach() {
         this.exchange.removeObserver(this);
     }
 
+    /**
+     * Refreshes the page after a model update.
+     */
     @Override
     public void onModelChanged() {
         refresh();
@@ -201,14 +238,5 @@ public class TransactionHistoryController implements Page, ModelObserver {
         BigDecimal purchaseCost = transaction.getShare().getPurchasePrice().multiply(transaction.getShare().getQuantity());
 
         return transaction.getCalculator().calculateTotal().subtract(purchaseCost);
-    }
-
-    private BigDecimal calculatePricePerShare(Transaction transaction) {
-        BigDecimal quantity = transaction.getShare().getQuantity();
-        if (quantity.compareTo(BigDecimal.ZERO) == 0) {
-            return BigDecimal.ZERO;
-        }
-
-        return transaction.getCalculator().calculateGross().divide(quantity, 10,  RoundingMode.HALF_UP);
     }
 }

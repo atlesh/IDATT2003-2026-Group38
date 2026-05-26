@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.function.Consumer;
-import java.util.function.IntConsumer;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
@@ -17,8 +17,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -39,6 +39,7 @@ import no.ntnu.idatt2003.group38.view.components.PriceSparkline;
 public class PortfolioView {
 
   private static final String STYLESHEET = "/stylesheets/market.css";
+  private static final Pattern QUANTITY_PATTERN = Pattern.compile("\\d*(\\.\\d*)?");
 
   private static final String SELL_ALL_DEFAULT_TEXT = "Sell all";
   private static final String SELL_ALL_CONFIRM_TEXT = "Confirm";
@@ -62,8 +63,8 @@ public class PortfolioView {
   private final Label historyTitle;
   private final PriceSparkline historyChart;
 
-  private final Spinner<Integer> buyQuantitySpinner;
-  private final Spinner<Integer> sellQuantitySpinner;
+  private final TextField buyQuantityField;
+  private final TextField sellQuantityField;
 
   private final Button sellAllButton;
   private Runnable onSellAll = () -> {};
@@ -78,12 +79,14 @@ public class PortfolioView {
   private Consumer<Share> onShareSelected = share -> {
   };
 
-  private IntConsumer onBuySelected = quantity -> {
+  private Consumer<BigDecimal> onBuySelected = quantity -> {
   };
-  private IntConsumer onSellSelected = quantity -> {
+  private Consumer<BigDecimal> onSellSelected = quantity -> {
   };
 
   private BigDecimal currentPortfolioValue = BigDecimal.ZERO;
+  private BigDecimal currentSellLimit = BigDecimal.ZERO;
+  private boolean hasSelectedShare;
 
   private String selectedSymbol;
 
@@ -177,26 +180,33 @@ public class PortfolioView {
     Label buyQuantityTitle = new Label("Buy quantity");
     buyQuantityTitle.getStyleClass().add("stock-card-line");
 
-    this.buyQuantitySpinner = new Spinner<>(1, 10_000, 1);
-    this.buyQuantitySpinner.setEditable(true);
-    this.buyQuantitySpinner.getStyleClass().add("stock-card-spinner");
+    this.buyQuantityField = createQuantityField();
 
     Label sellQuantityTitle = new Label("Sell quantity");
     sellQuantityTitle.getStyleClass().add("stock-card-line");
 
-    this.sellQuantitySpinner = new Spinner<>(1, 1, 1);
-    this.sellQuantitySpinner.setEditable(true);
-    this.sellQuantitySpinner.getStyleClass().add("stock-card-spinner");
+    this.sellQuantityField = createQuantityField();
+
+    this.buyQuantityField.textProperty().addListener((obs, oldValue, newValue) -> updateTradeActionState());
+    this.sellQuantityField.textProperty().addListener((obs, oldValue, newValue) -> updateTradeActionState());
 
     this.buyButton = new Button("BUY");
     this.buyButton.getStyleClass().add("buy-button");
-    this.buyButton.setOnAction(event ->
-         this.onBuySelected.accept(this.buyQuantitySpinner.getValue()));
+    this.buyButton.setOnAction(event -> {
+      BigDecimal quantity = parseQuantity(this.buyQuantityField);
+      if (quantity != null) {
+        this.onBuySelected.accept(quantity);
+      }
+    });
 
     this.sellButton = new Button("SELL");
     this.sellButton.getStyleClass().addAll("buy-button", "sell-button");
-    this.sellButton.setOnAction(event ->
-        this.onSellSelected.accept(this.sellQuantitySpinner.getValue()));
+    this.sellButton.setOnAction(event -> {
+      BigDecimal quantity = parseQuantity(this.sellQuantityField);
+      if (quantity != null) {
+        this.onSellSelected.accept(quantity);
+      }
+    });
 
     this.analyzeButton = new Button("Analyze");
     this.analyzeButton.getStyleClass().add("buy-button");
@@ -225,9 +235,9 @@ public class PortfolioView {
         this.historyTitle,
         this.historyChart.getRoot(),
         buyQuantityTitle,
-        this.buyQuantitySpinner,
+        this.buyQuantityField,
         sellQuantityTitle,
-        this.sellQuantitySpinner,
+        this.sellQuantityField,
         actionButtons);
     detailsPanel.getStyleClass().add("market-panel");
     detailsPanel.setAlignment(Pos.TOP_LEFT);
@@ -319,14 +329,11 @@ public class PortfolioView {
       this.historyTitle.setVisible(false);
       this.historyChart.getRoot().setManaged(false);
       this.historyChart.getRoot().setVisible(false);
-
-      this.buyQuantitySpinner.getValueFactory().setValue(1);
-      this.sellQuantitySpinner.getValueFactory().setValue(1);
-      this.buyQuantitySpinner.setDisable(true);
-      this.sellQuantitySpinner.setDisable(true);
-      this.analyzeButton.setDisable(true);
-      this.buyButton.setDisable(true);
-      this.sellButton.setDisable(true);
+      this.hasSelectedShare = false;
+      this.currentSellLimit = BigDecimal.ZERO;
+      this.buyQuantityField.setText("1");
+      this.sellQuantityField.setText("1");
+      updateTradeActionState();
       applyChangeColor(this.selectedGainLossLabel, BigDecimal.ZERO);
       return;
     }
@@ -353,18 +360,11 @@ public class PortfolioView {
     this.historyTitle.setVisible(true);
     this.historyChart.getRoot().setManaged(true);
     this.historyChart.getRoot().setVisible(true);
-    this.buyQuantitySpinner.setDisable(false);
-    this.sellQuantitySpinner.setDisable(false);
-    this.analyzeButton.setDisable(false);
-    this.buyButton.setDisable(false);
-    this.sellButton.setDisable(false);
-
-    this.buyQuantitySpinner.getValueFactory().setValue(1);
-    SpinnerValueFactory.IntegerSpinnerValueFactory sellFactory =
-        (SpinnerValueFactory.IntegerSpinnerValueFactory) this.sellQuantitySpinner.getValueFactory();
-    int maxSell = share.getQuantity().intValueExact();
-    sellFactory.setMax(maxSell);
-    sellFactory.setValue(1);
+    this.hasSelectedShare = true;
+    this.currentSellLimit = share.getQuantity();
+    this.buyQuantityField.setText("1");
+    this.sellQuantityField.setText(formatQuantity(share.getQuantity().min(BigDecimal.ONE)));
+    updateTradeActionState();
     applyChangeColor(this.selectedGainLossLabel, gainLoss);
   }
 
@@ -425,7 +425,7 @@ public class PortfolioView {
    *
    * @param onBuySelected the callback receiving the requested quantity. Must not be {@code null}
    */
-  public void setOnBuySelected(IntConsumer onBuySelected) {
+  public void setOnBuySelected(Consumer<BigDecimal> onBuySelected) {
     this.onBuySelected =
         Objects.requireNonNull(onBuySelected, "onBuySelected cannot be null");
   }
@@ -435,7 +435,7 @@ public class PortfolioView {
    *
    * @param onSellSelected the callback receiving the requested quantity. Must not be {@code null}
    */
-  public void setOnSellSelected(IntConsumer onSellSelected) {
+  public void setOnSellSelected(Consumer<BigDecimal> onSellSelected) {
     this.onSellSelected =
         Objects.requireNonNull(onSellSelected, "onSellSelected cannot be null");
   }
@@ -528,6 +528,14 @@ public class PortfolioView {
     return header;
   }
 
+  private TextField createQuantityField() {
+    TextField field = new TextField("1");
+    field.getStyleClass().add("quantity-input");
+    field.setTextFormatter(new TextFormatter<>(change ->
+        QUANTITY_PATTERN.matcher(change.getControlNewText()).matches() ? change : null));
+    return field;
+  }
+
   private HBox buildShareRow(Share share) {
     BigDecimal currentPrice = share.getStock().getSalesPrice();
     BigDecimal positionValue = new SaleCalculator(share).calculateTotal();
@@ -575,6 +583,38 @@ public class PortfolioView {
     box.setPrefWidth(width);
     box.setMinWidth(40);
     return box;
+  }
+
+  private void updateTradeActionState() {
+    BigDecimal buyQuantity = parseQuantity(this.buyQuantityField);
+    BigDecimal sellQuantity = parseQuantity(this.sellQuantityField);
+
+    this.buyQuantityField.setDisable(!this.hasSelectedShare);
+    this.sellQuantityField.setDisable(!this.hasSelectedShare);
+    this.analyzeButton.setDisable(!this.hasSelectedShare);
+    this.buyButton.setDisable(!this.hasSelectedShare || buyQuantity == null);
+    this.sellButton.setDisable(!this.hasSelectedShare
+        || sellQuantity == null
+        || sellQuantity.compareTo(this.currentSellLimit) > 0);
+  }
+
+  private BigDecimal parseQuantity(TextField field) {
+    String raw = field.getText();
+    if (raw == null) {
+      return null;
+    }
+
+    String trimmed = raw.trim();
+    if (trimmed.isEmpty() || ".".equals(trimmed)) {
+      return null;
+    }
+
+    try {
+      BigDecimal quantity = new BigDecimal(trimmed);
+      return quantity.compareTo(BigDecimal.ZERO) > 0 ? quantity : null;
+    } catch (NumberFormatException e) {
+      return null;
+    }
   }
 
   private BigDecimal calculatePositionValue(Share share) {
@@ -636,11 +676,6 @@ public class PortfolioView {
   private String formatSignedAmount(BigDecimal value) {
     String sign = value.signum() > 0 ? "+" : "";
     return sign + formatAmount(value);
-  }
-
-  private String formatSignedMoney(BigDecimal value) {
-    String sign = value.signum() > 0 ? "+" : "";
-    return sign + formatMoney(value);
   }
 
   private String formatPercent(BigDecimal value) {

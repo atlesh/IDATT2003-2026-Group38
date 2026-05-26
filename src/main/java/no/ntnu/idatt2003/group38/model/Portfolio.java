@@ -52,10 +52,10 @@ public class Portfolio {
   /**
    * Returns all shares currently in the portfolio.
    *
-   * @return a list of all shares in the portfolio
+   * @return an unmodifiable snapshot of all shares in the portfolio
    */
   public List<Share> getShares() {
-    return this.shares;
+    return List.copyOf(this.shares);
   }
 
   /**

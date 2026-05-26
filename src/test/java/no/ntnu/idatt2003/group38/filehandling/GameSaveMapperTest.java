@@ -2,6 +2,7 @@ package no.ntnu.idatt2003.group38.filehandling;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Arrays;
 import java.math.BigDecimal;
 import java.util.List;
 import no.ntnu.idatt2003.group38.exchange.Exchange;
@@ -108,7 +109,7 @@ public class GameSaveMapperTest {
                 )
         );
 
-        assertThrows(IllegalArgumentException.class, () -> GameSaveMapper.fromSave(save));
+        assertThrows(InvalidSaveFileException.class, () -> GameSaveMapper.fromSave(save));
     }
 
     @Test
@@ -133,6 +134,139 @@ public class GameSaveMapperTest {
                 )
         );
 
-        assertThrows(IllegalArgumentException.class, () -> GameSaveMapper.fromSave(save));
+        assertThrows(InvalidSaveFileException.class, () -> GameSaveMapper.fromSave(save));
+    }
+
+    @Test
+    void fromSave_missingPlayerData_throwsException() {
+        GameSave save = new GameSave(
+                "Test Exchange",
+                1,
+                null,
+                List.of(
+                        new GameSave.SavedStock(
+                                "AAPL",
+                                "Apple",
+                                List.of(new BigDecimal("150.00"))
+                        )
+                )
+        );
+
+        assertThrows(InvalidSaveFileException.class, () -> GameSaveMapper.fromSave(save));
+    }
+
+    @Test
+    void fromSave_transactionWithoutType_throwsException() {
+        GameSave save = new GameSave(
+                "Test Exchange",
+                2,
+                new GameSave.SavedPlayer(
+                        "Sigurd",
+                        new BigDecimal("10000.00"),
+                        new BigDecimal("9000.00"),
+                        List.of(new BigDecimal("10000.00"), new BigDecimal("9500.00")),
+                        List.of(),
+                        List.of(
+                                new GameSave.SavedTransaction(
+                                        null,
+                                        "AAPL",
+                                        new BigDecimal("2"),
+                                        new BigDecimal("150.00"),
+                                        null,
+                                        2
+                                )
+                        )
+                ),
+                List.of(
+                        new GameSave.SavedStock(
+                                "AAPL",
+                                "Apple",
+                                List.of(new BigDecimal("150.00"), new BigDecimal("160.00"))
+                        )
+                )
+        );
+
+        assertThrows(InvalidSaveFileException.class, () -> GameSaveMapper.fromSave(save));
+    }
+
+    @Test
+    void fromSave_netWorthHistoryWithNullEntry_throwsException() {
+        GameSave save = new GameSave(
+                "Test Exchange",
+                1,
+                new GameSave.SavedPlayer(
+                        "Jeff",
+                        new BigDecimal("10000.00"),
+                        new BigDecimal("10000.00"),
+                        Arrays.asList(new BigDecimal("10000.00"), null),
+                        List.of(),
+                        List.of()
+                ),
+                List.of(
+                        new GameSave.SavedStock(
+                                "AAPL",
+                                "Apple",
+                                List.of(new BigDecimal("150.00"))
+                        )
+                )
+        );
+
+        assertThrows(InvalidSaveFileException.class, () -> GameSaveMapper.fromSave(save));
+    }
+
+    @Test
+    void fromSave_invalidExchangeWeek_throwsException() {
+        GameSave save = new GameSave(
+                "Test Exchange",
+                0,
+                new GameSave.SavedPlayer(
+                        "Jeff",
+                        new BigDecimal("10000.00"),
+                        new BigDecimal("10000.00"),
+                        List.of(new BigDecimal("10000.00")),
+                        List.of(),
+                        List.of()
+                ),
+                List.of(
+                        new GameSave.SavedStock(
+                                "AAPL",
+                                "Apple",
+                                List.of(new BigDecimal("150.00"))
+                        )
+                )
+        );
+
+        assertThrows(InvalidSaveFileException.class, () -> GameSaveMapper.fromSave(save));
+    }
+
+    @Test
+    void fromSave_shareWithNonPositiveQuantity_throwsException() {
+        GameSave save = new GameSave(
+                "Test Exchange",
+                1,
+                new GameSave.SavedPlayer(
+                        "Jeff",
+                        new BigDecimal("10000.00"),
+                        new BigDecimal("10000.00"),
+                        List.of(new BigDecimal("10000.00")),
+                        List.of(
+                                new GameSave.SavedShare(
+                                        "AAPL",
+                                        BigDecimal.ZERO,
+                                        new BigDecimal("150.00")
+                                )
+                        ),
+                        List.of()
+                ),
+                List.of(
+                        new GameSave.SavedStock(
+                                "AAPL",
+                                "Apple",
+                                List.of(new BigDecimal("150.00"))
+                        )
+                )
+        );
+
+        assertThrows(InvalidSaveFileException.class, () -> GameSaveMapper.fromSave(save));
     }
 }

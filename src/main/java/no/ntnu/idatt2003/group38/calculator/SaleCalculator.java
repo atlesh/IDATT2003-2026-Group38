@@ -65,16 +65,19 @@ public class SaleCalculator implements TransactionCalculator {
         this.quantity = share.getQuantity();
     }
 
+    /** {@inheritDoc} */
     @Override
     public BigDecimal calculateGross() {
         return this.salesPrice.multiply(this.quantity);
     }
 
+    /** {@inheritDoc} */
     @Override
     public BigDecimal calculateCommission() {
         return calculateGross().multiply(commissionRate);
     }
 
+    /** {@inheritDoc} */
     @Override
     public BigDecimal calculateTax() {
         BigDecimal gross = calculateGross();
@@ -92,6 +95,7 @@ public class SaleCalculator implements TransactionCalculator {
         return profit.multiply(taxRate);
     }
 
+    /** {@inheritDoc} */
     @Override
     public BigDecimal calculateTotal() {
         return calculateGross()

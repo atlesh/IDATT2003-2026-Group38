@@ -12,9 +12,7 @@ import java.util.Locale;
 import java.util.Objects;
 import javafx.animation.PauseTransition;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
 import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -223,7 +221,7 @@ public class ShellController implements ModelObserver {
           this.exchange.sellAll(this.player);
         }
         navigateToEndSummary();
-      } catch (RuntimeException e) {
+      } catch (IllegalArgumentException | IllegalStateException e) {
         showError("Could not end game: " + e.getMessage());
       }
     });
@@ -399,22 +397,5 @@ public class ShellController implements ModelObserver {
    */
   public Stage getStage() {
     return stage;
-  }
-
-  private static final class PlaceholderPage implements Page {
-    private final Region root;
-
-    PlaceholderPage(String name) {
-      Label label = new Label(name + " — coming soon");
-      label.setStyle("-fx-font-family: 'Roboto'; -fx-font-size: 20px; -fx-text-fill: white;");
-      StackPane pane = new StackPane(label);
-      pane.getStyleClass().add("shell-content");
-      this.root = pane;
-    }
-
-    @Override
-    public Region getRoot() {
-      return this.root;
-    }
   }
 }

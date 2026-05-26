@@ -52,11 +52,13 @@ public class DashboardController implements Page, ModelObserver {
         this.moneyFormat = new DecimalFormat("#,##0", symbols);
     }
 
+    /** {@inheritDoc} */
     @Override
     public Region getRoot() {
         return this.view.getRoot();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onAttach() {
         this.exchange.addObserver(this);
@@ -67,11 +69,13 @@ public class DashboardController implements Page, ModelObserver {
         refresh();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onDetach() {
         this.exchange.removeObserver(this);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onModelChanged() {
         refresh();
@@ -187,13 +191,6 @@ public class DashboardController implements Page, ModelObserver {
         BigDecimal positionValue = new SaleCalculator(share).calculateTotal();
         BigDecimal invested = new PurchaseCalculator(share).calculateTotal();
         return positionValue.subtract(invested);
-    }
-
-    private BigDecimal calculatePercent(BigDecimal value, BigDecimal base) {
-        if (base.compareTo(BigDecimal.ZERO) == 0) {
-            return BigDecimal.ZERO;
-        }
-        return value.divide(base, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
     }
 
     private List<String> buildGainers() {

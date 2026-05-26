@@ -15,6 +15,11 @@ import no.ntnu.idatt2003.group38.view.LauncherView;
  */
 public class Main extends Application {
 
+  /**
+   * Starts the JavaFX application and shows the launcher view.
+   *
+   * @param stage the primary application stage
+   */
   @Override
   public void start(Stage stage) {
     loadFonts();
@@ -40,6 +45,11 @@ public class Main extends Application {
     Font.loadFont(getClass().getResourceAsStream("/fonts/Roboto-Bold.ttf"), 10);
   }
 
+  /**
+   * Launches the JavaFX application.
+   *
+   * @param args command-line arguments passed to the application
+   */
   public static void main(String[] args) {
     launch(args);
   }

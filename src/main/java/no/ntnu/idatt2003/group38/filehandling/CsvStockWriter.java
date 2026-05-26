@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A {@link StockFileWriter} that writes stock data to a CSV file.
+ * A {@link StockFileWriter} implementation that writes stock data to a CSV file.
  *
  * <p>Each stock is written as one line in the format:</p>
  * <pre>
@@ -21,7 +21,7 @@ import java.util.Objects;
  * <p>Rules applied during writing:</p>
  * <ul>
  *   <li>A header comment is written at the top of the file.</li>
- *   <li>The price written is the stock current sales price.</li>
+ *   <li>The price written is the stock's current sales price.</li>
  *   <li>The file is created if it does not exist, or overwritten if it does.</li>
  * </ul>
  */
@@ -33,8 +33,8 @@ public class CsvStockWriter implements StockFileWriter {
     /**
      * Writes a list of stocks to a CSV file at the given path.
      *
-     * @param stocks the list of stocks to write. Must not be {@code null}
-     * @param path   the path to write to. Must not be {@code null}
+     * @param stocks the list of stocks to write; must not be {@code null}
+     * @param path   the path to write to; must not be {@code null}
      * @throws IOException if the file cannot be written
      * @throws NullPointerException if {@code stocks} or {@code path} is {@code null}
      */
@@ -57,7 +57,7 @@ public class CsvStockWriter implements StockFileWriter {
     /**
      * Formats a {@link Stock} as a CSV line: {@code symbol,name,price}.
      *
-     * @param stock the stock to format. Must not be {@code null}
+     * @param stock the stock to format; must not be {@code null}
      * @return the formatted CSV line
      */
     private String formatLine(Stock stock) {
