@@ -110,13 +110,12 @@ public class PortfolioController implements Page, ModelObserver {
    *
    * @param quantity the quantity to buy
    */
-  private void handleBuySelected(int quantity) {
-    if (this.selectedSymbol == null || quantity <= 0) {
+  private void handleBuySelected(BigDecimal quantity) {
+    if (this.selectedSymbol == null || quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
       return;
     }
     try {
-      Transaction transaction = this.exchange.buy(
-          this.selectedSymbol, BigDecimal.valueOf(quantity), this.player);
+      Transaction transaction = this.exchange.buy(this.selectedSymbol, quantity, this.player);
       showReceipt(transaction);
     } catch (IllegalArgumentException | IllegalStateException e) {
       showError("Could not complete buy: " + e.getMessage());
@@ -128,15 +127,15 @@ public class PortfolioController implements Page, ModelObserver {
    *
    * @param quantity the quantity to sell
    */
-  private void handleSellSelected(int quantity) {
-    if (this.selectedSymbol == null || quantity <= 0) {
+  private void handleSellSelected(BigDecimal quantity) {
+    if (this.selectedSymbol == null || quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
       return;
     }
 
     String symbol = this.selectedSymbol;
     List<Share> ownedLots = new ArrayList<>(
         this.player.getPortfolio().getShares(symbol));
-    BigDecimal requestedQuantity = BigDecimal.valueOf(quantity);
+    BigDecimal requestedQuantity = quantity;
     BigDecimal ownedQuantity = ownedLots.stream()
         .map(Share::getQuantity)
         .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -218,8 +217,9 @@ public class PortfolioController implements Page, ModelObserver {
       return;
     }
 
+    List<TransactionReceipt> receipts = new ArrayList<>();
     for (String symbol : quantityBySymbol.keySet()) {
-      showReceipt(
+      receipts.add(new TransactionReceipt(
           "Sold",
           symbol,
           quantityBySymbol.get(symbol),
@@ -227,8 +227,10 @@ public class PortfolioController implements Page, ModelObserver {
           grossBySymbol.get(symbol),
           commissionBySymbol.get(symbol),
           taxBySymbol.get(symbol),
-          netBySymbol.get(symbol));
+          netBySymbol.get(symbol)));
     }
+
+    showReceiptQueue(receipts, 0);
   }
 
   /**
@@ -311,6 +313,17 @@ public class PortfolioController implements Page, ModelObserver {
     TransactionReceipt receipt = new TransactionReceipt(
         action, symbol, quantity, unitPrice, gross, commission, tax, total);
     receipt.setOnClose(this.shell::hideModal);
+    this.shell.showModal(receipt.getRoot());
+  }
+
+  private void showReceiptQueue(List<TransactionReceipt> receipts, int index) {
+    if (index >= receipts.size()) {
+      this.shell.hideModal();
+      return;
+    }
+
+    TransactionReceipt receipt = receipts.get(index);
+    receipt.setOnClose(() -> showReceiptQueue(receipts, index + 1));
     this.shell.showModal(receipt.getRoot());
   }
 

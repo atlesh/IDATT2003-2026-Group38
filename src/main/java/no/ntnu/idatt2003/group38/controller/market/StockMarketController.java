@@ -123,13 +123,12 @@ public class StockMarketController implements Page, ModelObserver {
     controller.show();
   }
 
-  private void handleBuy(Stock stock, int quantity) {
-    if (stock == null) {
+  private void handleBuy(Stock stock, BigDecimal quantity) {
+    if (stock == null || quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
       return;
     }
     try {
-      Transaction transaction = this.exchange.buy(
-          stock.getSymbol(), BigDecimal.valueOf(quantity), this.player);
+      Transaction transaction = this.exchange.buy(stock.getSymbol(), quantity, this.player);
       showReceipt(transaction);
     } catch (IllegalArgumentException | IllegalStateException e) {
       this.view.showBuyError("Could not complete buy: " + e.getMessage());

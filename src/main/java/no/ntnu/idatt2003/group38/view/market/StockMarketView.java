@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -37,7 +38,7 @@ public class StockMarketView {
   private Consumer<String> onSearch = query -> { };
   private Consumer<Stock> onStockSelected = stock -> { };
   private Consumer<Stock> onAnalyze = stock -> { };
-  private java.util.function.BiConsumer<Stock, Integer> onBuy = (stock, qty) -> { };
+  private BiConsumer<Stock, BigDecimal> onBuy = (stock, qty) -> { };
 
   /**
    * Builds the market view with an empty stock list and an empty stock card.
@@ -166,7 +167,7 @@ public class StockMarketView {
    *
    * @param onBuy the callback; must not be {@code null}
    */
-  public void setOnBuy(java.util.function.BiConsumer<Stock, Integer> onBuy) {
+  public void setOnBuy(BiConsumer<Stock, BigDecimal> onBuy) {
     this.onBuy = Objects.requireNonNull(onBuy, "onBuy cannot be null");
   }
 
