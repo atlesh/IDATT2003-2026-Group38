@@ -210,11 +210,13 @@ public class Player {
     Player player = new Player(name, startingMoney);
     player.money = money;
 
-    player.getPortfolio().getShares().clear();
-    player.getPortfolio().getShares().addAll(shares);
+    for (Share share : shares) {
+      player.getPortfolio().addShare(share);
+    }
 
-    player.getTransactionArchive().getTransactions().clear();
-    player.getTransactionArchive().getTransactions().addAll(transactions);
+    for (Transaction transaction : transactions) {
+      player.getTransactionArchive().add(transaction);
+    }
 
     player.netWorthHistory.clear();
     player.netWorthHistory.addAll(netWorthHistory);
