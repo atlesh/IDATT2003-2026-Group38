@@ -36,6 +36,7 @@ public class StockMarketView {
 
   private Consumer<String> onSearch = query -> { };
   private Consumer<Stock> onStockSelected = stock -> { };
+  private Consumer<Stock> onAnalyze = stock -> { };
   private java.util.function.BiConsumer<Stock, Integer> onBuy = (stock, qty) -> { };
 
   /**
@@ -71,6 +72,7 @@ public class StockMarketView {
 
     this.stockCard = new StockCard();
     this.stockCard.setOnBuy((stock, qty) -> this.onBuy.accept(stock, qty));
+    this.stockCard.setOnAnalyze(stock -> this.onAnalyze.accept(stock));
 
     HBox content = new HBox(20, listPanel, this.stockCard.getRoot());
     content.setPadding(new Insets(20));
@@ -141,6 +143,16 @@ public class StockMarketView {
   public void setOnStockSelected(Consumer<Stock> onStockSelected) {
     this.onStockSelected = Objects.requireNonNull(
         onStockSelected, "onStockSelected cannot be null");
+  }
+
+  /**
+   * Registers the callback to invoke when the user clicks Analyze on the
+   * right-hand stock card.
+   *
+   * @param onAnalyze the callback. Must not be {@code null}
+   */
+  public void setOnAnalyze(Consumer<Stock> onAnalyze) {
+    this.onAnalyze = Objects.requireNonNull(onAnalyze, "onAnalyze cannot be null");
   }
 
   /**

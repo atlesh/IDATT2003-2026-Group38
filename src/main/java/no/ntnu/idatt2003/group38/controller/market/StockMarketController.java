@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import javafx.scene.Scene;
 import javafx.scene.layout.Region;
+import no.ntnu.idatt2003.group38.controller.analysis.StockAnalysisController;
 import no.ntnu.idatt2003.group38.exchange.Exchange;
 import no.ntnu.idatt2003.group38.model.Player;
 import no.ntnu.idatt2003.group38.model.Stock;
@@ -47,6 +48,7 @@ public class StockMarketController implements Page, ModelObserver {
     this.view = new StockMarketView();
     this.view.setOnSearch(this::handleSearch);
     this.view.setOnStockSelected(this::handleSelect);
+    this.view.setOnAnalyze(this::handleAnalyze);
     this.view.setOnBuy(this::handleBuy);
   }
 
@@ -91,6 +93,16 @@ public class StockMarketController implements Page, ModelObserver {
     refresh();
   }
 
+  private void handleAnalyze(Stock stock) {
+    if (stock == null) {
+      return;
+    }
+
+    StockAnalysisController controller =
+        new StockAnalysisController(this.player, this.shell, stock);
+    controller.show();
+  }
+
   private void handleBuy(Stock stock, int quantity) {
     if (stock == null) {
       return;
@@ -119,7 +131,7 @@ public class StockMarketController implements Page, ModelObserver {
    */
   private void refresh() {
     List<Stock> stocks = this.exchange.findStocks(this.searchQuery);
-    this.view.setSelectedSymbol(this.selectedSymbol);     // <-- add this line
+    this.view.setSelectedSymbol(this.selectedSymbol);
     this.view.setStocks(stocks);
 
     Stock selected = findSelected(stocks);
