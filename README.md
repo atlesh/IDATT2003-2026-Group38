@@ -2,6 +2,11 @@
 
 Millions is a JavaFX-based stock trading simulation developed as a mappeprosjekt in IDATT2003 at NTNU.
 
+<img src="Documentation/logo.png" alt="My screenshot" width="400">
+
+Members: Sigurd Mjølstad-Svendsen, Atle Sandnes Halvorsen
+
+
 The player starts with a fixed amount of money and trades stocks across weekly market updates. The goal is to grow net worth through buying and selling shares while tracking portfolio performance, transaction history, and market movements.
 
 ## Group Members
