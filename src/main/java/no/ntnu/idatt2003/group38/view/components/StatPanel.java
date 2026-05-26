@@ -42,8 +42,6 @@ public class StatPanel {
     Label heading = new Label(title);
     heading.getStyleClass().add("stat-panel-title");
 
-    HBox header = buildHeaderRow();
-
     this.rowsContainer = new VBox(6);
     this.rowsContainer.getStyleClass().add("stat-panel-rows");
 
@@ -54,6 +52,8 @@ public class StatPanel {
     scroll.setFitToWidth(true);
     scroll.getStyleClass().add("stat-panel-scroll");
     VBox.setVgrow(scroll, Priority.ALWAYS);
+
+    HBox header = buildHeaderRow();
 
     this.root = new VBox(12, heading, header, scroll);
     this.root.getStyleClass().add("stat-panel");

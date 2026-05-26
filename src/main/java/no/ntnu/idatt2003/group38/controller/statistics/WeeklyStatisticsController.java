@@ -31,7 +31,7 @@ public class WeeklyStatisticsController implements Page, ModelObserver {
    * populated until {@link #onAttach()} is called by the shell.
    *
    * @param exchange the exchange to read gainers and losers from.
-   * Must not be {@code null}
+   *                 Must not be {@code null}
    */
   public WeeklyStatisticsController(Exchange exchange) {
     this.exchange = Objects.requireNonNull(exchange, "exchange cannot be null");
@@ -40,13 +40,17 @@ public class WeeklyStatisticsController implements Page, ModelObserver {
 
   // Page
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Region getRoot() {
     return this.view.getRoot();
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onAttach() {
     this.exchange.addObserver(this);
@@ -54,7 +58,9 @@ public class WeeklyStatisticsController implements Page, ModelObserver {
     refresh();
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onDetach() {
     this.exchange.removeObserver(this);
@@ -62,7 +68,9 @@ public class WeeklyStatisticsController implements Page, ModelObserver {
 
   // ModelObserver
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onModelChanged() {
     refresh();

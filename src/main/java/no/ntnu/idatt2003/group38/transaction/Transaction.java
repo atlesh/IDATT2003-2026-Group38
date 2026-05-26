@@ -1,10 +1,9 @@
 package no.ntnu.idatt2003.group38.transaction;
 
 import java.util.Objects;
-
 import no.ntnu.idatt2003.group38.calculator.TransactionCalculator;
-import no.ntnu.idatt2003.group38.model.Share;
 import no.ntnu.idatt2003.group38.model.Player;
+import no.ntnu.idatt2003.group38.model.Share;
 
 /**
  * Abstract base class for all financial transactions that a {@link Player}
@@ -26,7 +25,8 @@ public abstract class Transaction {
    *
    * @param share      the {@link Share} involved in the transaction; must not be {@code null}
    * @param week       the week number for the transaction; must be ≥ 1
-   * @param calculator the calculator that knows how to evaluate this transaction; must not be {@code null}
+   * @param calculator the calculator that knows how to evaluate this transaction.
+   *                   Must not be {@code null}
    * @throws NullPointerException     if {@code share} or {@code calculator} is {@code null}
    * @throws IllegalArgumentException if {@code week} is less than 1
    */
@@ -76,7 +76,9 @@ public abstract class Transaction {
     return this.committed;
   }
 
-  /** Marks the transaction as having been successfully committed. */
+  /**
+   * Marks the transaction as having been successfully committed.
+   */
   protected void setCommitted() {
     this.committed = true;
   }

@@ -47,13 +47,13 @@ public class RumorGenerator {
   /**
    * Creates a rumor generator with custom settings.
    *
-   * @param random the source of randomness; must not be {@code null}
-   * @param accuracy chance that any single rumor is truthful
+   * @param random           the source of randomness; must not be {@code null}
+   * @param accuracy         chance that any single rumor is truthful
    * @param maxRumorsPerWeek upper bound on rumors generated per week; must be at least 0
-   * @param rumorChance chance per week that any rumors are generated
-   * @throws NullPointerException if {@code random} is {@code null}
+   * @param rumorChance      chance per week that any rumors are generated
+   * @throws NullPointerException     if {@code random} is {@code null}
    * @throws IllegalArgumentException if any probability is out of range or
-   *     {@code maxRumorsPerWeek} is negative
+   *                                  {@code maxRumorsPerWeek} is negative
    */
   public RumorGenerator(Random random, double accuracy, int maxRumorsPerWeek, double rumorChance) {
     this.random = Objects.requireNonNull(random, "random cannot be null");

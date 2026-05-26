@@ -2,13 +2,13 @@ package no.ntnu.idatt2003.group38.view.portfolio;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
-import java.util.Objects;
-import java.util.regex.Pattern;
-import java.util.function.Consumer;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -23,9 +23,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import no.ntnu.idatt2003.group38.calculator.PurchaseCalculator;
 import no.ntnu.idatt2003.group38.calculator.SaleCalculator;
 import no.ntnu.idatt2003.group38.model.Share;
-import no.ntnu.idatt2003.group38.calculator.PurchaseCalculator;
 import no.ntnu.idatt2003.group38.view.components.PriceSparkline;
 
 /**
@@ -67,14 +67,16 @@ public class PortfolioView {
   private final TextField sellQuantityField;
 
   private final Button sellAllButton;
-  private Runnable onSellAll = () -> {};
+  private Runnable onSellAll = () -> {
+  };
   private boolean sellAllConfirming = false;
 
   private final Button buyButton;
   private final Button sellButton;
 
   private final Button analyzeButton;
-  private Runnable onAnalyzeSelected = () -> {};
+  private Runnable onAnalyzeSelected = () -> {
+  };
 
   private Consumer<Share> onShareSelected = share -> {
   };
@@ -106,8 +108,6 @@ public class PortfolioView {
     this.rowsContainer.getStyleClass().add("market-rows");
     this.rowsContainer.setFillWidth(true);
 
-    HBox header = buildHeaderRow();
-
     ScrollPane rowsScroll = new ScrollPane(this.rowsContainer);
     rowsScroll.setFitToWidth(true);
     rowsScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -125,6 +125,7 @@ public class PortfolioView {
     HBox titleRow = new HBox(8, title, titleSpacer, this.sellAllButton);
     titleRow.setAlignment(Pos.CENTER_LEFT);
 
+    HBox header = buildHeaderRow();
     VBox listPanel = new VBox(16, titleRow, header, rowsScroll);
     listPanel.getStyleClass().add("market-panel");
     listPanel.setMinWidth(0);
@@ -187,8 +188,10 @@ public class PortfolioView {
 
     this.sellQuantityField = createQuantityField();
 
-    this.buyQuantityField.textProperty().addListener((obs, oldValue, newValue) -> updateTradeActionState());
-    this.sellQuantityField.textProperty().addListener((obs, oldValue, newValue) -> updateTradeActionState());
+    this.buyQuantityField.textProperty()
+        .addListener((obs, oldValue, newValue) -> updateTradeActionState());
+    this.sellQuantityField.textProperty()
+        .addListener((obs, oldValue, newValue) -> updateTradeActionState());
 
     this.buyButton = new Button("BUY");
     this.buyButton.getStyleClass().add("buy-button");
@@ -338,19 +341,18 @@ public class PortfolioView {
       return;
     }
 
-    BigDecimal currentPrice = share.getStock().getSalesPrice();
-    BigDecimal positionValue = new SaleCalculator(share).calculateTotal();
-    BigDecimal invested = calculateInvestedValue(share);
-    BigDecimal gainLoss = positionValue.subtract(invested);
-    BigDecimal gainLossPct = calculatePercent(gainLoss, invested);
-    BigDecimal allocationPct = calculateAllocationPercent(positionValue);
-
     this.symbolLabel.setText(share.getStock().getSymbol());
     this.companyLabel.setText(share.getStock().getCompany());
     this.quantityLabel.setText("Quantity: " + formatQuantity(share.getQuantity()));
     this.buyPriceLabel.setText("Buy price: " + formatMoney(share.getPurchasePrice()));
+    BigDecimal currentPrice = share.getStock().getSalesPrice();
     this.currentPriceLabel.setText("Current price: " + formatMoney(currentPrice));
+    BigDecimal positionValue = new SaleCalculator(share).calculateTotal();
     this.positionValueLabel.setText("Value: " + formatAmount(positionValue));
+    BigDecimal invested = calculateInvestedValue(share);
+    BigDecimal gainLoss = positionValue.subtract(invested);
+    BigDecimal gainLossPct = calculatePercent(gainLoss, invested);
+    BigDecimal allocationPct = calculateAllocationPercent(positionValue);
     this.selectedGainLossLabel.setText("Gain/Loss: " + formatSignedAmount(gainLoss)
         + " (" + formatSignedPercent(gainLossPct) + ")");
     this.selectedAllocationLabel.setText("Allocation: " + formatPercent(allocationPct));
@@ -371,9 +373,9 @@ public class PortfolioView {
   /**
    * Updates the summary panel using zero gain/loss values.
    *
-   * @param cash the player's available cash
+   * @param cash           the player's available cash
    * @param portfolioValue the portfolio's current sale value
-   * @param netWorth the player's total net worth
+   * @param netWorth       the player's total net worth
    */
   public void setSummary(BigDecimal cash, BigDecimal portfolioValue, BigDecimal netWorth) {
     setSummary(cash, portfolioValue, netWorth, BigDecimal.ZERO, BigDecimal.ZERO);
@@ -382,10 +384,10 @@ public class PortfolioView {
   /**
    * Updates the summary panel with the latest cash, valuation and gain/loss values.
    *
-   * @param cash the player's available cash. Must not be {@code null}
-   * @param portfolioValue the portfolio's current sale value. Must not be {@code null}
-   * @param netWorth the player's total net worth. Must not be {@code null}
-   * @param totalGainLoss the aggregated unrealized gain/loss. Must not be {@code null}
+   * @param cash             the player's available cash. Must not be {@code null}
+   * @param portfolioValue   the portfolio's current sale value. Must not be {@code null}
+   * @param netWorth         the player's total net worth. Must not be {@code null}
+   * @param totalGainLoss    the aggregated unrealized gain/loss. Must not be {@code null}
    * @param totalGainLossPct the aggregated unrealized gain/loss percentage.
    *                         Must not be {@code null}
    */
@@ -491,7 +493,8 @@ public class PortfolioView {
    */
   public void attachTo(Scene scene) {
     Objects.requireNonNull(scene, "Scene cannot be null");
-    String css = Objects.requireNonNull(getClass().getResource(STYLESHEET), "Could not find stylesheet at " + STYLESHEET).toExternalForm();
+    String css = Objects.requireNonNull(getClass().getResource(STYLESHEET),
+        "Could not find stylesheet at " + STYLESHEET).toExternalForm();
     if (!scene.getStylesheets().contains(css)) {
       scene.getStylesheets().add(css);
     }
@@ -510,7 +513,8 @@ public class PortfolioView {
     Label allocationHeader = new Label("Allocation");
 
     for (Label label : List.of(
-        stockHeader, companyHeader, quantityHeader, buyHeader, currentHeader, valueHeader, gainLossHeader, allocationHeader)) {
+        stockHeader, companyHeader, quantityHeader, buyHeader, currentHeader, valueHeader,
+        gainLossHeader, allocationHeader)) {
       label.getStyleClass().add("market-column-header");
     }
 
@@ -586,12 +590,11 @@ public class PortfolioView {
   }
 
   private void updateTradeActionState() {
-    BigDecimal buyQuantity = parseQuantity(this.buyQuantityField);
-    BigDecimal sellQuantity = parseQuantity(this.sellQuantityField);
-
     this.buyQuantityField.setDisable(!this.hasSelectedShare);
     this.sellQuantityField.setDisable(!this.hasSelectedShare);
     this.analyzeButton.setDisable(!this.hasSelectedShare);
+    BigDecimal buyQuantity = parseQuantity(this.buyQuantityField);
+    BigDecimal sellQuantity = parseQuantity(this.sellQuantityField);
     this.buyButton.setDisable(!this.hasSelectedShare || buyQuantity == null);
     this.sellButton.setDisable(!this.hasSelectedShare
         || sellQuantity == null
@@ -640,7 +643,8 @@ public class PortfolioView {
     if (this.currentPortfolioValue.compareTo(BigDecimal.ZERO) == 0) {
       return BigDecimal.ZERO;
     }
-    return positionValue.divide(this.currentPortfolioValue, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
+    return positionValue.divide(this.currentPortfolioValue, 4, RoundingMode.HALF_UP)
+        .multiply(BigDecimal.valueOf(100));
   }
 
   /**

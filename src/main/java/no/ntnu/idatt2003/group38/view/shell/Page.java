@@ -17,10 +17,12 @@ public interface Page {
   /**
    * Called when the page is mounted in the shell.
    */
-  default void onAttach() {}
+  default void onAttach() {
+  }
 
   /**
    * Called when the page is unmounted from the shell.
    */
-  default void onDetach() {}
+  default void onDetach() {
+  }
 }

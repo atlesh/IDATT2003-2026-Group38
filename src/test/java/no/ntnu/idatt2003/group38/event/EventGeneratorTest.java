@@ -1,14 +1,14 @@
 package no.ntnu.idatt2003.group38.event;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Random;
-
 import no.ntnu.idatt2003.group38.model.Stock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class EventGeneratorTest {
 
@@ -48,7 +48,9 @@ public class EventGeneratorTest {
 
     int fired = 0;
     for (int i = 0; i < 10_000; i++) {
-      if (generator.sample().isPresent()) fired++;
+      if (generator.sample().isPresent()) {
+        fired++;
+      }
     }
     // With p = 0.02 over 10_000 trials, expected ≈ 200.
     // Allow generous tolerance for the seeded RNG.

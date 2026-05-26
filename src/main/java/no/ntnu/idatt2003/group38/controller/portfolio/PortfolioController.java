@@ -10,18 +10,18 @@ import java.util.Objects;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.Region;
+import no.ntnu.idatt2003.group38.calculator.PurchaseCalculator;
+import no.ntnu.idatt2003.group38.controller.analysis.StockAnalysisController;
 import no.ntnu.idatt2003.group38.exchange.Exchange;
 import no.ntnu.idatt2003.group38.model.Player;
 import no.ntnu.idatt2003.group38.model.Share;
+import no.ntnu.idatt2003.group38.model.Stock;
 import no.ntnu.idatt2003.group38.observer.ModelObserver;
 import no.ntnu.idatt2003.group38.transaction.Transaction;
 import no.ntnu.idatt2003.group38.view.components.TransactionReceipt;
 import no.ntnu.idatt2003.group38.view.portfolio.PortfolioView;
 import no.ntnu.idatt2003.group38.view.shell.Page;
-import no.ntnu.idatt2003.group38.calculator.PurchaseCalculator;
 import no.ntnu.idatt2003.group38.view.shell.ShellView;
-import no.ntnu.idatt2003.group38.controller.analysis.StockAnalysisController;
-import no.ntnu.idatt2003.group38.model.Stock;
 
 /**
  * Controller for the Portfolio page.
@@ -44,8 +44,9 @@ public class PortfolioController implements Page, ModelObserver {
    * Creates a new portfolio controller.
    *
    * @param exchange the exchange that provides current stock prices. Must not be {@code null}
-   * @param player the player whose portfolio is being displayed. Must not be {@code null}
-   * @param shell the shell used to show modal receipts and error dialogs. Must not be {@code null}
+   * @param player   the player whose portfolio is being displayed. Must not be {@code null}
+   * @param shell    the shell used to show modal receipts and error dialogs.
+   *                 Must not be {@code null}
    */
   public PortfolioController(Exchange exchange, Player player, ShellView shell) {
     this.exchange = Objects.requireNonNull(exchange, "exchange cannot be null");
@@ -62,13 +63,17 @@ public class PortfolioController implements Page, ModelObserver {
 
   // Page
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Region getRoot() {
     return this.view.getRoot();
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onAttach() {
     this.exchange.addObserver(this);
@@ -79,7 +84,9 @@ public class PortfolioController implements Page, ModelObserver {
     refresh();
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onDetach() {
     this.exchange.removeObserver(this);
@@ -87,7 +94,9 @@ public class PortfolioController implements Page, ModelObserver {
 
   // ModelObserver
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onModelChanged() {
     refresh();
@@ -101,8 +110,8 @@ public class PortfolioController implements Page, ModelObserver {
    * @param share the selected aggregated share, or {@code null} to clear the selection
    */
   private void handleSelect(Share share) {
-      this.selectedSymbol = share == null ? null : share.getStock().getSymbol();
-      refresh();
+    this.selectedSymbol = share == null ? null : share.getStock().getSymbol();
+    refresh();
   }
 
   /**
@@ -111,7 +120,9 @@ public class PortfolioController implements Page, ModelObserver {
    * @param quantity the quantity to buy
    */
   private void handleBuySelected(BigDecimal quantity) {
-    if (this.selectedSymbol == null || quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
+    if (this.selectedSymbol == null
+        || quantity == null
+        || quantity.compareTo(BigDecimal.ZERO) <= 0) {
       return;
     }
     try {
@@ -128,7 +139,9 @@ public class PortfolioController implements Page, ModelObserver {
    * @param quantity the quantity to sell
    */
   private void handleSellSelected(BigDecimal quantity) {
-    if (this.selectedSymbol == null || quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
+    if (this.selectedSymbol == null
+        || quantity == null
+        || quantity.compareTo(BigDecimal.ZERO) <= 0) {
       return;
     }
 
@@ -156,7 +169,9 @@ public class PortfolioController implements Page, ModelObserver {
 
     try {
       for (Share lot : ownedLots) {
-        if (remaining.compareTo(BigDecimal.ZERO) == 0) break;
+        if (remaining.compareTo(BigDecimal.ZERO) == 0) {
+          break;
+        }
         BigDecimal sellQuantity = remaining.min(lot.getQuantity());
         Transaction transaction = this.exchange.sell(lot, sellQuantity, this.player);
         totalGross = totalGross.add(transaction.getCalculator().calculateGross());
@@ -207,7 +222,7 @@ public class PortfolioController implements Page, ModelObserver {
 
         grossBySymbol.merge(symbol, transaction.getCalculator().calculateGross(), BigDecimal::add);
         commissionBySymbol.merge(symbol,
-                transaction.getCalculator().calculateCommission(), BigDecimal::add);
+            transaction.getCalculator().calculateCommission(), BigDecimal::add);
         taxBySymbol.merge(symbol, transaction.getCalculator().calculateTax(), BigDecimal::add);
         netBySymbol.merge(symbol, transaction.getCalculator().calculateTotal(), BigDecimal::add);
         quantityBySymbol.merge(symbol, transaction.getShare().getQuantity(), BigDecimal::add);
@@ -298,14 +313,14 @@ public class PortfolioController implements Page, ModelObserver {
   /**
    * Shows a grouped receipt for one completed sell action.
    *
-   * @param action the action label to display
-   * @param symbol the stock symbol
-   * @param quantity the total quantity sold
-   * @param unitPrice the current unit price
-   * @param gross the gross sale value
+   * @param action     the action label to display
+   * @param symbol     the stock symbol
+   * @param quantity   the total quantity sold
+   * @param unitPrice  the current unit price
+   * @param gross      the gross sale value
    * @param commission the total commission
-   * @param tax the total tax
-   * @param total the net amount received
+   * @param tax        the total tax
+   * @param total      the net amount received
    */
   private void showReceipt(String action, String symbol, BigDecimal quantity,
                            BigDecimal unitPrice, BigDecimal gross, BigDecimal commission,
@@ -376,7 +391,7 @@ public class PortfolioController implements Page, ModelObserver {
    * {@code base} is zero.
    *
    * @param value the value to compare against the base
-   * @param base the base value
+   * @param base  the base value
    * @return the percentage representation of {@code value} relative to {@code base}
    */
   private BigDecimal calculatePercent(BigDecimal value, BigDecimal base) {

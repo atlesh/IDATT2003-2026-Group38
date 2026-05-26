@@ -11,12 +11,12 @@ import no.ntnu.idatt2003.group38.model.Stock;
  * stock is likely to rise or fall in the upcoming week, but they are
  * not always correct — see {@link RumorGenerator} for the accuracy model.</p>
  *
- * @param stock the stock the rumor is about
+ * @param stock     the stock the rumor is about
  * @param direction the predicted direction of the next price move
- * @param truthful whether the rumor is internally flagged as truthful;
- *     used by {@link RumorGenerator} to bias next week's price movement.
- *     This field is intentionally not exposed to the player — they have
- *     to decide for themselves whether to trust the rumor.
+ * @param truthful  whether the rumor is internally flagged as truthful;
+ *                  used by {@link RumorGenerator} to bias next week's price movement.
+ *                  This field is intentionally not exposed to the player — they have
+ *                  to decide for themselves whether to trust the rumor.
  */
 public record Rumor(Stock stock, Direction direction, boolean truthful) {
 
@@ -24,9 +24,13 @@ public record Rumor(Stock stock, Direction direction, boolean truthful) {
    * Predicted direction of a stock's next price move.
    */
   public enum Direction {
-    /** The rumor predicts a price rise. */
+    /**
+     * The rumor predicts a price rise.
+     */
     RISE,
-    /** The rumor predicts a price fall. */
+    /**
+     * The rumor predicts a price fall.
+     */
     FALL
   }
 

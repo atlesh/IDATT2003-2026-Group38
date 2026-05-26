@@ -2,9 +2,9 @@ package no.ntnu.idatt2003.group38.model;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import no.ntnu.idatt2003.group38.transaction.Transaction;
 import no.ntnu.idatt2003.group38.transaction.TransactionArchive;
 
@@ -30,7 +30,7 @@ public class Player {
   /**
    * Creates a new player.
    *
-   * @param name the name of the player; must not be {@code null}
+   * @param name          the name of the player; must not be {@code null}
    * @param startingMoney the initial amount of money; must not be {@code null}
    * @throws NullPointerException if {@code name} or {@code startingMoney} is {@code null}
    */
@@ -46,7 +46,7 @@ public class Player {
   }
 
   /**
-   * Returns the player's name
+   * Returns the player's name.
    *
    * @return the player's name
    */
@@ -55,7 +55,7 @@ public class Player {
   }
 
   /**
-   * Returns the player's current cash balance
+   * Returns the player's current cash balance.
    *
    * @return the player's remaining money
    */
@@ -94,7 +94,7 @@ public class Player {
   }
 
   /**
-   * Returns the player's portfolio
+   * Returns the player's portfolio.
    *
    * @return the player's portfolio
    */
@@ -125,7 +125,7 @@ public class Player {
   }
 
   /**
-   * Returns the player's transaction archive
+   * Returns the player's transaction archive.
    *
    * @return the player's transaction archive
    */
@@ -134,7 +134,7 @@ public class Player {
   }
 
   /**
-   * Returns the player's total net worth
+   * Returns the player's total net worth.
    *
    * <p>This includes the player's current cash balance and the net sale value
    * of all shares in the player's portfolio</p>
@@ -184,23 +184,23 @@ public class Player {
    * <p>Rebuilds the player's current cash balance, portfolio, transaction
    * history and net-worth history from persisted state.</p>
    *
-   * @param name the player name
-   * @param startingMoney the original starting capital
-   * @param money the player's current cash balance
-   * @param shares the shares currently held in the portfolio
-   * @param transactions the transaction history to restore
+   * @param name            the player name
+   * @param startingMoney   the original starting capital
+   * @param money           the player's current cash balance
+   * @param shares          the shares currently held in the portfolio
+   * @param transactions    the transaction history to restore
    * @param netWorthHistory the historical net-worth snapshots to restore
    * @return a player populated from the provided saved state
    */
   public static Player restore(
-          String name,
-          BigDecimal startingMoney,
-          BigDecimal money,
-          List<Share> shares,
-          List<Transaction> transactions,
-          List<BigDecimal> netWorthHistory
-   ) {
-    Objects.requireNonNull(name,  "Name cannot be null");
+      String name,
+      BigDecimal startingMoney,
+      BigDecimal money,
+      List<Share> shares,
+      List<Transaction> transactions,
+      List<BigDecimal> netWorthHistory
+  ) {
+    Objects.requireNonNull(name, "Name cannot be null");
     Objects.requireNonNull(startingMoney, "Starting money cannot be null");
     Objects.requireNonNull(money, "Money cannot be null");
     Objects.requireNonNull(shares, "Shares cannot be null");

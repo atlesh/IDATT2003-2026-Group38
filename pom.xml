@@ -76,7 +76,6 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.12.0</version>
       </plugin>
-
     </plugins>
   </build>
 

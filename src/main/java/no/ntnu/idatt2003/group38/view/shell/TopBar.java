@@ -145,7 +145,7 @@ public class TopBar {
   }
 
   /**
-   * Registers the action to invoke when the user clicks the End Game button
+   * Registers the action to invoke when the user clicks the End Game button.
    *
    * @param onEndGame the action, must not be {@code null}
    */

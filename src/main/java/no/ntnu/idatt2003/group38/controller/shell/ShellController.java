@@ -1,18 +1,18 @@
 package no.ntnu.idatt2003.group38.controller.shell;
 
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import javafx.animation.PauseTransition;
 import javafx.scene.Scene;
-import javafx.scene.layout.Region;
 import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -23,19 +23,17 @@ import no.ntnu.idatt2003.group38.controller.market.StockMarketController;
 import no.ntnu.idatt2003.group38.controller.portfolio.PortfolioController;
 import no.ntnu.idatt2003.group38.controller.statistics.WeeklyStatisticsController;
 import no.ntnu.idatt2003.group38.controller.transaction.TransactionHistoryController;
+import no.ntnu.idatt2003.group38.event.EventNotice;
+import no.ntnu.idatt2003.group38.event.Rumor;
 import no.ntnu.idatt2003.group38.exchange.Exchange;
 import no.ntnu.idatt2003.group38.filehandling.GameSaveFileWriter;
 import no.ntnu.idatt2003.group38.model.Player;
 import no.ntnu.idatt2003.group38.observer.ModelObserver;
 import no.ntnu.idatt2003.group38.view.EndView;
+import no.ntnu.idatt2003.group38.view.components.ConfirmDialog;
 import no.ntnu.idatt2003.group38.view.shell.Page;
 import no.ntnu.idatt2003.group38.view.shell.ShellView;
 import no.ntnu.idatt2003.group38.view.shell.SideNav.Destination;
-import no.ntnu.idatt2003.group38.view.components.ConfirmDialog;
-import java.util.List;
-import no.ntnu.idatt2003.group38.event.EventNotice;
-import no.ntnu.idatt2003.group38.event.Rumor;
-
 
 /**
  * Owns the running game and orchestrates the application shell.
@@ -68,9 +66,9 @@ public class ShellController implements ModelObserver {
    * Creates a new shell controller, wires the side nav, observes the model and
    * mounts the initial page.
    *
-   * @param shell the shell view to control. Must not be {@code null}
-   * @param stage the primary stage. Must not be {@code null}
-   * @param player the player for this game. Must not be {@code null}
+   * @param shell    the shell view to control. Must not be {@code null}
+   * @param stage    the primary stage. Must not be {@code null}
+   * @param player   the player for this game. Must not be {@code null}
    * @param exchange the exchange for this game. Must not be {@code null}
    */
   public ShellController(ShellView shell, Stage stage, Player player, Exchange exchange) {
@@ -202,15 +200,14 @@ public class ShellController implements ModelObserver {
     this.shell.showModal(dialog.getRoot());
   }
 
-
   /**
-   * Opens a confirmation dialog before ending the current game
+   * Opens a confirmation dialog before ending the current game.
    */
   private void handleEndGame() {
     ConfirmDialog dialog = new ConfirmDialog(
-            "Sell all holdings and end game?",
-            "All owned shares will be sold before the game summary is shown",
-            "End Game");
+        "Sell all holdings and end game?",
+        "All owned shares will be sold before the game summary is shown",
+        "End Game");
 
     dialog.setOnCancel(this.shell::hideModal);
     dialog.setOnConfirm(() -> {
@@ -281,7 +278,7 @@ public class ShellController implements ModelObserver {
   /**
    * Configures the save chooser to use the application's save directory.
    *
-   * @param chooser the file chooser to configure
+   * @param chooser           the file chooser to configure
    * @param createWhenMissing whether the save directory should be created if missing
    */
   private void configureSaveDirectory(FileChooser chooser, boolean createWhenMissing) {
@@ -349,8 +346,6 @@ public class ShellController implements ModelObserver {
     dialog.setOnCancel(this.shell::hideModal);
     this.shell.showModal(dialog.getRoot());
   }
-
-
 
   /**
    * Shows a short save-status message in the top bar.

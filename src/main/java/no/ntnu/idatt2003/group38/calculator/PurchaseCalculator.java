@@ -1,65 +1,72 @@
 package no.ntnu.idatt2003.group38.calculator;
 
-import no.ntnu.idatt2003.group38.model.Share;
-
 import java.math.BigDecimal;
 import java.util.Objects;
+import no.ntnu.idatt2003.group38.model.Share;
 
 /**
- * Calculates financial values for a share purchase transaction
+ * Calculates financial values for a share purchase transaction.
  *
  * <p>This implementation computes:
- *  Gross value (purchase price x quantity)
- *  Commission (0.5% of gross value)
- *  No tax (tax is not applied on purchases)
- *  Total purchase cost (gross value + commission)</p>
+ * Gross value (purchase price x quantity)
+ * Commission (0.5% of gross value)
+ * No tax (tax is not applied on purchases)
+ * Total purchase cost (gross value + commission)</p>
  *
- *  <p>The calculator is based on data provided by a {@link Share} instance
- *  All monetary values are represented using {@link java.math.BigDecimal}
- *  to ensure precise financial calculations</p>
+ * <p>The calculator is based on data provided by a {@link Share} instance
+ * All monetary values are represented using {@link java.math.BigDecimal}
+ * to ensure precise financial calculations</p>
  */
 public class PurchaseCalculator implements TransactionCalculator {
 
-    private final BigDecimal purchasePrice;
-    private final BigDecimal quantity;
-    private static final BigDecimal commissionRate = new BigDecimal("0.005");
+  private final BigDecimal purchasePrice;
+  private final BigDecimal quantity;
+  private static final BigDecimal commissionRate = new BigDecimal("0.005");
 
-    /**
-     * Creates a purchase calculator for the given share
-     *
-     * @param share the share to calculate values for; must not be {@code null}
-     * @throws NullPointerException if {@code share} is {@code null}
-     */
-    public PurchaseCalculator(Share share) {
-        Objects.requireNonNull(share, "Share cannot be null");
+  /**
+   * Creates a purchase calculator for the given share.
+   *
+   * @param share the share to calculate values for; must not be {@code null}
+   * @throws NullPointerException if {@code share} is {@code null}
+   */
+  public PurchaseCalculator(Share share) {
+    Objects.requireNonNull(share, "Share cannot be null");
 
-        this.purchasePrice = share.getPurchasePrice();
-        this.quantity = share.getQuantity();
-    }
+    this.purchasePrice = share.getPurchasePrice();
+    this.quantity = share.getQuantity();
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public BigDecimal calculateGross() {
-        return this.purchasePrice.multiply(this.quantity);
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public BigDecimal calculateGross() {
+    return this.purchasePrice.multiply(this.quantity);
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public BigDecimal calculateCommission() {
-        return calculateGross().multiply(commissionRate);
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public BigDecimal calculateCommission() {
+    return calculateGross().multiply(commissionRate);
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public BigDecimal calculateTax() {
-        return BigDecimal.ZERO;
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public BigDecimal calculateTax() {
+    return BigDecimal.ZERO;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public BigDecimal calculateTotal() {
-        return calculateGross()
-                .add(calculateCommission()
-                .add(calculateTax()));
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public BigDecimal calculateTotal() {
+    return calculateGross()
+        .add(calculateCommission()
+            .add(calculateTax()));
+  }
 }

@@ -3,9 +3,9 @@ package no.ntnu.idatt2003.group38.view.market;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
-import java.util.regex.Pattern;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -50,8 +50,10 @@ public class StockCard {
   private final HBox actionRow;
 
   private Stock currentStock;
-  private BiConsumer<Stock, BigDecimal> onBuy = (stock, qty) -> { };
-  private Consumer<Stock> onAnalyze = stock -> { };
+  private BiConsumer<Stock, BigDecimal> onBuy = (stock, qty) -> {
+  };
+  private Consumer<Stock> onAnalyze = stock -> {
+  };
 
   /**
    * Builds an empty stock card.
@@ -164,12 +166,10 @@ public class StockCard {
    */
   public void show(Stock stock) {
     this.currentStock = stock;
-
-    BigDecimal pct = stock.getLatestPriceChangePercent();
-
     this.symbolLabel.setText(stock.getSymbol());
     this.companyLabel.setText(stock.getCompany());
     this.priceLabel.setText("Price: " + formatPrice(stock.getSalesPrice()));
+    BigDecimal pct = stock.getLatestPriceChangePercent();
     this.changeLabel.setText("Change: " + formatChange(pct));
     this.highLabel.setText("High: " + formatPrice(stock.getHighestPrice()));
     this.lowLabel.setText("Low: " + formatPrice(stock.getLowestPrice()));
@@ -226,7 +226,7 @@ public class StockCard {
         this.highLabel, this.lowLabel,
         this.sparkline.getRoot(),
         this.quantityHeadingLabel, this.quantityField, this.grossLabel, this.commissionLabel,
-        this.taxLabel, this.totalLabel, this.actionRow }) {
+        this.taxLabel, this.totalLabel, this.actionRow}) {
       node.setVisible(visible);
       node.setManaged(visible);
     }

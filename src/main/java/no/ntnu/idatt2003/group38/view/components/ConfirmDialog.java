@@ -9,7 +9,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 /**
- * Confirmation popup
+ * Confirmation popup.
  *
  * <p>Designed to be shown inside the shell's modal layer via
  * {@code ShellView.showModal}.
@@ -18,16 +18,18 @@ public class ConfirmDialog {
 
   private final VBox root;
 
-  private Runnable onConfirm = () -> { };
-  private Runnable onCancel = () -> { };
+  private Runnable onConfirm = () -> {
+  };
+  private Runnable onCancel = () -> {
+  };
 
   /**
    * Builds a confirmation dialog.
    *
-   * @param title the heading shown at the top of the dialog. Must not be {@code null}
-   * @param message the body text explaining the action. Must not be {@code null}
+   * @param title        the heading shown at the top of the dialog. Must not be {@code null}
+   * @param message      the body text explaining the action. Must not be {@code null}
    * @param confirmLabel the label for the confirm button (e.g. {@code "Advance"}).
-   *                    Must not be {@code null}
+   *                     Must not be {@code null}
    */
   public ConfirmDialog(String title, String message, String confirmLabel) {
     Objects.requireNonNull(title, "title cannot be null");
