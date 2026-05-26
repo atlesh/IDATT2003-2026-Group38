@@ -31,7 +31,7 @@ public class PriceSparkline {
   /**
    * Builds a new sparkline at a custom size with no data.
    *
-   * @param width the width of the chart area in pixels
+   * @param width  the width of the chart area in pixels
    * @param height the height of the chart area in pixels
    */
   public PriceSparkline(double width, double height) {
@@ -86,9 +86,9 @@ public class PriceSparkline {
       return;
     }
 
-    double xStep = width / (prices.size() - 1);
+    double stepX = width / (prices.size() - 1);
     for (int i = 0; i < prices.size(); i++) {
-      double x = i * xStep;
+      double x = i * stepX;
       double normalized = prices.get(i).subtract(min).doubleValue() / range;
       // Higher prices should sit higher visually, so invert the y axis.
       double y = VERTICAL_PADDING + (1.0 - normalized) * drawHeight;

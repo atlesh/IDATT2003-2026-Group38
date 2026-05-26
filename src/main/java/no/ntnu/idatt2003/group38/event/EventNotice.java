@@ -10,10 +10,10 @@ import no.ntnu.idatt2003.group38.model.Stock;
  * <p>Exposed by {@code Exchange.getLastWeekEvents()} so the GUI can present a
  * news summary after the player advances to a new week.</p>
  *
- * @param stock the stock that was affected
- * @param headline the headline describing the event
+ * @param stock         the stock that was affected
+ * @param headline      the headline describing the event
  * @param previousPrice the price before the event was applied
- * @param newPrice the price after the event was applied
+ * @param newPrice      the price after the event was applied
  */
 public record EventNotice(
     Stock stock,

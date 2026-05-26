@@ -1,25 +1,30 @@
 package no.ntnu.idatt2003.group38.exchange;
 
-import no.ntnu.idatt2003.group38.model.Player;
-import no.ntnu.idatt2003.group38.model.Share;
-import no.ntnu.idatt2003.group38.model.Stock;
-import no.ntnu.idatt2003.group38.observer.Observable;
-import no.ntnu.idatt2003.group38.transaction.Transaction;
-import no.ntnu.idatt2003.group38.transaction.Sale;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
 import no.ntnu.idatt2003.group38.event.EventGenerator;
 import no.ntnu.idatt2003.group38.event.EventNotice;
 import no.ntnu.idatt2003.group38.event.MarketEvent;
 import no.ntnu.idatt2003.group38.event.Rumor;
 import no.ntnu.idatt2003.group38.event.RumorGenerator;
-
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.*;
+import no.ntnu.idatt2003.group38.model.Player;
+import no.ntnu.idatt2003.group38.model.Share;
+import no.ntnu.idatt2003.group38.model.Stock;
+import no.ntnu.idatt2003.group38.observer.Observable;
+import no.ntnu.idatt2003.group38.transaction.Sale;
+import no.ntnu.idatt2003.group38.transaction.Transaction;
 import no.ntnu.idatt2003.group38.transaction.TransactionFactory;
 
 /**
- * Represents a stock exchange where stocks are listed and can be traded by players
+ * Represents a stock exchange where stocks are listed and can be traded by players.
  *
  * <p>The exchange maintains a collection of stocks and
  * tracks the current trading week</p>
@@ -27,7 +32,7 @@ import no.ntnu.idatt2003.group38.transaction.TransactionFactory;
  * <p>Players can buy and sell shares through the exchange,
  * and the market can advance to simulate price changes</p>
  */
-public class Exchange extends Observable{
+public class Exchange extends Observable {
 
   private final String name;
   private int week;
@@ -38,11 +43,10 @@ public class Exchange extends Observable{
   private final List<EventNotice> lastWeekEvents = new ArrayList<>();
   private List<Rumor> activeRumors = List.of();
 
-
   /**
-   * Creates a new stock exchange with the given name and listed stocks
+   * Creates a new stock exchange with the given name and listed stocks.
    *
-   * @param name the name of the exchange; must not be {@code null}
+   * @param name   the name of the exchange; must not be {@code null}
    * @param stocks the list of stocks listed in the exchange; must not be {@code null}
    * @throws NullPointerException if {@code name} or {@code stocks} is {@code null}
    */
@@ -61,7 +65,7 @@ public class Exchange extends Observable{
   }
 
   /**
-   * Returns the name of the exchange
+   * Returns the name of the exchange.
    *
    * @return the exchange name
    */
@@ -70,7 +74,7 @@ public class Exchange extends Observable{
   }
 
   /**
-   * Returns the current trading week
+   * Returns the current trading week.
    *
    * @return the current week number
    */
@@ -79,7 +83,7 @@ public class Exchange extends Observable{
   }
 
   /**
-   * Checks whether a stock with the given symbol is listed on the exchange
+   * Checks whether a stock with the given symbol is listed on the exchange.
    *
    * @param symbol the stock symbol; must not be {@code null}
    * @return {@code true} if the stock exists, {@code false} otherwise
@@ -100,11 +104,12 @@ public class Exchange extends Observable{
   }
 
   /**
-   * Returns the stock with the given symbol
+   * Returns the stock with the given symbol.
    *
-   * @param symbol the stock symbol; must not be {@code null} or empty
+   * @param symbol the stock symbol. Must not be {@code null} or empty
    * @return the corresponding {@link Stock}
-   * @throws IllegalArgumentException if the symbol is {@code null}, empty, or not listed in the exchange
+   * @throws IllegalArgumentException if the symbol is {@code null}, empty,
+   *                                  or not listed in the exchange
    */
   public Stock getStock(String symbol) {
     if (symbol == null) {
@@ -120,7 +125,8 @@ public class Exchange extends Observable{
     Stock stock = stockMap.get(normalized);
 
     if (stock == null) {
-      throw new IllegalArgumentException("Stock with symbol '" + normalized + "' does not exist on this exchange");
+      throw new IllegalArgumentException(
+          "Stock with symbol '" + normalized + "' does not exist on this exchange");
     }
 
     return stock;
@@ -159,11 +165,11 @@ public class Exchange extends Observable{
   }
 
   /**
-   * Buys a specified quantity of a stock for the given player
+   * Buys a specified quantity of a stock for the given player.
    *
-   * @param symbol the stock symbol; must not be {@code null}
+   * @param symbol   the stock symbol; must not be {@code null}
    * @param quantity the quantity to buy; must be greater than zero
-   * @param player the player performing the purchase; must not be {@code null}
+   * @param player   the player performing the purchase; must not be {@code null}
    * @return the committed {@link Transaction}
    * @throws IllegalArgumentException if any requirement is invalid
    */
@@ -189,9 +195,9 @@ public class Exchange extends Observable{
   }
 
   /**
-   * Sells the given share on behalf of the specified player
+   * Sells the given share on behalf of the specified player.
    *
-   * @param share the share to be sold; must not be {@code null}
+   * @param share  the share to be sold; must not be {@code null}
    * @param player the player performing the sale; must not be {@code null}
    * @return the committed {@link Transaction}
    * @throws IllegalArgumentException if the share is invalid or not owned by the player
@@ -220,6 +226,24 @@ public class Exchange extends Observable{
     return sale;
   }
 
+  /**
+   * Sells part of an owned share lot.
+   *
+   * <p>If {@code quantity} equals the full lot quantity,
+   * this delegates to {@link #sell(Share, Player)}.
+   * Otherwise it creates and commits a partial {@link Sale}
+   * while leaving the remaining quantity in the original lot.</p>
+   *
+   * @param share    the owned share lot to sell; must not be {@code null}
+   * @param quantity the quantity to sell; must be greater than {@code 0}
+   *                 and no greater than the owned quantity
+   * @param player   the player who owns the share lot; must not be {@code null}
+   * @return the committed sale transaction
+   * @throws IllegalArgumentException if any argument is invalid,
+   *                                  if the share does not reference a stock,
+   *                                  if the player does not own the share,
+   *                                  or if {@code quantity} exceeds the owned quantity
+   */
   public Transaction sell(Share share, BigDecimal quantity, Player player) {
     if (share == null) {
       throw new IllegalArgumentException("Share cannot be null");
@@ -252,7 +276,7 @@ public class Exchange extends Observable{
   }
 
   /**
-   * Sells every named share in the player's portfolio
+   * Sells every named share in the player's portfolio.
    *
    * @param player the player whose holdings should be liquidated
    * @return the committed sale transactions
@@ -335,7 +359,6 @@ public class Exchange extends Observable{
     notifyObservers();
   }
 
-
   /**
    * Returns the market events that fired during the most recent
    * {@link #advance()} call.
@@ -356,9 +379,9 @@ public class Exchange extends Observable{
   }
 
   /**
-   * Returns the stocks with the largest positive price change since the previous trading week
+   * Returns the stocks with the largest positive price change since the previous trading week.
    *
-   * <p> Only stocks whose sales price has increased are included.
+   * <p>Only stocks whose sales price has increased are included.
    * The result is sorted by price change in descending order and
    * limited to the given number of stocks.</p>
    *
@@ -381,9 +404,9 @@ public class Exchange extends Observable{
   }
 
   /**
-   * Returns the stocks with the largest negative price change since the previous trading week
+   * Returns the stocks with the largest negative price change since the previous trading week.
    *
-   * <p> Only stocks whose sales price has decreased are included.
+   * <p>Only stocks whose sales price has decreased are included.
    * The result is sorted by price change in ascending order and
    * limited to the given number og stocks</p>
    *
@@ -435,8 +458,8 @@ public class Exchange extends Observable{
   /**
    * Restores an exchange from previously saved game data.
    *
-   * @param name the exchange name
-   * @param week the current trading week
+   * @param name   the exchange name
+   * @param week   the current trading week
    * @param stocks the stocks to populate the exchange with
    * @return an exchange populated from the provided saved state
    */

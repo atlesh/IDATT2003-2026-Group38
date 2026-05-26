@@ -24,7 +24,7 @@
     -fx-font-size: 13px;
     -fx-background-color: #F7F7F7;
     -fx-background-radius: 8;
-    -fx-border-color: #C7C7C7   ;
+    -fx-border-color: #C7C7C7;
     -fx-border-width: 1;
     -fx-border-radius: 8;
     -fx-padding: 6 12 6 12;
@@ -168,6 +168,36 @@
     -fx-font-weight: bold;
 }
 
+.dashboard-performance-chart {
+    -fx-background-color: transparent;
+    -fx-padding: 8 8 0 0;
+}
+
+.dashboard-performance-chart .chart-plot-background {
+    -fx-background-color: transparent;
+}
+
+.dashboard-performance-chart .axis {
+    -fx-tick-label-fill: #4A4A4A;
+}
+
+.dashboard-performance-chart .axis-label {
+    -fx-text-fill: #1A1A1A;
+    -fx-font-family: "Roboto";
+    -fx-font-size: 14px;
+}
+
+.dashboard-performance-chart .axis-line,
+.dashboard-performance-chart .axis-tick-mark,
+.dashboard-performance-chart .axis-minor-tick-mark {
+    -fx-stroke: #8C8C8C;
+}
+
+.dashboard-performance-chart .chart-horizontal-grid-lines,
+.dashboard-performance-chart .chart-vertical-grid-lines {
+    -fx-stroke: #E0E0E0;
+}
+
 /* Stock card */
 
 .stock-card {
@@ -194,6 +224,23 @@
     -fx-font-family: "Roboto";
     -fx-font-size: 14px;
     -fx-text-fill: #1A1A1A;
+}
+
+.quantity-input {
+    -fx-font-family: "Roboto";
+    -fx-font-size: 14px;
+    -fx-text-fill: #1A1A1A;
+    -fx-background-color: #F2F2F2;
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+    -fx-border-radius: 8;
+    -fx-padding: 6 10 6 10;
+    -fx-alignment: center-right;
+}
+
+.quantity-input:focused {
+    -fx-border-color: #1976D2;
+    -fx-border-width: 1.2;
 }
 
 /* Spinner */

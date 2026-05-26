@@ -20,10 +20,25 @@ public class SideNav {
    * Pages reachable from the side navigation.
    */
   public enum Destination {
+    /**
+     * Opens the dashboard page.
+     */
     DASHBOARD("Dashboard"),
+    /**
+     * Opens the market page.
+     */
     MARKET("Market"),
+    /**
+     * Opens the portfolio page.
+     */
     PORTFOLIO("Portfolio"),
+    /**
+     * Opens the transaction-history page.
+     */
     TRANSACTIONS("Transactions"),
+    /**
+     * Opens the weekly-statistics page.
+     */
     WEEKLY_STATISTICS("Weekly Statistics");
 
     private final String label;
@@ -45,7 +60,8 @@ public class SideNav {
   private final VBox root;
   private final Map<Destination, Button> buttons;
 
-  private Consumer<Destination> onNavigate = destination -> { };
+  private Consumer<Destination> onNavigate = destination -> {
+  };
   private Destination activeDestination;
 
   /**
@@ -81,7 +97,7 @@ public class SideNav {
   /**
    * Registers the callback to invoke when the user clicks a navigation button.
    *
-   * @param onNavigate the callback to invoke. Must not be {@code null}
+   * @param onNavigate the callback to invoke; must not be {@code null}
    */
   public void setOnNavigate(Consumer<Destination> onNavigate) {
     this.onNavigate = Objects.requireNonNull(onNavigate, "onNavigate cannot be null");
@@ -91,7 +107,7 @@ public class SideNav {
    * Marks the given destination as the active one and removes the active
    * styling from all other buttons.
    *
-   * @param destination the destination to mark active. Must not be {@code null}
+   * @param destination the destination to mark active; must not be {@code null}
    */
   public void setActive(Destination destination) {
     Objects.requireNonNull(destination, "destination cannot be null");

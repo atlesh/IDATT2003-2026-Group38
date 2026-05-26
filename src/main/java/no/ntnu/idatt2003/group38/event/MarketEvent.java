@@ -19,7 +19,7 @@ public interface MarketEvent {
   /**
    * Applies the event to the given stock and returns the new price.
    *
-   * @param stock the affected stock. Must not be {@code null}
+   * @param stock        the affected stock. Must not be {@code null}
    * @param currentPrice the stock's current sales price. Must not be {@code null}
    * @return the new price after the event has been applied
    */

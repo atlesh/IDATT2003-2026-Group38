@@ -22,11 +22,17 @@ public class ScandalEvent implements MarketEvent {
     this.random = Objects.requireNonNull(random, "random cannot be null");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String getHeadline() {
     return "Scandal has seen it drop heavily";
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public BigDecimal apply(Stock stock, BigDecimal currentPrice) {
     Objects.requireNonNull(stock, "stock cannot be null");

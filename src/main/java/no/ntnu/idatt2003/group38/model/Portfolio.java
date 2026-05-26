@@ -1,11 +1,10 @@
 package no.ntnu.idatt2003.group38.model;
 
-import no.ntnu.idatt2003.group38.calculator.SaleCalculator;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import no.ntnu.idatt2003.group38.calculator.SaleCalculator;
 
 /**
  * Class represents a portfolio of all the shares a user owns.
@@ -52,10 +51,10 @@ public class Portfolio {
   /**
    * Returns all shares currently in the portfolio.
    *
-   * @return a list of all shares in the portfolio
+   * @return an unmodifiable snapshot of all shares in the portfolio
    */
   public List<Share> getShares() {
-    return this.shares;
+    return List.copyOf(this.shares);
   }
 
   /**
@@ -63,7 +62,7 @@ public class Portfolio {
    *
    * @param symbol the stock symbol to filter by
    * @return a list of all shares whose stock matches the given symbol
-   * @throws NullPointerException if {@code symbol} is {@code null}
+   * @throws NullPointerException     if {@code symbol} is {@code null}
    * @throws IllegalArgumentException if {@code symbol} is empty
    */
   public List<Share> getShares(String symbol) {

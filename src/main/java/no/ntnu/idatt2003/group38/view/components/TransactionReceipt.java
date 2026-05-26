@@ -24,7 +24,8 @@ import no.ntnu.idatt2003.group38.transaction.Transaction;
 public class TransactionReceipt {
 
   private final VBox root;
-  private Runnable onClose = () -> { };
+  private Runnable onClose = () -> {
+  };
 
   /**
    * Builds a receipt for the completed transaction.
@@ -77,13 +78,13 @@ public class TransactionReceipt {
    * Builds a receipt from manually computed totals.
    *
    * @param actionWord the verb to use in the summary line, e.g. {@code "Bought"} or {@code "Sold"}
-   * @param symbol the stock symbol involved
-   * @param quantity the total quantity transacted
-   * @param unitPrice the per-share price to show in the summary line
-   * @param gross the total gross value across all underlying transactions
+   * @param symbol     the stock symbol involved
+   * @param quantity   the total quantity transacted
+   * @param unitPrice  the per-share price to show in the summary line
+   * @param gross      the total gross value across all underlying transactions
    * @param commission the total commission across all underlying transactions
-   * @param tax the total tax across all underlying transactions
-   * @param total the total net value across all underlying transactions
+   * @param tax        the total tax across all underlying transactions
+   * @param total      the total net value across all underlying transactions
    */
   public TransactionReceipt(
       String actionWord,

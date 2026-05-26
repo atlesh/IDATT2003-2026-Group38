@@ -15,14 +15,14 @@ import javafx.scene.layout.VBox;
  * The start view of the Millions application.
  *
  * <p>Lets the user choose a username, enter a starting capital and pick a
- * stock data file before starting a new game.
+ * stock data file before starting a new game.</p>
  *
- * <p>All visual styling is delegated to {@code stylesheets/start-view.css}
+ * <p>All visual styling is delegated to {@code stylesheets/start-view.css}.</p>
  *
  * <p>The view does not perform any input validation or business logic.
  * The controller is responsible for reading values via {@link #getUsername()},
  * {@link #getStartingCapital()} and {@link #getStockFile()}, validating them,
- * and reporting problems through {@link #showError(String)}.
+ * and reporting problems through {@link #showError(String)}.</p>
  */
 public class StartView {
 
@@ -45,14 +45,6 @@ public class StartView {
   public StartView() {
     Label title = new Label("MILLIONS");
     title.getStyleClass().add("start-view-title");
-
-    this.usernameField = new TextField();
-    this.usernameField.setPromptText("Username");
-    VBox usernameGroup = buildField("Choose Username", this.usernameField);
-
-    this.capitalField = new TextField();
-    this.capitalField.setPromptText("0.0");
-    VBox capitalGroup = buildField("Starting Capital", this.capitalField);
 
     this.fileField = new TextField();
     this.fileField.setEditable(false);
@@ -80,6 +72,12 @@ public class StartView {
     this.errorLabel.setVisible(false);
     this.errorLabel.setManaged(false);
 
+    this.usernameField = new TextField();
+    this.usernameField.setPromptText("Username");
+    this.capitalField = new TextField();
+    this.capitalField.setPromptText("0.0");
+    VBox capitalGroup = buildField("Starting Capital", this.capitalField);
+    VBox usernameGroup = buildField("Choose Username", this.usernameField);
     VBox form = new VBox(18, usernameGroup, capitalGroup, fileGroup);
     form.setAlignment(Pos.CENTER);
 
@@ -90,17 +88,19 @@ public class StartView {
 
   /**
    * Returns the root node so the application can attach it to a {@link Scene}.
+   *
+   * @return the root layout of the start view
    */
   public VBox getRoot() {
     return this.root;
   }
 
   /**
-   * Convenience method that attaches this view's stylesheet to the given scene.
+   * Attaches this view's stylesheet to the given scene.
    *
-   * @param scene the scene to attach the stylesheet to. Must not be {@code null}
+   * @param scene the scene to attach the stylesheet to; must not be {@code null}
    * @throws NullPointerException if {@code scene} is {@code null} or if the
-   * stylesheet resource cannot be found on the classpath
+   *                              stylesheet resource cannot be found on the classpath
    */
   public void attachTo(Scene scene) {
     Objects.requireNonNull(scene, "scene cannot be null");
@@ -131,7 +131,7 @@ public class StartView {
   /**
    * Registers the action to run when the user clicks the "Start Game" button.
    *
-   * @param action the action to execute. Must not be {@code null}
+   * @param action the action to execute
    */
   public void setOnStartGame(Runnable action) {
     this.startGameButton.setOnAction(e -> action.run());
@@ -143,7 +143,7 @@ public class StartView {
    * <p>The action is typically responsible for opening a {@code FileChooser}
    * and then calling {@link #setSelectedFile(File)} with the chosen file.
    *
-   * @param action the action to execute. Must not be {@code null}
+   * @param action the action to execute
    */
   public void setOnPickFile(Runnable action) {
     this.pickFileButton.setOnAction(e -> action.run());

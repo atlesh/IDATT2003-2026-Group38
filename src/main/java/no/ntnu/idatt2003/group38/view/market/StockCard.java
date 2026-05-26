@@ -5,13 +5,15 @@ import java.math.RoundingMode;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.control.Spinner;
 import no.ntnu.idatt2003.group38.calculator.PurchaseCalculator;
 import no.ntnu.idatt2003.group38.model.Share;
 import no.ntnu.idatt2003.group38.model.Stock;
@@ -21,10 +23,12 @@ import no.ntnu.idatt2003.group38.view.components.PriceSparkline;
  * The selected stock card on the Market page.
  *
  * <p>Shows information about the currently selected {@link Stock} and a Buy
- * button that lets the user purchase a share. When no stock is selected the
+ * button that lets the user purchase shares. When no stock is selected the
  * card shows an empty-state message instead.
  */
 public class StockCard {
+
+  private static final Pattern QUANTITY_PATTERN = Pattern.compile("\\d*(\\.\\d*)?");
 
   private final VBox root;
   private final Label symbolLabel;
@@ -35,7 +39,8 @@ public class StockCard {
   private final Label highLabel;
   private final Label lowLabel;
   private final PriceSparkline sparkline;
-  private final Spinner<Integer> quantitySpinner;
+  private final Label quantityHeadingLabel;
+  private final TextField quantityField;
   private final Label grossLabel;
   private final Label commissionLabel;
   private final Label taxLabel;
@@ -45,8 +50,10 @@ public class StockCard {
   private final HBox actionRow;
 
   private Stock currentStock;
-  private BiConsumer<Stock, Integer> onBuy = (stock, qty) -> { };
-  private Consumer<Stock> onAnalyze = stock -> { };
+  private BiConsumer<Stock, BigDecimal> onBuy = (stock, qty) -> {
+  };
+  private Consumer<Stock> onAnalyze = stock -> {
+  };
 
   /**
    * Builds an empty stock card.
@@ -75,15 +82,16 @@ public class StockCard {
 
     this.sparkline = new PriceSparkline();
 
-    Label quantityHeading = new Label("Quantity");
-    quantityHeading.getStyleClass().add("stock-card-line");
+    this.quantityHeadingLabel = new Label("Quantity");
+    this.quantityHeadingLabel.getStyleClass().add("stock-card-line");
 
-    this.quantitySpinner = new Spinner<>(1, 10_000, 1);
-    this.quantitySpinner.setEditable(true);
-    this.quantitySpinner.getStyleClass().add("stock-card-spinner");
-    this.quantitySpinner.valueProperty().addListener(
-        (obs, oldV, newV) -> {
+    this.quantityField = new TextField("1");
+    this.quantityField.getStyleClass().add("quantity-input");
+    this.quantityField.setTextFormatter(new TextFormatter<>(change ->
+        QUANTITY_PATTERN.matcher(change.getControlNewText()).matches() ? change : null));
+    this.quantityField.textProperty().addListener((obs, oldV, newV) -> {
       updateCost();
+      updateBuyButtonState();
       clearError();
     });
 
@@ -99,8 +107,9 @@ public class StockCard {
     this.buyButton = new Button("Buy");
     this.buyButton.getStyleClass().add("buy-button");
     this.buyButton.setOnAction(e -> {
-      if (this.currentStock != null) {
-        this.onBuy.accept(this.currentStock, this.quantitySpinner.getValue());
+      BigDecimal quantity = parseQuantity();
+      if (this.currentStock != null && quantity != null) {
+        this.onBuy.accept(this.currentStock, quantity);
       }
     });
 
@@ -127,8 +136,8 @@ public class StockCard {
         this.highLabel,
         this.lowLabel,
         this.sparkline.getRoot(),
-        quantityHeading,
-        this.quantitySpinner,
+        this.quantityHeadingLabel,
+        this.quantityField,
         this.grossLabel,
         this.commissionLabel,
         this.taxLabel,
@@ -157,20 +166,19 @@ public class StockCard {
    */
   public void show(Stock stock) {
     this.currentStock = stock;
-
-    BigDecimal pct = stock.getLatestPriceChangePercent();
-
     this.symbolLabel.setText(stock.getSymbol());
     this.companyLabel.setText(stock.getCompany());
     this.priceLabel.setText("Price: " + formatPrice(stock.getSalesPrice()));
+    BigDecimal pct = stock.getLatestPriceChangePercent();
     this.changeLabel.setText("Change: " + formatChange(pct));
     this.highLabel.setText("High: " + formatPrice(stock.getHighestPrice()));
     this.lowLabel.setText("Low: " + formatPrice(stock.getLowestPrice()));
     this.sparkline.setPrices(stock.getHistoricalPrices());
     applyChangeColor(pct);
 
-    this.quantitySpinner.getValueFactory().setValue(1);
+    this.quantityField.setText("1");
     updateCost();
+    updateBuyButtonState();
 
     setDetailsVisible(true);
 
@@ -183,7 +191,11 @@ public class StockCard {
   public void clear() {
     this.currentStock = null;
     this.symbolLabel.setText("No stock selected");
+    this.quantityField.setText("1");
     setDetailsVisible(false);
+    updateCost();
+    updateBuyButtonState();
+    clearError();
   }
 
   /**
@@ -192,7 +204,7 @@ public class StockCard {
    * @param onBuy the action to invoke with the currently selected stock;
    *              must not be {@code null}
    */
-  public void setOnBuy(BiConsumer<Stock, Integer> onBuy) {
+  public void setOnBuy(BiConsumer<Stock, BigDecimal> onBuy) {
     this.onBuy = Objects.requireNonNull(onBuy, "onBuy cannot be null");
   }
 
@@ -213,8 +225,8 @@ public class StockCard {
         this.companyLabel, this.priceLabel, this.changeLabel,
         this.highLabel, this.lowLabel,
         this.sparkline.getRoot(),
-        this.quantitySpinner, this.grossLabel, this.commissionLabel,
-        this.taxLabel, this.totalLabel, this.actionRow }) {
+        this.quantityHeadingLabel, this.quantityField, this.grossLabel, this.commissionLabel,
+        this.taxLabel, this.totalLabel, this.actionRow}) {
       node.setVisible(visible);
       node.setManaged(visible);
     }
@@ -222,13 +234,16 @@ public class StockCard {
 
   private void updateCost() {
     if (this.currentStock == null) {
-      this.grossLabel.setText("");
-      this.commissionLabel.setText("");
-      this.taxLabel.setText("");
-      this.totalLabel.setText("");
+      setPreviewPlaceholder("");
       return;
     }
-    BigDecimal quantity = BigDecimal.valueOf(this.quantitySpinner.getValue());
+
+    BigDecimal quantity = parseQuantity();
+    if (quantity == null) {
+      setPreviewPlaceholder("-");
+      return;
+    }
+
     Share preview = new Share(this.currentStock, quantity, this.currentStock.getSalesPrice());
     PurchaseCalculator calc = new PurchaseCalculator(preview);
 
@@ -236,6 +251,36 @@ public class StockCard {
     this.commissionLabel.setText("Commission: " + formatAmount(calc.calculateCommission()));
     this.taxLabel.setText("Tax: " + formatAmount(calc.calculateTax()));
     this.totalLabel.setText("Total: " + formatAmount(calc.calculateTotal()));
+  }
+
+  private BigDecimal parseQuantity() {
+    String raw = this.quantityField.getText();
+    if (raw == null) {
+      return null;
+    }
+
+    String trimmed = raw.trim();
+    if (trimmed.isEmpty() || ".".equals(trimmed)) {
+      return null;
+    }
+
+    try {
+      BigDecimal quantity = new BigDecimal(trimmed);
+      return quantity.compareTo(BigDecimal.ZERO) > 0 ? quantity : null;
+    } catch (NumberFormatException e) {
+      return null;
+    }
+  }
+
+  private void setPreviewPlaceholder(String value) {
+    this.grossLabel.setText(value.isEmpty() ? "" : "Gross: " + value);
+    this.commissionLabel.setText(value.isEmpty() ? "" : "Commission: " + value);
+    this.taxLabel.setText(value.isEmpty() ? "" : "Tax: " + value);
+    this.totalLabel.setText(value.isEmpty() ? "" : "Total: " + value);
+  }
+
+  private void updateBuyButtonState() {
+    this.buyButton.setDisable(this.currentStock == null || parseQuantity() == null);
   }
 
   // Formatting
@@ -262,12 +307,20 @@ public class StockCard {
     }
   }
 
+  /**
+   * Shows an error message below the action buttons.
+   *
+   * @param message the message to display
+   */
   public void showError(String message) {
     this.errorLabel.setText(message);
     this.errorLabel.setVisible(true);
     this.errorLabel.setManaged(true);
   }
 
+  /**
+   * Clears any currently visible error message.
+   */
   public void clearError() {
     this.errorLabel.setText("");
     this.errorLabel.setVisible(false);

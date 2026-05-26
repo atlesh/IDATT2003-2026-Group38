@@ -1,10 +1,8 @@
 package no.ntnu.idatt2003.group38.filehandling;
 
-import java.util.Objects;
-import no.ntnu.idatt2003.group38.model.Stock;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -14,8 +12,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Objects;
+import no.ntnu.idatt2003.group38.model.Stock;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Unit tests for {@link CsvStockReader}.
@@ -119,7 +120,7 @@ class CsvStockReaderTest {
   }
 
   @Test
-  void skipsMalformedLines(@TempDir Path dir) throws IOException {
+  void malformedLine_throwsException(@TempDir Path dir) throws IOException {
     Path file = dir.resolve("mixed.csv");
     Files.writeString(file,
         """
@@ -129,11 +130,9 @@ class CsvStockReaderTest {
             """,
         StandardCharsets.UTF_8);
 
-    List<Stock> stocks = reader.readStocks(file);
-
-    assertEquals(2, stocks.size());
-    assertEquals("AAPL", stocks.get(0).getSymbol());
-    assertEquals("GOOG", stocks.get(1).getSymbol());
+    InvalidStockDataException exception =
+        assertThrows(InvalidStockDataException.class, () -> reader.readStocks(file));
+    assertTrue(exception.getMessage().contains("line 2"));
   }
 
   @Test
@@ -162,62 +161,65 @@ class CsvStockReaderTest {
   }
 
   @Test
-  void negativePrice_isSkipped(@TempDir Path dir) throws IOException {
+  void negativePrice_throwsException(@TempDir Path dir) throws IOException {
     Path file = dir.resolve("negative.csv");
     Files.writeString(file, "BAD,BadCorp,-10.00\n", StandardCharsets.UTF_8);
 
-    List<Stock> stocks = reader.readStocks(file);
-
-    assertTrue(stocks.isEmpty());
+    assertThrows(InvalidStockDataException.class, () -> reader.readStocks(file));
   }
 
   @Test
-  void zeroPrice_isSkipped(@TempDir Path dir) throws IOException {
+  void zeroPrice_throwsException(@TempDir Path dir) throws IOException {
     Path file = dir.resolve("zero.csv");
     Files.writeString(file, "ZER,ZeroCorp,0.00\n", StandardCharsets.UTF_8);
 
-    List<Stock> stocks = reader.readStocks(file);
-
-    assertTrue(stocks.isEmpty());
+    assertThrows(InvalidStockDataException.class, () -> reader.readStocks(file));
   }
 
   @Test
-  void nonNumericPrice_isSkipped(@TempDir Path dir) throws IOException {
+  void nonNumericPrice_throwsException(@TempDir Path dir) throws IOException {
     Path file = dir.resolve("nan.csv");
     Files.writeString(file, "BAD,BadCorp,abc\n", StandardCharsets.UTF_8);
 
-    List<Stock> stocks = reader.readStocks(file);
-
-    assertTrue(stocks.isEmpty());
+    assertThrows(InvalidStockDataException.class, () -> reader.readStocks(file));
   }
 
   @Test
-  void tooFewFields_isSkipped(@TempDir Path dir) throws IOException {
+  void tooFewFields_throwsException(@TempDir Path dir) throws IOException {
     Path file = dir.resolve("toofew.csv");
     Files.writeString(file, "AAPL,Apple Inc.\n", StandardCharsets.UTF_8);
 
-    List<Stock> stocks = reader.readStocks(file);
-
-    assertTrue(stocks.isEmpty());
+    assertThrows(InvalidStockDataException.class, () -> reader.readStocks(file));
   }
 
   @Test
-  void tooManyFields_isSkipped(@TempDir Path dir) throws IOException {
+  void tooManyFields_throwsException(@TempDir Path dir) throws IOException {
     Path file = dir.resolve("toomany.csv");
     Files.writeString(file, "AAPL,Apple Inc.,150.00,extrafield\n", StandardCharsets.UTF_8);
 
-    List<Stock> stocks = reader.readStocks(file);
-
-    assertTrue(stocks.isEmpty());
+    assertThrows(InvalidStockDataException.class, () -> reader.readStocks(file));
   }
 
   @Test
-  void blankSymbol_isSkipped(@TempDir Path dir) throws IOException {
+  void blankSymbol_throwsException(@TempDir Path dir) throws IOException {
     Path file = dir.resolve("blanksym.csv");
     Files.writeString(file, ",Apple Inc.,150.00\n", StandardCharsets.UTF_8);
 
-    List<Stock> stocks = reader.readStocks(file);
+    assertThrows(InvalidStockDataException.class, () -> reader.readStocks(file));
+  }
 
-    assertTrue(stocks.isEmpty());
+  @Test
+  void duplicateSymbol_throwsException(@TempDir Path dir) throws IOException {
+    Path file = dir.resolve("duplicate.csv");
+    Files.writeString(file,
+        """
+            AAPL,Apple Inc.,150.00
+            aapl,Apple Again,151.00
+            """,
+        StandardCharsets.UTF_8);
+
+    InvalidStockDataException exception =
+        assertThrows(InvalidStockDataException.class, () -> reader.readStocks(file));
+    assertTrue(exception.getMessage().contains("Duplicate stock symbol"));
   }
 }

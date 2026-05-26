@@ -24,6 +24,12 @@ import no.ntnu.idatt2003.group38.controller.transaction.TransactionHistoryContro
 import no.ntnu.idatt2003.group38.transaction.Purchase;
 import no.ntnu.idatt2003.group38.transaction.Transaction;
 
+/**
+ * View for the Transaction History page.
+ *
+ * <p>Presents a searchable and filterable list of transactions together with
+ * summary metrics and a detail panel for the currently selected transaction.</p>
+ */
 public class TransactionHistoryView {
 
   private static final String STYLESHEET = "/stylesheets/market.css";
@@ -73,9 +79,12 @@ public class TransactionHistoryView {
   private final Label taxValueLabel;
   private final Label totalValueLabel;
 
-  private Consumer<FilterMode> onFilterSelected = filter -> { };
-  private Consumer<String> onSearch = query -> { };
-  private Consumer<Transaction> onTransaction =  transaction -> { };
+  private Consumer<FilterMode> onFilterSelected = filter -> {
+  };
+  private Consumer<String> onSearch = query -> {
+  };
+  private Consumer<Transaction> onTransaction = transaction -> {
+  };
 
   private FilterMode activeFilter = FilterMode.ALL;
   private List<Transaction> currentTransactions = List.of();
@@ -83,6 +92,9 @@ public class TransactionHistoryView {
 
   private final DecimalFormat moneyFormat;
 
+  /**
+   * Builds the transaction-history view with empty summary values and no selected transaction.
+   */
   public TransactionHistoryView() {
     DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
     symbols.setGroupingSeparator(' ');
@@ -106,7 +118,8 @@ public class TransactionHistoryView {
     searchField.setPromptText("Search transactions...");
     searchField.getStyleClass().add("market-search");
     searchField.setMaxWidth(220);
-    searchField.textProperty().addListener((obs,  oldValue, newValue) -> this.onSearch.accept(newValue));
+    searchField.textProperty()
+        .addListener((obs, oldValue, newValue) -> this.onSearch.accept(newValue));
 
     Region toolbarSpacer = new Region();
     HBox.setHgrow(toolbarSpacer, Priority.ALWAYS);
@@ -118,8 +131,6 @@ public class TransactionHistoryView {
     this.rowsContainer.getStyleClass().add("market-rows");
     this.rowsContainer.setFillWidth(true);
 
-    HBox header = buildHeaderRow();
-
     ScrollPane rowsScroll = new ScrollPane(this.rowsContainer);
     rowsScroll.setFitToWidth(true);
     rowsScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -127,7 +138,8 @@ public class TransactionHistoryView {
     rowsScroll.getStyleClass().add("market-scroll");
     VBox.setVgrow(rowsScroll, Priority.ALWAYS);
 
-    VBox listPanel =  new VBox(16, title, toolbar, header, rowsScroll);
+    HBox header = buildHeaderRow();
+    VBox listPanel = new VBox(16, title, toolbar, header, rowsScroll);
     listPanel.getStyleClass().add("market-panel");
     listPanel.setMinWidth(0);
     HBox.setHgrow(listPanel, Priority.ALWAYS);
@@ -204,45 +216,96 @@ public class TransactionHistoryView {
     this.root.getStyleClass().add("page-scroll");
 
     setActiveFilter(FilterMode.ALL);
-    setSummary(0, 0, 0, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+    setSummary(0, 0, 0, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
+        BigDecimal.ZERO);
     showSelectedTransaction(null);
   }
 
+  /**
+   * Returns the root node of this view.
+   *
+   * @return the root region of the transaction-history view
+   */
   public Region getRoot() {
     return this.root;
   }
 
+  /**
+   * Attaches this view's stylesheet to the given scene.
+   *
+   * @param scene the scene to attach the stylesheet to; must not be {@code null}
+   */
   public void attachTo(Scene scene) {
     Objects.requireNonNull(scene, "Scene cannot be null");
-    String css = Objects.requireNonNull(getClass().getResource(STYLESHEET), "Could not find stylesheet at " + STYLESHEET).toExternalForm();
+    String css = Objects.requireNonNull(getClass().getResource(STYLESHEET),
+        "Could not find stylesheet at " + STYLESHEET).toExternalForm();
     if (!scene.getStylesheets().contains(css)) {
       scene.getStylesheets().add(css);
     }
   }
 
+  /**
+   * Registers the callback to invoke when the user selects a transaction filter.
+   *
+   * @param onFilterSelected the callback to invoke; must not be {@code null}
+   */
   public void setOnFilterSelected(Consumer<FilterMode> onFilterSelected) {
-    this.onFilterSelected = Objects.requireNonNull(onFilterSelected, "onFilterSelected cannot be null");
+    this.onFilterSelected =
+        Objects.requireNonNull(onFilterSelected, "onFilterSelected cannot be null");
   }
 
+  /**
+   * Registers the callback to invoke when the user changes the search query.
+   *
+   * @param onSearch the callback to invoke; must not be {@code null}
+   */
   public void setOnSearch(Consumer<String> onSearch) {
     this.onSearch = Objects.requireNonNull(onSearch, "onSearch cannot be null");
   }
 
+  /**
+   * Registers the callback to invoke when the user selects a transaction from the list.
+   *
+   * @param onTransaction the callback to invoke; must not be {@code null}
+   */
   public void setOnTransaction(Consumer<Transaction> onTransaction) {
     this.onTransaction = Objects.requireNonNull(onTransaction, "onTransaction cannot be null");
   }
 
+  /**
+   * Updates which transaction filter is shown as active in the UI.
+   *
+   * @param activeFilter the filter to mark as active; must not be {@code null}
+   */
   public void setActiveFilter(FilterMode activeFilter) {
     this.activeFilter = Objects.requireNonNull(activeFilter, "activeFilter cannot be null");
     updateFilterButtonStyles();
   }
 
+  /**
+   * Replaces the displayed transaction list.
+   *
+   * @param transactions the transactions to display; must not be {@code null}
+   */
   public void setTransactions(List<Transaction> transactions) {
     Objects.requireNonNull(transactions, "transactions cannot be null");
     this.currentTransactions = List.copyOf(transactions);
     renderTransactions();
   }
 
+  /**
+   * Updates the transaction summary panel.
+   *
+   * @param totalTransactions  the number of displayed transactions
+   * @param purchases          the number of displayed purchase transactions
+   * @param sales              the number of displayed sale transactions
+   * @param moneySpent         the total amount spent on displayed purchases, before sign formatting
+   * @param moneyEarned        the total amount earned from displayed sales
+   * @param totalCommission    the total commission across displayed transactions,
+   *                           before sign formatting
+   * @param totalTax           the total tax across displayed transactions, before sign formatting
+   * @param realizedProfitLoss the realized profit or loss across displayed sales
+   */
   public void setSummary(
       int totalTransactions,
       int purchases,
@@ -277,6 +340,11 @@ public class TransactionHistoryView {
     applyChangeColor(this.realizedProfitLossLabel, realizedProfitLoss);
   }
 
+  /**
+   * Updates the detail panel for the selected transaction.
+   *
+   * @param transaction the selected transaction, or {@code null} to clear the detail panel
+   */
   public void showSelectedTransaction(Transaction transaction) {
     this.selectedTransaction = transaction;
     renderTransactions();
@@ -297,22 +365,24 @@ public class TransactionHistoryView {
     }
 
     boolean isPurchase = transaction instanceof Purchase;
-    BigDecimal pricePerShare = calculatePricePerShare(transaction);
-    BigDecimal gross = transaction.getCalculator().calculateGross();
-    BigDecimal commission = transaction.getCalculator().calculateCommission().negate();
-    BigDecimal tax = transaction.getCalculator().calculateTax().negate();
-    BigDecimal total = isPurchase ? transaction.getCalculator().calculateTotal().negate() : transaction.getCalculator().calculateTotal();
 
     this.typeValueLabel.setText("Type: " + (isPurchase ? "Buy" : "Sale"));
     applyChangeColor(this.typeValueLabel, isPurchase ? BigDecimal.ONE.negate() : BigDecimal.ONE);
 
     this.stockValueLabel.setText("Stock: " + transaction.getShare().getStock().getSymbol());
     this.weekValueLabel.setText("Week: " + transaction.getWeek());
-    this.quantityValueLabel.setText("Quantity: " + formatQuantity(transaction.getShare().getQuantity()));
+    BigDecimal pricePerShare = calculatePricePerShare(transaction);
+    this.quantityValueLabel.setText(
+        "Quantity: " + formatQuantity(transaction.getShare().getQuantity()));
     this.priceValueLabel.setText("Price/share: " + formatMoney(pricePerShare));
+    BigDecimal gross = transaction.getCalculator().calculateGross();
     this.grossValueLabel.setText("Gross: " + formatAmount(gross));
+    BigDecimal commission = transaction.getCalculator().calculateCommission().negate();
     this.commissionValueLabel.setText("Commission: " + formatSignedAmount(commission));
+    BigDecimal tax = transaction.getCalculator().calculateTax().negate();
     this.taxValueLabel.setText("Tax: " + formatSignedAmount(tax));
+    BigDecimal total = isPurchase ? transaction.getCalculator().calculateTotal().negate() :
+        transaction.getCalculator().calculateTotal();
     this.totalValueLabel.setText("Total: " + formatSignedAmount(total));
 
     applyChangeColor(this.commissionValueLabel, commission);
@@ -334,6 +404,7 @@ public class TransactionHistoryView {
       case ALL -> this.allFilterButton.setStyle(FILTER_ALL_ACTIVE_STYLE);
       case BUY -> this.buyFilterButton.setStyle(FILTER_BUY_ACTIVE_STYLE);
       case SELL -> this.sellFilterButton.setStyle(FILTER_SELL_ACTIVE_STYLE);
+      default -> throw new IllegalStateException("Unknown filter: " + this.activeFilter);
     }
   }
 
@@ -347,7 +418,7 @@ public class TransactionHistoryView {
       return;
     }
 
-    for  (Transaction transaction : this.currentTransactions) {
+    for (Transaction transaction : this.currentTransactions) {
       this.rowsContainer.getChildren().add(buildTransactionRow(transaction));
     }
   }
@@ -363,7 +434,8 @@ public class TransactionHistoryView {
     Label totalHeader = new Label("Total");
 
     for (Label label : List.of(
-        weekheader, typeHeader, stockHeader, quantityHeader, priceHeader, feesHeader, taxHeader, totalHeader)) {
+        weekheader, typeHeader, stockHeader, quantityHeader, priceHeader, feesHeader, taxHeader,
+        totalHeader)) {
       label.getStyleClass().add("market-column-header");
     }
 
@@ -385,24 +457,26 @@ public class TransactionHistoryView {
   private HBox buildTransactionRow(Transaction transaction) {
     boolean isPurchase = transaction instanceof Purchase;
 
-    BigDecimal pricePerShare = calculatePricePerShare(transaction);
     BigDecimal fees = transaction.getCalculator().calculateCommission().negate();
     BigDecimal tax = transaction.getCalculator().calculateTax().negate();
-    BigDecimal total = isPurchase ? transaction.getCalculator().calculateTotal().negate() : transaction.getCalculator().calculateTotal();
 
-    Label week = new Label(String.valueOf(transaction.getWeek()));
     Label type = new Label(isPurchase ? "Buy" : "Sale");
-    Label stock = new Label(transaction.getShare().getStock().getSymbol());
-    Label quantity = new Label(formatQuantity(transaction.getShare().getQuantity()));
-    Label price = new Label(formatMoney(pricePerShare));
     Label feesLabel = new Label(formatSignedAmount(fees));
     Label taxLabel = new Label(formatSignedAmount(tax));
-    Label totalLabel = new Label(formatSignedAmount(total));
 
     applyChangeColor(type, isPurchase ? BigDecimal.ONE.negate() : BigDecimal.ONE);
     applyChangeColor(feesLabel, fees);
     applyChangeColor(taxLabel, tax);
+    BigDecimal total = isPurchase ? transaction.getCalculator().calculateTotal().negate() :
+        transaction.getCalculator().calculateTotal();
+    Label totalLabel = new Label(formatSignedAmount(total));
     applyChangeColor(totalLabel, total);
+
+    Label week = new Label(String.valueOf(transaction.getWeek()));
+    Label stock = new Label(transaction.getShare().getStock().getSymbol());
+    Label quantity = new Label(formatQuantity(transaction.getShare().getQuantity()));
+    BigDecimal pricePerShare = calculatePricePerShare(transaction);
+    Label price = new Label(formatMoney(pricePerShare));
 
     HBox row = new HBox(
         cell(week, 55),
@@ -465,12 +539,12 @@ public class TransactionHistoryView {
         this.taxValueLabel,
         this.totalValueLabel
     )) {
-      label.getStyleClass().removeAll("change-positive",  "change-negative");
+      label.getStyleClass().removeAll("change-positive", "change-negative");
     }
   }
 
   private void applyChangeColor(Label label, BigDecimal value) {
-    label.getStyleClass().removeAll("change-positive",  "change-negative");
+    label.getStyleClass().removeAll("change-positive", "change-negative");
     if (value.signum() > 0) {
       label.getStyleClass().add("change-positive");
     } else if (value.signum() < 0) {
@@ -498,10 +572,4 @@ public class TransactionHistoryView {
     return formatAmount(value);
   }
 
-  private String formatSignedMoney(BigDecimal value) {
-    if (value.signum() > 0) {
-      return "+" + formatMoney(value);
-    }
-    return formatMoney(value);
-  }
 }

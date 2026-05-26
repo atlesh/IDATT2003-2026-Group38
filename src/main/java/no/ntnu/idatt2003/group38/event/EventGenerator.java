@@ -15,6 +15,9 @@ import java.util.function.Function;
  */
 public class EventGenerator {
 
+  /**
+   * Default probability that a market event fires for a stock in a given week.
+   */
   public static final double DEFAULT_EVENT_CHANCE = 0.01;
 
   private final Random random;
@@ -26,7 +29,7 @@ public class EventGenerator {
    * per stock per week, and the default event catalogue
    * ({@link EarningsBeatEvent} and {@link ScandalEvent}).
    *
-   * @param random the source of randomness. Must not be {@code null}
+   * @param random the source of randomness; must not be {@code null}
    */
   public EventGenerator(Random random) {
     this(random, DEFAULT_EVENT_CHANCE, List.of(
@@ -38,12 +41,12 @@ public class EventGenerator {
   /**
    * Creates a generator with a custom firing chance and event catalogue.
    *
-   * @param random the source of randomness.
-   * @param eventChance the chance of an event firing per call, in {@code [0.0, 1.0]}
+   * @param random         the source of randomness; must not be {@code null}
+   * @param eventChance    the chance of an event firing per call, in {@code [0.0, 1.0]}
    * @param eventFactories factories for each event type the generator may pick from.
-   * @throws NullPointerException if any argument is {@code null}
+   * @throws NullPointerException     if any argument is {@code null}
    * @throws IllegalArgumentException if {@code eventChance} is outside
-   *     {@code [0.0, 1.0]} or {@code eventFactories} is empty
+   *                                  {@code [0.0, 1.0]} or {@code eventFactories} is empty
    */
   public EventGenerator(
       Random random,

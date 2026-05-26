@@ -14,11 +14,11 @@ public class Share {
   /**
    * Creates a new share.
    *
-   * @param stock the stock that was bought; must not be {@code null}
-   * @param quantity the quantity bought; must be greater than 0
+   * @param stock         the stock that was bought; must not be {@code null}
+   * @param quantity      the quantity bought; must be greater than 0
    * @param purchasePrice the purchase price per unit; must not be {@code null} or negative
-   * @throws NullPointerException if {@code stock}, {@code quantity},
-   *                              or {@code purchasePrice} is {@code null}
+   * @throws NullPointerException     if {@code stock}, {@code quantity},
+   *                                  or {@code purchasePrice} is {@code null}
    * @throws IllegalArgumentException if {@code quantity} is less than or equal to 0,
    *                                  or if {@code purchasePrice} is negative
    */
@@ -37,7 +37,7 @@ public class Share {
   }
 
   /**
-   * Returns the stock associated with this share
+   * Returns the stock associated with this share.
    *
    * @return the stock
    */
@@ -46,7 +46,7 @@ public class Share {
   }
 
   /**
-   * Returns the quantity of the share
+   * Returns the quantity of the share.
    *
    * @return the quantity bought
    */
@@ -55,7 +55,7 @@ public class Share {
   }
 
   /**
-   * Returns the purchase price per unit
+   * Returns the purchase price per unit.
    *
    * @return the purchase price
    */

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -34,10 +35,14 @@ public class StockMarketView {
 
   private String selectedSymbol;
 
-  private Consumer<String> onSearch = query -> { };
-  private Consumer<Stock> onStockSelected = stock -> { };
-  private Consumer<Stock> onAnalyze = stock -> { };
-  private java.util.function.BiConsumer<Stock, Integer> onBuy = (stock, qty) -> { };
+  private Consumer<String> onSearch = query -> {
+  };
+  private Consumer<Stock> onStockSelected = stock -> {
+  };
+  private Consumer<Stock> onAnalyze = stock -> {
+  };
+  private BiConsumer<Stock, BigDecimal> onBuy = (stock, qty) -> {
+  };
 
   /**
    * Builds the market view with an empty stock list and an empty stock card.
@@ -56,8 +61,6 @@ public class StockMarketView {
     this.rowsContainer = new VBox(8);
     this.rowsContainer.getStyleClass().add("market-rows");
 
-    HBox header = buildHeaderRow();
-
     ScrollPane rowsScroll = new ScrollPane(this.rowsContainer);
     rowsScroll.setFitToWidth(true);
     rowsScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -65,6 +68,7 @@ public class StockMarketView {
     rowsScroll.getStyleClass().add("market-scroll");
     VBox.setVgrow(rowsScroll, Priority.ALWAYS);
 
+    HBox header = buildHeaderRow();
     VBox listPanel = new VBox(16, title, searchField, header, rowsScroll);
     listPanel.getStyleClass().add("market-panel");
     listPanel.setMinWidth(0);
@@ -98,7 +102,7 @@ public class StockMarketView {
   /**
    * Replaces the rows in the table with one row per stock.
    *
-   * @param stocks the stocks to display. Must not be {@code null}
+   * @param stocks the stocks to display; must not be {@code null}
    */
   public void setStocks(List<Stock> stocks) {
     Objects.requireNonNull(stocks, "stocks cannot be null");
@@ -108,6 +112,11 @@ public class StockMarketView {
     }
   }
 
+  /**
+   * Stores the symbol that should be rendered as selected in the stock list.
+   *
+   * @param selectedSymbol the selected stock symbol, or {@code null} if no stock is selected
+   */
   public void setSelectedSymbol(String selectedSymbol) {
     this.selectedSymbol = selectedSymbol;
   }
@@ -138,7 +147,7 @@ public class StockMarketView {
   /**
    * Registers the callback to invoke when the user clicks a stock row.
    *
-   * @param onStockSelected the callback. Must not be {@code null}
+   * @param onStockSelected the callback; must not be {@code null}
    */
   public void setOnStockSelected(Consumer<Stock> onStockSelected) {
     this.onStockSelected = Objects.requireNonNull(
@@ -149,7 +158,7 @@ public class StockMarketView {
    * Registers the callback to invoke when the user clicks Analyze on the
    * right-hand stock card.
    *
-   * @param onAnalyze the callback. Must not be {@code null}
+   * @param onAnalyze the callback; must not be {@code null}
    */
   public void setOnAnalyze(Consumer<Stock> onAnalyze) {
     this.onAnalyze = Objects.requireNonNull(onAnalyze, "onAnalyze cannot be null");
@@ -159,9 +168,9 @@ public class StockMarketView {
    * Registers the callback to invoke when the user clicks Buy on any row or
    * on the right-hand stock card.
    *
-   * @param onBuy the callback. Must not be {@code null}
+   * @param onBuy the callback; must not be {@code null}
    */
-  public void setOnBuy(java.util.function.BiConsumer<Stock, Integer> onBuy) {
+  public void setOnBuy(BiConsumer<Stock, BigDecimal> onBuy) {
     this.onBuy = Objects.requireNonNull(onBuy, "onBuy cannot be null");
   }
 
@@ -238,6 +247,12 @@ public class StockMarketView {
   }
 
   // Stylesheet
+
+  /**
+   * Attaches this view's stylesheet to the given scene.
+   *
+   * @param scene the scene to attach the stylesheet to; must not be {@code null}
+   */
   public void attachTo(Scene scene) {
     Objects.requireNonNull(scene, "scene cannot be null");
     String css = Objects.requireNonNull(
@@ -248,6 +263,11 @@ public class StockMarketView {
     }
   }
 
+  /**
+   * Shows a buy-related validation or transaction error in the stock card.
+   *
+   * @param message the message to display
+   */
   public void showBuyError(String message) {
     this.stockCard.showError(message);
   }

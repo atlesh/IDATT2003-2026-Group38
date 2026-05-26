@@ -1,9 +1,11 @@
 package no.ntnu.idatt2003.group38.model;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.math.BigDecimal;
 import java.util.List;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link Stock}.
