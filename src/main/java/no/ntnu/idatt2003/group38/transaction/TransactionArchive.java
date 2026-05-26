@@ -45,10 +45,10 @@ public class TransactionArchive {
   /**
    * Returns all transactions in the archive.
    *
-   * @return a list of all transactions in the archive
+   * @return an unmodifiable snapshot of all transactions in the archive
    */
   public List<Transaction> getTransactions() {
-    return this.transactions;
+    return List.copyOf(this.transactions);
   }
 
   /**

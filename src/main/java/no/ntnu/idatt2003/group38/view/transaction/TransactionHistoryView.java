@@ -24,6 +24,12 @@ import no.ntnu.idatt2003.group38.controller.transaction.TransactionHistoryContro
 import no.ntnu.idatt2003.group38.transaction.Purchase;
 import no.ntnu.idatt2003.group38.transaction.Transaction;
 
+/**
+ * View for the Transaction History page.
+ *
+ * <p>Presents a searchable and filterable list of transactions together with
+ * summary metrics and a detail panel for the currently selected transaction.</p>
+ */
 public class TransactionHistoryView {
 
   private static final String STYLESHEET = "/stylesheets/market.css";
@@ -83,6 +89,9 @@ public class TransactionHistoryView {
 
   private final DecimalFormat moneyFormat;
 
+  /**
+   * Builds the transaction-history view with empty summary values and no selected transaction.
+   */
   public TransactionHistoryView() {
     DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
     symbols.setGroupingSeparator(' ');
@@ -208,10 +217,20 @@ public class TransactionHistoryView {
     showSelectedTransaction(null);
   }
 
+  /**
+   * Returns the root node of this view.
+   *
+   * @return the root region of the transaction-history view
+   */
   public Region getRoot() {
     return this.root;
   }
 
+  /**
+   * Attaches this view's stylesheet to the given scene.
+   *
+   * @param scene the scene to attach the stylesheet to; must not be {@code null}
+   */
   public void attachTo(Scene scene) {
     Objects.requireNonNull(scene, "Scene cannot be null");
     String css = Objects.requireNonNull(getClass().getResource(STYLESHEET), "Could not find stylesheet at " + STYLESHEET).toExternalForm();
@@ -220,29 +239,66 @@ public class TransactionHistoryView {
     }
   }
 
+  /**
+   * Registers the callback to invoke when the user selects a transaction filter.
+   *
+   * @param onFilterSelected the callback to invoke; must not be {@code null}
+   */
   public void setOnFilterSelected(Consumer<FilterMode> onFilterSelected) {
     this.onFilterSelected = Objects.requireNonNull(onFilterSelected, "onFilterSelected cannot be null");
   }
 
+  /**
+   * Registers the callback to invoke when the user changes the search query.
+   *
+   * @param onSearch the callback to invoke; must not be {@code null}
+   */
   public void setOnSearch(Consumer<String> onSearch) {
     this.onSearch = Objects.requireNonNull(onSearch, "onSearch cannot be null");
   }
 
+  /**
+   * Registers the callback to invoke when the user selects a transaction from the list.
+   *
+   * @param onTransaction the callback to invoke; must not be {@code null}
+   */
   public void setOnTransaction(Consumer<Transaction> onTransaction) {
     this.onTransaction = Objects.requireNonNull(onTransaction, "onTransaction cannot be null");
   }
 
+  /**
+   * Updates which transaction filter is shown as active in the UI.
+   *
+   * @param activeFilter the filter to mark as active; must not be {@code null}
+   */
   public void setActiveFilter(FilterMode activeFilter) {
     this.activeFilter = Objects.requireNonNull(activeFilter, "activeFilter cannot be null");
     updateFilterButtonStyles();
   }
 
+  /**
+   * Replaces the displayed transaction list.
+   *
+   * @param transactions the transactions to display; must not be {@code null}
+   */
   public void setTransactions(List<Transaction> transactions) {
     Objects.requireNonNull(transactions, "transactions cannot be null");
     this.currentTransactions = List.copyOf(transactions);
     renderTransactions();
   }
 
+  /**
+   * Updates the transaction summary panel.
+   *
+   * @param totalTransactions the number of displayed transactions
+   * @param purchases the number of displayed purchase transactions
+   * @param sales the number of displayed sale transactions
+   * @param moneySpent the total amount spent on displayed purchases, before sign formatting
+   * @param moneyEarned the total amount earned from displayed sales
+   * @param totalCommission the total commission across displayed transactions, before sign formatting
+   * @param totalTax the total tax across displayed transactions, before sign formatting
+   * @param realizedProfitLoss the realized profit or loss across displayed sales
+   */
   public void setSummary(
       int totalTransactions,
       int purchases,
@@ -277,6 +333,11 @@ public class TransactionHistoryView {
     applyChangeColor(this.realizedProfitLossLabel, realizedProfitLoss);
   }
 
+  /**
+   * Updates the detail panel for the selected transaction.
+   *
+   * @param transaction the selected transaction, or {@code null} to clear the detail panel
+   */
   public void showSelectedTransaction(Transaction transaction) {
     this.selectedTransaction = transaction;
     renderTransactions();
@@ -498,10 +559,4 @@ public class TransactionHistoryView {
     return formatAmount(value);
   }
 
-  private String formatSignedMoney(BigDecimal value) {
-    if (value.signum() > 0) {
-      return "+" + formatMoney(value);
-    }
-    return formatMoney(value);
-  }
 }

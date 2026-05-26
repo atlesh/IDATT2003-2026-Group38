@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 import no.ntnu.idatt2003.group38.controller.shell.ShellController;
 import no.ntnu.idatt2003.group38.exchange.Exchange;
 import no.ntnu.idatt2003.group38.filehandling.CsvStockReader;
+import no.ntnu.idatt2003.group38.filehandling.InvalidStockDataException;
 import no.ntnu.idatt2003.group38.filehandling.StockFileReader;
 import no.ntnu.idatt2003.group38.model.Player;
 import no.ntnu.idatt2003.group38.model.Stock;
@@ -106,6 +107,9 @@ public class StartController {
     List<Stock> stocks;
     try {
       stocks = this.stockFileReader.readStocks(stockFile.toPath());
+    } catch (InvalidStockDataException e) {
+      this.view.showError("Invalid stock file: " + e.getMessage());
+      return;
     } catch (IOException e) {
       this.view.showError("Could not read stock file: " + e.getMessage());
       return;

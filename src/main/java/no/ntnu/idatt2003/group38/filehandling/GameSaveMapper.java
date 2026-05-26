@@ -57,30 +57,49 @@ public class GameSaveMapper {
     public static LoadedGame fromSave(GameSave save) {
         Objects.requireNonNull(save, "Save cannot be null");
 
-        List<Stock> stocks = restoreStocks(save.stocks());
+        GameSave.SavedPlayer savedPlayer = requireSavedField(
+                save.player(), "Saved game is missing player data");
+        String exchangeName = requireNonBlank(
+                save.exchangeName(), "Saved game is missing exchange name");
+        validateWeek(save.week(), "Saved game has an invalid exchange week");
+
+        List<Stock> stocks = restoreStocks(requireSavedField(
+                save.stocks(), "Saved game is missing stock data"));
         Map<String, Stock> stocksBySymbol = indexStocks(stocks);
 
         List<Share> shares = restoreShares(
-                save.player().portfolio(),
+                requireSavedField(savedPlayer.portfolio(),
+                        "Saved game is missing portfolio data"),
                 stocksBySymbol
         );
 
         List<Transaction> transactions = restoreTransactions(
-                save.player().transactions(),
+                requireSavedField(savedPlayer.transactions(),
+                        "Saved game is missing transaction history"),
                 stocksBySymbol
         );
 
+        List<BigDecimal> netWorthHistory = requireSavedField(
+                savedPlayer.netWorthHistory(),
+                "Saved game is missing net-worth history");
+        if (netWorthHistory.isEmpty()) {
+            throw new InvalidSaveFileException("Saved net-worth history cannot be empty");
+        }
+        validateBigDecimals(netWorthHistory, "Saved net-worth history", false);
+
         Player player = Player.restore(
-                save.player().name(),
-                save.player().startingMoney(),
-                save.player().money(),
+                requireNonBlank(savedPlayer.name(), "Saved game is missing player name"),
+                requirePositive(savedPlayer.startingMoney(),
+                        "Saved game has invalid player starting money"),
+                requireNonNegative(savedPlayer.money(),
+                        "Saved game has invalid player cash balance"),
                 shares,
                 transactions,
-                save.player().netWorthHistory()
+                netWorthHistory
         );
 
         Exchange exchange = Exchange.restore(
-                save.exchangeName(),
+                exchangeName,
                 save.week(),
                 stocks
         );
@@ -157,17 +176,28 @@ public class GameSaveMapper {
         List<Stock> stocks = new ArrayList<>();
 
         for (GameSave.SavedStock savedStock : savedStocks) {
-            Objects.requireNonNull(savedStock, "Saved Stocks cannot be null");
+            requireSavedField(savedStock, "Saved stock entry cannot be null");
 
-            List<BigDecimal> historicalPrices = savedStock.historicalPrices();
+            String stockSymbol = requireSavedField(savedStock.stockSymbol(),
+                    "Saved stock is missing stock symbol");
+            requireNonBlank(stockSymbol,
+                    "Saved stock is missing stock symbol");
+            String company = requireNonBlank(savedStock.company(),
+                    "Saved stock '" + stockSymbol + "' is missing company name");
+            List<BigDecimal> historicalPrices = requireSavedField(
+                    savedStock.historicalPrices(),
+                    "Saved stock '" + stockSymbol + "' is missing historical prices");
 
-            if (historicalPrices == null || historicalPrices.isEmpty()) {
-                throw new IllegalArgumentException("Saved stock must contain at least one historical price");
+            if (historicalPrices.isEmpty()) {
+                throw new InvalidSaveFileException(
+                        "Saved stock '" + stockSymbol + "' must contain at least one historical price");
             }
+            validateBigDecimals(historicalPrices,
+                    "Historical prices for stock '" + stockSymbol + "'", true);
 
             Stock stock = new Stock(
-                    savedStock.stockSymbol(),
-                    savedStock.company(),
+                    stockSymbol,
+                    company,
                     historicalPrices.getFirst()
             );
 
@@ -187,7 +217,11 @@ public class GameSaveMapper {
         Map<String, Stock> stocksBySymbol = new HashMap<>();
 
         for (Stock stock : stocks) {
-            stocksBySymbol.put(stock.getSymbol().toUpperCase(), stock);
+            Stock duplicate = stocksBySymbol.putIfAbsent(stock.getSymbol().toUpperCase(), stock);
+            if (duplicate != null) {
+                throw new InvalidSaveFileException(
+                        "Saved game contains duplicate stock symbol: " + stock.getSymbol());
+            }
         }
 
         return stocksBySymbol;
@@ -229,19 +263,27 @@ public class GameSaveMapper {
             GameSave.SavedShare savedShare,
             Map<String, Stock> stocksBySymbol) {
 
-        Objects.requireNonNull(savedShare, "Saved Share cannot be null");
+        requireSavedField(savedShare, "Saved share entry cannot be null");
         Objects.requireNonNull(stocksBySymbol, "Stocks By Symbol cannot be null");
 
-        Stock stock = stocksBySymbol.get(savedShare.stockSymbol().toUpperCase());
+        String stockSymbol = requireSavedField(savedShare.stockSymbol(),
+                "Saved share is missing stock symbol");
+        requireNonBlank(stockSymbol, "Saved share is missing stock symbol");
+        BigDecimal quantity = requirePositive(savedShare.quantity(),
+                "Saved share for stock '" + stockSymbol + "' has invalid quantity");
+        BigDecimal purchasePrice = requirePositive(savedShare.purchasePrice(),
+                "Saved share for stock '" + stockSymbol + "' has invalid purchase price");
+
+        Stock stock = stocksBySymbol.get(stockSymbol.toUpperCase());
 
         if (stock == null) {
-            throw new IllegalArgumentException("Unknown stock symbol in saved share: " + savedShare.stockSymbol());
+            throw new InvalidSaveFileException("Unknown stock symbol in saved share: " + stockSymbol);
         }
 
         return new Share(
                 stock,
-                savedShare.quantity(),
-                savedShare.purchasePrice()
+                quantity,
+                purchasePrice
         );
     }
 
@@ -249,29 +291,39 @@ public class GameSaveMapper {
             GameSave.SavedTransaction savedTransaction,
             Map<String, Stock> stocksBySymbol) {
 
-        Objects.requireNonNull(savedTransaction, "Saved Transaction cannot be null");
+        requireSavedField(savedTransaction, "Saved transaction entry cannot be null");
         Objects.requireNonNull(stocksBySymbol, "Stocks By Symbol cannot be null");
 
-        Stock stock = stocksBySymbol.get(savedTransaction.stockSymbol().toUpperCase());
+        GameSave.TransactionType type = requireSavedField(savedTransaction.type(),
+                "Saved transaction is missing transaction type");
+        String stockSymbol = requireSavedField(savedTransaction.stockSymbol(),
+                "Saved transaction is missing stock symbol");
+        requireNonBlank(stockSymbol, "Saved transaction is missing stock symbol");
+        BigDecimal quantity = requirePositive(savedTransaction.quantity(),
+                "Saved transaction for stock '" + stockSymbol + "' has invalid quantity");
+        BigDecimal purchasePrice = requirePositive(savedTransaction.purchasePrice(),
+                "Saved transaction for stock '" + stockSymbol + "' has invalid purchase price");
+        validateWeek(savedTransaction.week(),
+                "Saved transaction for stock '" + stockSymbol + "' has an invalid week");
+
+        Stock stock = stocksBySymbol.get(stockSymbol.toUpperCase());
 
         if (stock == null) {
-            throw new IllegalArgumentException("Unknown stock symbol in saved transaction: " + savedTransaction.stockSymbol());
+            throw new InvalidSaveFileException("Unknown stock symbol in saved transaction: " + stockSymbol);
         }
 
         Share share = new Share(
                 stock,
-                savedTransaction.quantity(),
-                savedTransaction.purchasePrice()
+                quantity,
+                purchasePrice
         );
 
-        return switch (savedTransaction.type()) {
+        return switch (type) {
             case PURCHASE -> Purchase.restore(share, savedTransaction.week());
             case SALE -> {
-                if (savedTransaction.salePrice() == null) {
-                    throw new IllegalArgumentException("Saved sale transaction is missing Sale Price");
-                }
-
-                yield Sale.restore(share, savedTransaction.week(), savedTransaction.salePrice());
+                BigDecimal salePrice = requirePositive(savedTransaction.salePrice(),
+                        "Saved sale transaction has invalid sale price");
+                yield Sale.restore(share, savedTransaction.week(), salePrice);
             }
         };
     }
@@ -286,5 +338,54 @@ public class GameSaveMapper {
         }
 
         return transaction.getCalculator().calculateGross().divide(quantity, 10, RoundingMode.HALF_UP);
+    }
+
+    private static void validateBigDecimals(List<BigDecimal> values, String context, boolean requirePositive) {
+        for (int i = 0; i < values.size(); i++) {
+            BigDecimal value = values.get(i);
+            if (value == null) {
+                throw new InvalidSaveFileException(context + " contains null at index " + i);
+            }
+            if (requirePositive && value.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new InvalidSaveFileException(context + " contains a non-positive value at index " + i);
+            }
+        }
+    }
+
+    private static <T> T requireSavedField(T value, String message) {
+        if (value == null) {
+            throw new InvalidSaveFileException(message);
+        }
+        return value;
+    }
+
+    private static String requireNonBlank(String value, String message) {
+        requireSavedField(value, message);
+        if (value.isBlank()) {
+            throw new InvalidSaveFileException(message);
+        }
+        return value;
+    }
+
+    private static BigDecimal requirePositive(BigDecimal value, String message) {
+        requireSavedField(value, message);
+        if (value.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidSaveFileException(message);
+        }
+        return value;
+    }
+
+    private static BigDecimal requireNonNegative(BigDecimal value, String message) {
+        requireSavedField(value, message);
+        if (value.compareTo(BigDecimal.ZERO) < 0) {
+            throw new InvalidSaveFileException(message);
+        }
+        return value;
+    }
+
+    private static void validateWeek(int week, String message) {
+        if (week < 1) {
+            throw new InvalidSaveFileException(message);
+        }
     }
 }

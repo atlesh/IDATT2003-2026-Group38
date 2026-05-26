@@ -35,7 +35,8 @@ public class Purchase extends Transaction {
    * </ul>
    *
    * @param player the player performing the purchase; must not be {@code null}
-   * @throws IllegalStateException    if the transaction is already committed or the player lacks sufficient funds
+   * @throws IllegalStateException    if the transaction is already committed
+   * @throws InsufficientFundsException if the player lacks sufficient funds
    * @throws NullPointerException     if {@code player} is {@code null}
    */
   @Override
@@ -46,7 +47,7 @@ public class Purchase extends Transaction {
 
     var totalCost = getCalculator().calculateTotal();
     if (player.getMoney().compareTo(totalCost) < 0) {
-      throw new IllegalStateException(
+      throw new InsufficientFundsException(
           "Insufficient funds: player has " + player.getMoney()
               + " but purchase costs " + totalCost);
     }

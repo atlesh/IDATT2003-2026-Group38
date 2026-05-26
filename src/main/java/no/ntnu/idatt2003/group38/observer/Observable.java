@@ -17,7 +17,7 @@ public abstract class Observable {
   /**
    * Registers an observer to be notified of future state changes.
    *
-   * @param observer the observer to register. Must not be {@code null}
+   * @param observer the observer to register; must not be {@code null}
    * @throws NullPointerException if {@code observer} is {@code null}
    */
   public void addObserver(ModelObserver observer) {
@@ -28,7 +28,7 @@ public abstract class Observable {
   /**
    * Unregisters an observer so it no longer receives notifications.
    *
-   * @param observer the observer to remove
+   * @param observer the observer to remove, or {@code null} to do nothing
    */
   public void removeObserver(ModelObserver observer) {
     this.observers.remove(observer);

@@ -83,7 +83,7 @@ public class PurchaseTest {
     Player poorPlayer = new Player("Poor", new BigDecimal("100"));
     Purchase purchase = new Purchase(appleShare, 1);
 
-    assertThrows(IllegalStateException.class, () -> purchase.commit(poorPlayer));
+    assertThrows(InsufficientFundsException.class, () -> purchase.commit(poorPlayer));
   }
 
   @Test

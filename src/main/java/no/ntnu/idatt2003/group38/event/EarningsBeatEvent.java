@@ -6,7 +6,7 @@ import java.util.Random;
 import no.ntnu.idatt2003.group38.model.Stock;
 
 /**
- * Positive single-stock event. Boosts the affected stock's price by 15 % – 25 %.
+ * Positive single-stock event. Boosts the affected stock's price by 6 % - 20 %.
  */
 public class EarningsBeatEvent implements MarketEvent {
 
@@ -22,11 +22,13 @@ public class EarningsBeatEvent implements MarketEvent {
     this.random = Objects.requireNonNull(random, "random cannot be null");
   }
 
+  /** {@inheritDoc} */
   @Override
   public String getHeadline() {
     return "Has risen significantly in the last week";
   }
 
+  /** {@inheritDoc} */
   @Override
   public BigDecimal apply(Stock stock, BigDecimal currentPrice) {
     Objects.requireNonNull(stock, "stock cannot be null");
