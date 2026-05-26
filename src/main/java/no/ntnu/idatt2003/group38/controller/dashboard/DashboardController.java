@@ -52,11 +52,13 @@ public class DashboardController implements Page, ModelObserver {
         this.moneyFormat = new DecimalFormat("#,##0", symbols);
     }
 
+    /** {@inheritDoc} */
     @Override
     public Region getRoot() {
         return this.view.getRoot();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onAttach() {
         this.exchange.addObserver(this);
@@ -67,11 +69,13 @@ public class DashboardController implements Page, ModelObserver {
         refresh();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onDetach() {
         this.exchange.removeObserver(this);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onModelChanged() {
         refresh();

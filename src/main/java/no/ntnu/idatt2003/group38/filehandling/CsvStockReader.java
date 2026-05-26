@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A {@link StockFileReader} that reads stock data from a CSV file.
+ * A {@link StockFileReader} implementation that reads stock data from a CSV file.
  *
  * <p>Rules applied during reading:</p>
  * <ul>
@@ -32,8 +32,8 @@ public class CsvStockReader implements StockFileReader {
     /**
      * Reads stocks from a CSV file at the given path.
      *
-     * @param path the path to the CSV file. Must not be {@code null}
-     * @return a list of parsed {@link Stock} objects. Can never be {@code null}
+     * @param path the path to the CSV file; must not be {@code null}
+     * @return a list of parsed {@link Stock} objects; never {@code null}
      * @throws IOException if the file cannot be read
      * @throws NullPointerException if {@code path} is {@code null}
      */

@@ -40,11 +40,13 @@ public class WeeklyStatisticsController implements Page, ModelObserver {
 
   // Page
 
+  /** {@inheritDoc} */
   @Override
   public Region getRoot() {
     return this.view.getRoot();
   }
 
+  /** {@inheritDoc} */
   @Override
   public void onAttach() {
     this.exchange.addObserver(this);
@@ -52,6 +54,7 @@ public class WeeklyStatisticsController implements Page, ModelObserver {
     refresh();
   }
 
+  /** {@inheritDoc} */
   @Override
   public void onDetach() {
     this.exchange.removeObserver(this);
@@ -59,6 +62,7 @@ public class WeeklyStatisticsController implements Page, ModelObserver {
 
   // ModelObserver
 
+  /** {@inheritDoc} */
   @Override
   public void onModelChanged() {
     refresh();

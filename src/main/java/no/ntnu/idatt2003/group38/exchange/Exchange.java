@@ -220,6 +220,18 @@ public class Exchange extends Observable{
     return sale;
   }
 
+  /**
+   * Sells part of an owned share lot
+   * <p>If {@code quantity} equals the full lot quantity, this delegates to {@link #sell(Share, Player)}.
+   * Otherwise it creates and commits a partial {@link Sale} while leaving the remaining quantity in the original lot.</p>
+   *
+   * @param share the owned share lot to sell; must not be {@code null}
+   * @param quantity the quantity to sell; must be greater than {@code 0} and no greater than the owned quantity
+   * @param player the player who owns the share lot; must not be {@code null}
+   * @return the committed sale transaction
+   * @throws IllegalArgumentException if any argument is invalid, if the share does not reference a stock,
+   *                                  if the player does not own the share, or if {@code quantity} exceeds the owned quantity
+   */
   public Transaction sell(Share share, BigDecimal quantity, Player player) {
     if (share == null) {
       throw new IllegalArgumentException("Share cannot be null");

@@ -10,13 +10,23 @@ import no.ntnu.idatt2003.group38.model.Stock;
  * Generates {@link Rumor}s about upcoming price movements.
  *
  * <p>Each time {@link #generate(Collection)} is called, the generator picks
- * up to {@link #DEFAULT_MAX_RUMORS_PER_WEEK} stocks at random and produces
- * a rumor for each.</p>
+ * up to the configured number of stocks at random and produces a rumor for each.</p>
  */
 public class RumorGenerator {
 
+  /**
+   * Default probability that a generated rumor is truthful.
+   */
   public static final double DEFAULT_ACCURACY = 0.65;
+
+  /**
+   * Default upper bound on how many rumors may be generated for one week.
+   */
   public static final int DEFAULT_MAX_RUMORS_PER_WEEK = 2;
+
+  /**
+   * Default probability that any rumors are generated for a week.
+   */
   public static final double DEFAULT_RUMOR_CHANCE = 0.40;
 
   private final Random random;
@@ -27,7 +37,7 @@ public class RumorGenerator {
   /**
    * Creates a rumor generator with default settings.
    *
-   * @param random the source of randomness.
+   * @param random the source of randomness; must not be {@code null}
    * @throws NullPointerException if {@code random} is {@code null}
    */
   public RumorGenerator(Random random) {
@@ -37,10 +47,10 @@ public class RumorGenerator {
   /**
    * Creates a rumor generator with custom settings.
    *
-   * @param random the source of randomness.
-   * @param accuracy chance that any single rumor is truthful.
-   * @param maxRumorsPerWeek upper bound on rumors generated per week. Must be ≥ 0
-   * @param rumorChance chance per week that any rumors are generated.
+   * @param random the source of randomness; must not be {@code null}
+   * @param accuracy chance that any single rumor is truthful
+   * @param maxRumorsPerWeek upper bound on rumors generated per week; must be at least 0
+   * @param rumorChance chance per week that any rumors are generated
    * @throws NullPointerException if {@code random} is {@code null}
    * @throws IllegalArgumentException if any probability is out of range or
    *     {@code maxRumorsPerWeek} is negative

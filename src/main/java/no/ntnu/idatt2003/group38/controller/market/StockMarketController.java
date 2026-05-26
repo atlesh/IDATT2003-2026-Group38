@@ -20,9 +20,9 @@ import no.ntnu.idatt2003.group38.transaction.Transaction;
  * Controller for the Market page.
  *
  * <p>Connects the {@link StockMarketView} to the {@link Exchange} and {@link Player}
- * model. Listens for search input, row selection and Buy clicks from the view,
+ * model. Listens for search input, row selection and buy clicks from the view,
  * and observes the exchange so the displayed stock list and selected stock
- * stay in sync with the model.
+ * stay in sync with the model.</p>
  */
 public class StockMarketController implements Page, ModelObserver {
 
@@ -37,8 +37,9 @@ public class StockMarketController implements Page, ModelObserver {
   /**
    * Creates a new market controller.
    *
-   * @param exchange the exchange the user is trading on. Must not be {@code null}
-   * @param player the player making purchases. Must not be {@code null}
+   * @param exchange the exchange the user is trading on; must not be {@code null}
+   * @param player the player making purchases; must not be {@code null}
+   * @param shell the shell used to show modal dialogs and receipts; must not be {@code null}
    */
   public StockMarketController(Exchange exchange, Player player, ShellView shell) {
     this.exchange = Objects.requireNonNull(exchange, "exchange cannot be null");
@@ -54,11 +55,22 @@ public class StockMarketController implements Page, ModelObserver {
 
   // Page
 
+  /**
+   * Returns the root node of the market page.
+   *
+   * @return the root region for this page
+   */
   @Override
   public Region getRoot() {
     return this.view.getRoot();
   }
 
+  /**
+   * Attaches the page to the shell lifecycle.
+   *
+   * <p>Registers the controller as an observer, attaches the stylesheet if the view
+   * is part of a scene, and refreshes the displayed data.</p>
+   */
   @Override
   public void onAttach() {
     this.exchange.addObserver(this);
@@ -69,6 +81,11 @@ public class StockMarketController implements Page, ModelObserver {
     refresh();
   }
 
+  /**
+   * Detaches the page from the shell lifecycle.
+   *
+   * <p>Removes the controller as an observer from the exchange.</p>
+   */
   @Override
   public void onDetach() {
     this.exchange.removeObserver(this);
@@ -76,6 +93,9 @@ public class StockMarketController implements Page, ModelObserver {
 
   // ModelObserver
 
+  /**
+   * Refreshes the page after a model update.
+   */
   @Override
   public void onModelChanged() {
     refresh();

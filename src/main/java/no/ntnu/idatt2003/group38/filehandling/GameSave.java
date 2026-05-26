@@ -68,7 +68,9 @@ public record GameSave(
      * Supported transaction kinds in saved game data.
      */
     public enum TransactionType {
+        /** A saved purchase transaction. */
         PURCHASE,
+        /** A saved sale transaction. */
         SALE
     }
 
@@ -79,7 +81,7 @@ public record GameSave(
      * @param stockSymbol the symbol of the transacted stock
      * @param quantity the quantity that was bought or sold
      * @param purchasePrice the original purchase price per share
-     * @param salePrice the historical sale price, used only for sales
+     * @param salePrice the sale price per share, used only for saved sales
      * @param week the week in which the transaction occurred
      */
     public record SavedTransaction(

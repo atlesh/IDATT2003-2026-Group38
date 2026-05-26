@@ -21,7 +21,7 @@ import no.ntnu.idatt2003.group38.view.components.PriceSparkline;
  * The selected stock card on the Market page.
  *
  * <p>Shows information about the currently selected {@link Stock} and a Buy
- * button that lets the user purchase a share. When no stock is selected the
+ * button that lets the user purchase shares. When no stock is selected the
  * card shows an empty-state message instead.
  */
 public class StockCard {
@@ -262,12 +262,20 @@ public class StockCard {
     }
   }
 
+  /**
+   * Shows an error message below the action buttons.
+   *
+   * @param message the message to display
+   */
   public void showError(String message) {
     this.errorLabel.setText(message);
     this.errorLabel.setVisible(true);
     this.errorLabel.setManaged(true);
   }
 
+  /**
+   * Clears any currently visible error message.
+   */
   public void clearError() {
     this.errorLabel.setText("");
     this.errorLabel.setVisible(false);
