@@ -1,7 +1,6 @@
 package no.ntnu.idatt2003.group38.controller.transaction;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -239,14 +238,5 @@ public class TransactionHistoryController implements Page, ModelObserver {
         BigDecimal purchaseCost = transaction.getShare().getPurchasePrice().multiply(transaction.getShare().getQuantity());
 
         return transaction.getCalculator().calculateTotal().subtract(purchaseCost);
-    }
-
-    private BigDecimal calculatePricePerShare(Transaction transaction) {
-        BigDecimal quantity = transaction.getShare().getQuantity();
-        if (quantity.compareTo(BigDecimal.ZERO) == 0) {
-            return BigDecimal.ZERO;
-        }
-
-        return transaction.getCalculator().calculateGross().divide(quantity, 10,  RoundingMode.HALF_UP);
     }
 }

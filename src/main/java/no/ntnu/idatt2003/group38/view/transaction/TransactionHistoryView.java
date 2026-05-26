@@ -559,10 +559,4 @@ public class TransactionHistoryView {
     return formatAmount(value);
   }
 
-  private String formatSignedMoney(BigDecimal value) {
-    if (value.signum() > 0) {
-      return "+" + formatMoney(value);
-    }
-    return formatMoney(value);
-  }
 }

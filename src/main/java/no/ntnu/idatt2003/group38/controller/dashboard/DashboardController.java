@@ -193,13 +193,6 @@ public class DashboardController implements Page, ModelObserver {
         return positionValue.subtract(invested);
     }
 
-    private BigDecimal calculatePercent(BigDecimal value, BigDecimal base) {
-        if (base.compareTo(BigDecimal.ZERO) == 0) {
-            return BigDecimal.ZERO;
-        }
-        return value.divide(base, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
-    }
-
     private List<String> buildGainers() {
         if (this.exchange.getWeek() == 1) {
             return List.of("No market movement yet");

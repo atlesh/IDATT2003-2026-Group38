@@ -2,11 +2,9 @@ package no.ntnu.idatt2003.group38.controller.portfolio;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import javafx.scene.Scene;
@@ -53,9 +51,6 @@ public class PortfolioController implements Page, ModelObserver {
     this.exchange = Objects.requireNonNull(exchange, "exchange cannot be null");
     this.player = Objects.requireNonNull(player, "player cannot be null");
     this.shell = Objects.requireNonNull(shell, "shell cannot be null");
-
-    DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ROOT);
-    symbols.setGroupingSeparator(' ');
 
     this.view = new PortfolioView();
     this.view.setOnShareSelected(this::handleSelect);

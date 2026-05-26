@@ -638,11 +638,6 @@ public class PortfolioView {
     return sign + formatAmount(value);
   }
 
-  private String formatSignedMoney(BigDecimal value) {
-    String sign = value.signum() > 0 ? "+" : "";
-    return sign + formatMoney(value);
-  }
-
   private String formatPercent(BigDecimal value) {
     return value.setScale(1, RoundingMode.HALF_UP).toPlainString() + "%";
   }
